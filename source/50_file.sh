@@ -12,12 +12,12 @@ else
 fi
 
 # Directory listing
-if [[ "$(type -P tree)" ]]; then
+alias ll='ls -al'
+alias lsd='CLICOLOR_FORCE=1 ll | grep --color=never "^d"'
+# optional override
+if false && [[ "$(type -P tree)" ]]; then
   alias ll='tree --dirsfirst -aLpughDFiC 1'
   alias lsd='ll -d'
-else
-  alias ll='ls -al'
-  alias lsd='CLICOLOR_FORCE=1 ll | grep --color=never "^d"'
 fi
 
 # Easier navigation: .., ..., -
@@ -44,4 +44,4 @@ function md() {
 mkdir -p $DOTFILES/caches/z
 _Z_NO_PROMPT_COMMAND=1
 _Z_DATA=$DOTFILES/caches/z/z
-. $DOTFILES/vendor/z/z.sh
+#. $DOTFILES/vendor/z/z.sh

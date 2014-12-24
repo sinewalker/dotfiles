@@ -1,250 +1,313 @@
-" Change mapleader
-let mapleader=","
+" ~/.(g)vi(m)rc | vi: set ft=vim: | Curtis Free (http://curtisfree.com)
 
-" Now ; works just like : but with 866% less keypresses!
-nnoremap ; :
+" Miscellaneous
+set modelines=5
+set nocompatible
+set noerrorbells      " no error bells (still bells for many things)
+set visualbell        " we'll at least avoid an audible bell
+set vb t_vb=          " despite those settings, we'll ensure no bells (ever)
+set title             " set window/terminal title
+"set ruler             " always display location info
+set showcmd           " show partial cmds in last line
+set cmdheight=1       " give only one command line
+set history=50        " remember 50 commands
+set virtualedit=block " allow virtual editing in visual block mode
+set pastetoggle=    " toggle paste (see http://bbs.archlinux.org/viewtopic.php?pid=425987#p425987)
+set scrolloff=2       " provide a "buffer" of two lines below/above cursor
+set tabpagemax=1000   " allow up to 1k tabs (http://www.linux.com/archive/feed/59533)
+let mapleader=","     " use comma as the <leader> character
+syntax enable         " use syntax highlighting
+highlight clear       " clear any special highlighting
 
-" Move more naturally up/down when wrapping is enabled.
-nnoremap j gj
-nnoremap k gk
+" Editing
+set backspace=indent,eol,start " backspace over everything
+"set list                       " show tabs and trailing spaces (in conjuction with `listchars`)
+set listchars=trail:·,tab:»\   " 'list' mode chars
 
-" Local dirs
-set backupdir=$DOTFILES/caches/vim
-set directory=$DOTFILES/caches/vim
-set undodir=$DOTFILES/caches/vim
-let g:netrw_home = expand('$DOTFILES/caches/vim')
+" File Backup
+"" :help backup-table
+set nobackup
+set writebackup
 
-" Theme / Syntax highlighting
-augroup color_scheme
-  autocmd!
-  " Make invisible chars less visible in terminal.
-  autocmd ColorScheme * :hi NonText ctermfg=236
-  autocmd ColorScheme * :hi SpecialKey ctermfg=236
-  " Show trailing whitespace.
-  autocmd ColorScheme * :hi ExtraWhitespace ctermbg=red guibg=red
-augroup END
-colorscheme molokai
-set background=dark
+" Swap
+set directory=.,/tmp " prefer storing swap files along with actual files
 
-" Visual settings
-set cursorline " Highlight current line
-set number " Enable line numbers.
-set showtabline=2 " Always show tab bar.
-set relativenumber " Use relative line numbers. Current line is still in status bar.
-set title " Show the filename in the window titlebar.
-set nowrap " Do not wrap lines.
-set noshowmode " Don't show the current mode (airline.vim takes care of us)
-set laststatus=2 " Always show status line
-
-" Toggle between absolute and relative line numbers
-augroup relative_numbers
-  autocmd!
-  " Show absolute numbers in insert mode
-  autocmd InsertEnter * :set norelativenumber
-  autocmd InsertLeave * :set relativenumber
-augroup END
-
-" Make it obvious where 80 characters is
-set textwidth=80
-set colorcolumn=+1
-
-" Scrolling
-set scrolloff=3 " Start scrolling three lines before horizontal border of window.
-set sidescrolloff=3 " Start scrolling three columns before vertical border of window.
-
-" Indentation
-set autoindent " Copy indent from last line when starting new line.
-set shiftwidth=2 " The # of spaces for indenting.
-set smarttab " At start of line, <Tab> inserts shiftwidth spaces, <Bs> deletes shiftwidth spaces.
-set softtabstop=2 " Tab key results in 2 spaces
-set tabstop=2 " Tabs indent only 2 spaces
-set expandtab " Expand tabs to spaces
-
-" Reformatting
-set nojoinspaces " Only insert single space after a '.', '?' and '!' with a join command.
-
-" Toggle show tabs and trailing spaces (,c)
-set listchars=tab:▸\ ,trail:·,eol:¬,nbsp:_,extends:>,precedes:<
-"set listchars=tab:>\ ,trail:.,eol:$,nbsp:_,extends:>,precedes:<
-"set fillchars=fold:-
-nnoremap <silent> <leader>v :call ToggleInvisibles()<CR>
-
-" Extra whitespace
-augroup highlight_extra_whitespace
-  autocmd!
-  autocmd BufWinEnter * :2match ExtraWhitespaceMatch /\s\+$/
-  autocmd InsertEnter * :2match ExtraWhitespaceMatch /\s\+\%#\@<!$/
-  autocmd InsertLeave * :2match ExtraWhitespaceMatch /\s\+$/
-augroup END
-
-" Toggle Invisibles / Show extra whitespace
-function! ToggleInvisibles()
-  set nolist!
-  if &list
-    hi! link ExtraWhitespaceMatch ExtraWhitespace
-  else
-    hi! link ExtraWhitespaceMatch NONE
-  endif
-endfunction
-
-set nolist
-call ToggleInvisibles()
-
-" Trim extra whitespace
-function! StripExtraWhiteSpace()
-  let l = line(".")
-  let c = col(".")
-  %s/\s\+$//e
-  call cursor(l, c)
-endfunction
-noremap <leader>ss :call StripExtraWhiteSpace()<CR>
-
-" Search / replace
-set gdefault " By default add g flag to search/replace. Add g to toggle.
-set hlsearch " Highlight searches
-set incsearch " Highlight dynamically as pattern is typed.
-set ignorecase " Ignore case of searches.
-set smartcase " Ignore 'ignorecase' if search pattern contains uppercase characters.
-
-" Clear last search
-map <silent> <leader>/ <Esc>:nohlsearch<CR>
-
-" Ignore things
-set wildignore+=*.jpg,*.jpeg,*.gif,*.png,*.gif,*.psd,*.o,*.obj,*.min.js
-set wildignore+=*/bower_components/*,*/node_modules/*
-set wildignore+=*/vendor/*,*/.git/*,*/.hg/*,*/.svn/*,*/log/*,*/tmp/*
-
-" Vim commands
-set hidden " When a buffer is brought to foreground, remember undo history and marks.
-set report=0 " Show all changes.
-set mouse=a " Enable mouse in all modes.
-set shortmess+=I " Hide intro menu.
-
-" Splits
-set splitbelow " New split goes below
-set splitright " New split goes right
-
-" Ctrl-J/K/L/H select split
-nnoremap <C-J> <C-W>j
-nnoremap <C-K> <C-W>k
-nnoremap <C-L> <C-W>l
-nnoremap <C-H> <C-W>h
-
-" Buffer navigation
-nnoremap <leader>b :CtrlPBuffer<CR> " List other buffers
-map <leader><leader> :b#<CR> " Switch between the last two files
-map gb :bnext<CR> " Next buffer
-map gB :bprev<CR> " Prev buffer
-
-" Jump to buffer number 1-9 with ,<N> or 1-99 with <N>gb
-let c = 1
-while c <= 99
-  if c < 10
-    execute "nnoremap <silent> <leader>" . c . " :" . c . "b<CR>"
-  endif
-  execute "nnoremap <silent> " . c . "gb :" . c . "b<CR>"
-  let c += 1
-endwhile
-
-" Fix page up and down
-map <PageUp> <C-U>
-map <PageDown> <C-D>
-imap <PageUp> <C-O><C-U>
-imap <PageDown> <C-O><C-D>
-
-" Use Q for formatting the current paragraph (or selection)
-" vmap Q gq
-" nmap Q gqap
-
-" When editing a file, always jump to the last known cursor position. Don't do
-" it for commit messages, when the position is invalid, or when inside an event
-" handler (happens when dropping a file on gvim).
-augroup vimrcEx
-  autocmd!
-  autocmd BufReadPost *
-    \ if &ft != 'gitcommit' && line("'\"") > 0 && line("'\"") <= line("$") |
-    \   exe "normal g`\"" |
-    \ endif
-augroup END
-
-" F12: Source .vimrc & .gvimrc files
-nmap <F12> :call SourceConfigs()<CR>
-
-if !exists("*SourceConfigs")
-  function! SourceConfigs()
-    let files = ".vimrc"
-    source $MYVIMRC
-    if has("gui_running")
-      let files .= ", .gvimrc"
-      source $MYGVIMRC
-    endif
-    echom "Sourced " . files
-  endfunction
+" Undo
+" see http://amix.dk/blog/post/19548
+if (version >= 703)
+  set undolevels=1000 " remember 1000 undo levels
+  set noundofile      " don't persist undo information
+  set undoreload=100  " if we _do_ persist (manual set), only remember 100 undo levels
+  set undodir=.       " (only) store undo files along with actual files
 endif
 
-"" FILE TYPES
-augroup file_types
-  autocmd!
+" Searching
+"set incsearch   " perform incremental searching
+set nohlsearch  " highlight search results
+set ignorecase  " typically (see below) ignore case
+"set nosmartcase " never consider case (messes me up)
 
-  " vim
-  autocmd BufRead .vimrc,*.vim set keywordprg=:help
+" Tabs/Indentation
+set noexpandtab   " insert tabs as spaces
+set tabstop=3     " use 4 spaces for tabs
+set shiftwidth=3  " use 4 spaces when indenting
+" this does stupid things with comments
+set noautoindent  " automatically indent lines
+set nosmartindent " don't use "smart" indenting
 
+" Language
+"set spelllang=en_us
+
+" Abbreviations
+"ab _cf Curtis Free (http://curtisfree.com)
+
+" Tags
+"" See http://stackoverflow.com/questions/563616/vim-and-ctags-tips-and-tricks.
+set tags=./tags;${HOME}
+"nmap <C-\> :tab split<CR>:exec("tag ".expand("<cword>"))<CR>
+"imap <C-\> <C-o>:tab split<CR><C-o>:exec("tag ".expand("<cword>"))<CR>
+"vmap <C-\> <Esc>:tab split<CR>:exec("tag ".expand("<cword>"))<CR>
+
+" Maps
+"" overrides
+""" :q often mistyped as q:
+map  q: <C-g>
+vmap q: <C-g>
+"" graphical line movement when using arrow keys
+""" up
+map  <Up> g<Up>
+imap <Up> <C-o>g<Up>
+vmap <Up> g<Up>
+""" down
+map  <Down> g<Down>
+imap <Down> <C-o>g<Down>
+vmap <Down> g<Down>
+"" easy page up/down
+""" page up
+map  <C-k> <C-u>
+imap <C-k> <C-u>
+vmap <C-k> <C-u>
+""" page down
+map  <C-j> <C-d>
+imap <C-j> <C-d>
+vmap <C-j> <C-d>
+"" tab movement
+""" next
+map <C-l> :tabnext<CR>
+imap <C-l> <C-o>:tabnext<CR>
+vmap <C-l> :tabnext<CR>
+""" previous
+map <C-h> :tabprevious<CR>
+imap <C-h> <C-o>:tabprevious<CR>
+vmap <C-h> :tabprevious<CR>
+
+" Interface
+"set mouse=a      " allow mouse use
+set wildmenu     " display menu that cycles through command-lne completions
+"" Status Line
+""" See http://curtisfree.com/blog/2012/04/22/adding_total_line_count_to_vim_statusline.
+"set laststatus=2                                    " always show the status bar
+set statusline=%<%f\ %h%m%r%=%-14.(%l/%L,%c%V%)\ %P " include total line count
+
+" Line Numbering
+"if (version >= 704)
+"  set number relativenumber
+"endif
+
+
+let no_puppet_maps=1
+
+" Pathogen (https://github.com/tpope/vim-pathogen)
+"" See http://stackoverflow.com/questions/5983906/vim-conditionally-use-fugitivestatusline-function-in-vimrc.
+silent! call pathogen#infect()
+
+" Color Scheme
+"" In opposite order of preference so that the last successful call "wins."
+"" Ensure Pathogen infected first if any bundles provide these schemes.
+silent! colorscheme torte
+"silent! colorscheme solarized
+"silent! colorscheme Mustang
+" turn off the grey line
+hi CursorLine none
+
+" GUI Specifics
+if has("gui_running")
+  " terminal-like pasting
+  map  <S-Insert> <MiddleMouse>
+  imap <S-Insert> <MiddleMouse>
+  vmap <S-Insert> <MiddleMouse>
+  " tab switching (as with other GTK+ apps)
+  map  <C-Tab>   :tabn<CR>
+  map  <S-C-Tab> :tabp<CR>
+  imap <C-Tab>   <C-o>:tabn<CR>
+  imap <S-C-Tab> <C-o>:tabp<CR>
+  vmap <C-Tab>   <Esc>:tabn<CR>
+  vmap <S-C-Tab> <Esc>:tabp<CR>
+  " font
+  silent! set guifont=Monospace
+  " GUI config (note: don't automatically put visual selection in clipboard)
+  set guioptions=ceih
+  " hide the mouse when typing
+  set mousehide
+  " highlight current row (but no cursorcolumn)
+  set cursorline
+" Console Specifics
+else
+  " use 256 colors
+  set t_Co=256
+endif
+
+" Specific Terminals
+"" screen
+if &term =~ "screen"
+  " terminal title adjustments
+  set t_ts=]2;
+  set t_fs=
+  " needed for mouse
+  set ttymouse=xterm2
+" xterm (or iTerm2, etc.)
+"" See http://stackoverflow.com/questions/2105880/how-can-i-get-the-file-i-have-open-in-vim-to-display-in-my-iterm-tab.
+elseif &term =~ "xterm"
+  " terminal title adjustments
+  set t_ts=]1;
+  set t_fs=
+endif
+
+" MacVim
+"" See http://serverfault.com/questions/70196/how-to-tell-if-im-in-macvim-in-vimrc.
+if has("gui_macvim")
+  " font for OS X
+  silent! set guifont=Source\ Code\ Pro:h13
+  " transparency
+"  set transparency=5
+  " on OS X, buffer `*` is the way to go (`+` does not work)
+  set clipboard=unnamed
+
+" Non-MacVim
+else
+  " copy everywhere (`*` and `+`)
+  set clipboard=unnamed,unnamedplus
+endif
+
+" Commands/Functions
+"" StripTrailingSpaces
+"" See http://vim.wikia.com/wiki/Remove_unwanted_spaces.
+function! StripTrailingSpaces()
+  exec ':%s/\s\+$//e'
+endfunction
+"" SUw
+"" Writes a file even if not running as superuser (via sudo).
+"" Odd command name ("SUw") to prevent accidents.
+"" Hit "L" at the prompt.
+"" See http://writequit.org/blog/?p=195.
+"command! SUw %!sudo tee >/dev/null %
+"" CleanDOS
+"" Fix DOS line endings.
+"command! CleanDOS %s//\r/g
+
+" Options/Params
+"" assume BASH for shell scripts (see sh.vim; "$(...)" won't be flagged as error)
+let is_bash=1
+
+" Filetypes
+if has("autocmd")
+  filetype plugin indent on " automatic per-language indentation
+  " filetype detection
+  "" see http://beerpla.net/2008/04/02/how-to-add-a-vim-file-extension-to-syntax-highlighting/
+  augroup filenames
+    autocmd BufRead,BufNewFile *.go setlocal filetype=go
+    autocmd BufRead,BufNewFile *.md setlocal filetype=markdown
+  augroup end
+  " specific filetype overrides
+  augroup filetypes
+    " reset if ft changes
+    autocmd FileType *              setlocal noexpandtab   tabstop=3 shiftwidth=3
+    " filetypes
+"    autocmd FileType asm            setlocal noexpandtab tabstop=8 shiftwidth=8
+"    autocmd FileType gitcommit      setlocal                                                                  spell
+"    autocmd FileType html,xhtml,xml setlocal             tabstop=2 shiftwidth=2
+"    autocmd FileType make           setlocal noexpandtab
+"    autocmd FileType markdown       setlocal                                    colorcolumn=101 textwidth=100
+"    autocmd FileType st             setlocal noexpandtab
+"    autocmd FileType sql,plsql      setlocal             tabstop=2 shiftwidth=2
+"    autocmd FileType sudoers        setlocal noexpandtab
+"    autocmd FileType tex,plaintex   setlocal noexpandtab tabstop=2 shiftwidth=2 colorcolumn=101 textwidth=100 spell inde=
+"    autocmd FileType verilog        setlocal noexpandtab
+"    autocmd FileType vim            setlocal             tabstop=2 shiftwidth=2
+  augroup end
+  " custom types
+  augroup custom
+    autocmd BufRead,BufNewFile *.notes setlocal filetype=markdown shiftwidth=2 colorcolumn=101 textwidth=100
+  augroup end
+endif
+
+" Plugin Settings
+"" vim-nerdtree-tabs
+let g:nerdtree_tabs_open_on_gui_startup=0
+
+" Local Customizations
+"" See http://tech.groups.yahoo.com/group/vim/message/56224.
+let local_vimrc=expand("~/.vimrc-local")
+if filereadable(local_vimrc)
+  execute "source ".local_vimrc
+endif
+
+
+function! NearestVimrc()
+	let l:fullpath = expand('%:p')
+	let l:dirs = split(l:fullpath, '/')
+	let l:paths = []
+	let l:custom = ''
+
+	" check paths starting from the top
+	let i = len(l:dirs) - 1
+	while i >= 0
+		let l:p = dirs[0:i]
+		let i -= 1
+
+		let l:possibleDir = '/' . join(p, '/')
+		let l:possibleVimrc = possibleDir . '/.vimrc'
+
+		" TODO this won't protected against loops
+		if !isdirectory(possibleDir) || possibleVimrc =~ s:current_file
+			continue
+		endif
+		" stop at the home directory
+		if possibleDir == expand('$HOME')
+			break
+		endif
+
+		if filereadable(possibleVimrc)
+			execute "source " . possibleVimrc
+			" we'll only load one file
+			break
+		endif
+	endwhile
+endfunction
+" capture this to avoid loops
+let s:current_file=expand('<sfile>')
+autocmd! BufReadPost,BufNewFile * call NearestVimrc()
+
+function! ResCur()
+	if line("'\"") <= line("$")
+		normal! g`"
+		return 1
+	endif
+endfunction
+
+augroup resCur
+	autocmd!
+	autocmd BufWinEnter * call ResCur()
 augroup END
 
-" PLUGINS
+" highlighting for some of our configs
+au BufReadPost ~/work/code/svn/ops/sysadmin/ssh_config_template/conf.d/* setlocal filetype=sshconfig
+au BufReadPost ~/.ssh/conf.d/* setlocal filetype=sshconfig
 
-" Airline
-let g:airline_powerline_fonts = 1 " TODO: detect this?
-let g:airline#extensions#tabline#enabled = 1
-let g:airline#extensions#tabline#buffer_nr_format = '%s '
-let g:airline#extensions#tabline#buffer_nr_show = 1
-"let g:airline#extensions#tabline#fnamecollapse = 0
-"let g:airline#extensions#tabline#fnamemod = ':t'
+" the softabstop allows backspacing over an "indent" of spaces
+au BufReadPost ~/work/code/*.pp setlocal tabstop=4 shiftwidth=4 expandtab softtabstop=4
 
-" NERDTree
-let NERDTreeShowHidden = 1
-let NERDTreeMouseMode = 2
-let NERDTreeMinimalUI = 1
-" Open automatically if no files were specified on the CLI.
-autocmd StdinReadPre * let s:std_in=1
-autocmd VimEnter * if argc() == 0 && !exists("s:std_in") | NERDTree | endif
-map <leader>n :NERDTreeToggle<CR>
+au BufReadPost */Vagrantfile setlocal filetype=ruby tabstop=3 shiftwidth=3 noexpandtab
 
-" Signify
-let g:signify_vcs_list = ['git', 'hg', 'svn']
-
-" CtrlP.vim
-map <leader>p <C-P>
-map <leader>r :CtrlPMRUFiles<CR>
-"let g:ctrlp_match_window_bottom = 0 " Show at top of window
-
-" Indent Guides
-let g:indent_guides_start_level = 2
-let g:indent_guides_guide_size = 1
-
-" Mustache/handlebars
-let g:mustache_abbreviations = 1
-
-" https://github.com/junegunn/vim-plug
-" Reload .vimrc and :PlugInstall to install plugins.
-call plug#begin('~/.vim/plugged')
-Plug 'bling/vim-airline'
-Plug 'tpope/vim-sensible'
-Plug 'tpope/vim-surround'
-Plug 'tpope/vim-fugitive'
-Plug 'tpope/vim-vinegar'
-Plug 'tpope/vim-repeat'
-Plug 'tpope/vim-commentary'
-Plug 'tpope/vim-unimpaired'
-Plug 'tpope/vim-eunuch'
-Plug 'scrooloose/nerdtree'
-Plug 'ctrlpvim/ctrlp.vim'
-Plug 'fatih/vim-go'
-Plug 'nathanaelkane/vim-indent-guides'
-Plug 'pangloss/vim-javascript'
-Plug 'mhinz/vim-signify'
-Plug 'mattn/emmet-vim'
-Plug 'mustache/vim-mustache-handlebars'
-Plug 'chase/vim-ansible-yaml'
-Plug 'wavded/vim-stylus'
-call plug#end()
+" see http://vim.wikia.com/wiki/Fix_indentation
+map <F7> mzgg=G'z<CR>
