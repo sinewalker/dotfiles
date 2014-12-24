@@ -26,21 +26,34 @@ if [ -n "$force_color_prompt" ]; then
 	fi
 fi
 
-# TODO location specific
-#. /etc/bash_completion.d/git
-#. /Applications/Xcode.app/Contents/Developer/usr/share/git-core/git-prompt.sh
-source /usr/local/Cellar/git/2.1.0/etc/bash_completion.d/git-prompt.sh
-
+_git_prompt='$(__git_ps1)'
+git_prompt_locations=(
+	/usr/local/Cellar/git/*/etc/bash_completion.d/git-prompt.sh
+	/etc/bash_completion.d/git
+	/Applications/Xcode.app/Contents/Developer/usr/share/git-core/git-prompt.sh
+)
+for f in "${git_prompt_locations[@]}"
+do
+	[[ -f $f ]] && {
+		source "$f"
+		break
+	}
+done
+unset f
+type __git_ps1 >&/dev/null || _git_prompt=''
 
 if [ "$color_prompt" = yes ]; then
 	if [ "$UID" -eq 0 ]; then
-		PS1='${debian_chroot:+($debian_chroot)}\[\033[01;31m\]\u@\h\[\033[00m\]:\[\033[01;34m\]\W\[\033[00m\]$(__git_ps1)\$ '
+		PS1='${debian_chroot:+($debian_chroot)}\[\033[01;31m\]\u@\h\[\033[00m\]:\[\033[01;34m\]\W\[\033[00m\]'$_git_prompt'$ '
+#		PS1='${debian_chroot:+($debian_chroot)}\[\033[01;31m\]\u@\h\[\033[00m\]:\[\033[01;34m\]\W\[\033[00m\]$(__git_ps1)\$ '
 	else
 #		PS1='${debian_chroot:+($debian_chroot)}\[\033[01;32m\]\u@\h\[\033[00m\]:\[\033[01;34m\]\W\[\033[00m\]$(__git_ps1)\$ '
-		PS1='${debian_chroot:+($debian_chroot)}\[\033[01;32m\]\u@workstation\[\033[00m\]:\[\033[01;34m\]\W\[\033[00m\]$(__git_ps1)\$ '
+#		PS1='${debian_chroot:+($debian_chroot)}\[\033[01;32m\]\u@workstation\[\033[00m\]:\[\033[01;34m\]\W\[\033[00m\]$(__git_ps1)\$ '
+		PS1='${debian_chroot:+($debian_chroot)}\[\033[01;32m\]\u@\h\[\033[00m\]:\[\033[01;34m\]\W\[\033[00m\]'$_git_prompt'$ '
 	fi
 else
-	PS1='${debian_chroot:+($debian_chroot)}\u@\h:\w$(__git_ps1)\$ '
+#	PS1='${debian_chroot:+($debian_chroot)}\u@\h:\w$(__git_ps1)\$ '
+	PS1='${debian_chroot:+($debian_chroot)}\u@\h:\w'$_git_prompt'$ '
 fi
 unset color_prompt force_color_prompt
 
