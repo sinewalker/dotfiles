@@ -1,8 +1,23 @@
+[color]
+	ui = true
 [user]
 	name = Andrew Sharpe
-	email = andrew.sharpe.7.9@gmail.com
+	email = asharpe@squiz.com.au
 [push]
 	default = simple
 [alias]
 	glog = log --graph --all --decorate
+	dlog = log --graph --all --decorate --date-order
+	sup = submodule update --init --recursive
+	spull = !echo git pull && git pull && echo git submodule update --init --recursive && git sup
 
+#[core]
+#	excludesfile = /Users/asharpe/.gitignore_global
+
+# additions made by sourcetree
+#[difftool "sourcetree"]
+#	cmd = opendiff \"$LOCAL\" \"$REMOTE\"
+#	path = 
+#[mergetool "sourcetree"]
+#	cmd = /Volumes/SourceTree/SourceTree.app/Contents/Resources/opendiff-w.sh \"$LOCAL\" \"$REMOTE\" -ancestor \"$BASE\" -merge \"$MERGED\"
+#	trustExitCode = true
