@@ -31,6 +31,6 @@
 [submodule "rbenv-update"]
 	path = link/.rbenv/plugins/rbenv-update
 	url = git://github.com/rkh/rbenv-update.git
-[submodule "vendor/bashmarks"]
+[submodule "bashmarks"]
 	path = vendor/bashmarks
 	url = https://github.com/Bilalh/shellmarks.git
