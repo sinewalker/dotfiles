@@ -1,0 +1,306 @@
+# this allows you to disable the proxy by running vagrant as
+# VAGRANT_PROXY= vagrant ...
+#proxy = ENV['VAGRANT_PROXY'] || 'http://proxy.bne.squiz.net.au:8080'
+#proxy = ENV['VAGRANT_PROXY'] || ENV['proxy'] || ENV['http_proxy'] || 'http://10.0.2.2:3142'
+
+=begin
+=end
+proxy = ['VAGRANT_PROXY', 'proxy', 'http_proxy'].reduce(false) { |acc, n| acc ||= ENV[n] } || 'http://10.0.2.2:3142'
+ENV['proxy'] = proxy if proxy
+
+
+# see https://groups.google.com/d/msg/vagrant-up/wa8mNt34TWk/HdoQN5zYN6cJ
+if defined? VagrantVbguest
+	# see https://github.com/dotless-de/vagrant-vbguest#advanced-usage
+	class MyRedHatInstaller < VagrantVbguest::Installers::RedHat
+		def install_dependencies_cmd
+			# if we find a proxy or http_proxy environment variable, we'll use that
+			# for installation of dependencies via yum
+			#provided_proxy = ['proxy', 'http_proxy', 'VAGRANT_PROXY'].reduce(false) { |acc, n| acc ||= ENV[n] }
+			#proxy = provided_proxy ? "http_proxy=#{provided_proxy.sub(/^.*=/,'')} " : ''
+			proxy = ENV['proxy'] ? "http_proxy=#{ENV['proxy'].sub(/^.*=/,'')} " : ''
+			#puts "using proxy: #{proxy}"
+			proxy + super
+		end
+	end
+	# we can skip the proxy for this bit of the install by commenting out this line
+	VagrantVbguest::Installer.register(MyRedHatInstaller, 6)
+end
+
+#
+# this change is mostly because when running a nagios server (which is also a client)
+# it attempts to resolve it's hostname which returns 127.0.0.1, however the connection
+# is made on the primary interface - this could be fixed by using hostnames everywhere
+# in the nagios config...
+#
+
+# may need to load the original first..
+if not defined? VagrantPlugins::GuestRedHat::Cap::ChangeHostName
+	require "vagrant"
+#	puts "loading origin plugin from #{Vagrant.source_root}/plugins/guests/redhat/cap/change_host_name"
+	require "#{Vagrant.source_root}/plugins/guests/redhat/cap/change_host_name"
+end
+# now we can override the /etc/hosts updating...
+module VagrantPlugins
+	module GuestRedHat
+		module Cap
+			class ChangeHostName
+				def update_etc_hosts
+					# restart avahi to pick up the new hostname
+					# the hostname has already been set at this point so we're OK...
+					# This command can/should not fail
+					sudo "[[ -f /etc/init.d/avahi-daemon ]] && /etc/init.d/avahi-daemon restart || true"
+				end
+			end
+		end
+	end
+end
+  
+
+
+Vagrant.configure("2") do |config|
+	# plugins
+
+	# use our custom installer
+#	if defined? VagrantVbguest
+#		config.vbguest.installer = MyInstaller
+#	end
+
+	# For more information please check http://docs.vagrantup.com/v2/synced-folders/basic_usage.html
+# TODO does the box need anything installed for this to work?
+	if Vagrant.has_plugin?("vagrant-cachier")
+		# Configure cached packages to be shared between instances of the same base box.
+		# More info on http://fgrehm.viewdocs.io/vagrant-cachier/usage
+		config.cache.scope = :box
+
+		# OPTIONAL: If you are using VirtualBox, you might want to use that to enable
+		# NFS for shared folders. This is also very useful for vagrant-libvirt if you
+		# want bi-directional sync
+=begin
+		config.cache.synced_folder_opts = {
+			type: :nfs,
+			# The nolock option can be useful for an NFSv3 client that wants to avoid the
+			# NLM sideband protocol. Without this option, apt-get might hang if it tries
+			# to lock files needed for /var/cache/* operations. All of this can be avoided
+			# by using NFSv4 everywhere. Please note that the tcp option is not the default.
+			mount_options: ['rw', 'vers=3', 'nolock', 'hard', 'intr']
+		}
+=end
+	end
+
+
+	#############
+	# things that augment the default Vagrantfile
+
+	# this will disable the default /vagrant file share
+#	config.vm.synced_folder ".", "/vagrant", disabled: true
+
+	# (optional) public network for sharing
+	if (bridge = ['bridge', 'BRIDGE'].reduce(false) { |acc, key| acc || ENV[key] } )
+		config.vm.network :public_network, type: :dhcp, bridge: bridge
+	end
+
+	# local provision script
+	config.vm.provision :shell, :path => 'local_provision.sh' if File.file?('local_provision.sh')
+
+
+	#############
+	# now we'll do things we'd like to happen early
+
+	# update the everything
+	config.vm.provision :shell, :inline => <<-EOSH
+		# always remove the existing proxy config...
+		[[ -f /etc/yum.conf ]] && sed -ie "/^proxy=/d" /etc/yum.conf
+		[[ -f ~/.rpmmacros ]] && sed -ie "/^%_httpproxy=/d" ~/.rpmmacros
+
+		# then hook it back up if we have one...
+		[[ -n "#{proxy}" ]] && {
+			[[ -f /etc/yum.conf ]] && echo "proxy=#{proxy}" >> /etc/yum.conf
+			type rpm >&/dev/null && echo "%_httpproxy #{proxy}" >> ~/.rpmmacros
+		}
+
+		type yum >&/dev/null && yum -y update
+	EOSH
+
+#	package_manager = config.vm.guest == "RedHat" ? 'yum' : 'apt-get'
+	package_manager = 'yum'
+
+	# stop some things that unnecessarily slow down the VMs
+	config.vm.provision :shell, :inline => <<-EOSH
+		for f in makewhatis.cron yum-autoupdate
+		do
+			[[ -f /etc/cron.daily/$f ]] && chmod -x /etc/cron.daily/$f
+		done
+
+# we're trying to do better with the firewall now
+#		/etc/init.d/iptables stop; chkconfig iptables off
+
+		# fixify the timezone
+#		ln -sf /usr/share/zoneinfo/Australia/Brisbane /etc/localtime
+		ln -sf /usr/share/zoneinfo/Australia/Hobart /etc/localtime
+
+		# a "standard" bashrc
+		#{package_manager} -y install git
+		cat <<-EOF > /root/.bashrc
+			alias rm='rm -i'
+			alias cp='cp -i'
+			alias mv='mv -i'
+
+			# Source global definitions
+			[[ -f /etc/bashrc ]] && source /etc/bashrc
+
+			if [[ -f /etc/bash_completion.d/git ]]; then
+				. /etc/bash_completion.d/git
+				export PS1='\\[\\033[01;31m\\]\\\\u@\\h\\[\\033[00m\\]:\\[\\033[01;36m\\]\\W\\[\\033[00m\\]\\$(__git_ps1)# '
+			fi
+
+			# avoid ipv6 for java apps
+			export _JAVA_OPTIONS="-Djava.net.preferIPv4Stack=true"
+
+		EOF
+	EOSH
+
+
+
+	#############
+	# now just some regular giggery-pokery
+
+	# upload all required files first, so we can provision with a single shell command
+
+	# copy authorized_keys to the VM
+	config.vm.provision :file, :source => ENV['HOME'] + '/.ssh/id_rsa.pub', :destination => '/tmp/authorized_keys'
+
+	# vim configuration
+	config.vm.provision :file, :source => ENV['HOME'] + '/.vimrc', :destination => '/tmp/vimrc'
+
+	# setup git
+	config.vm.provision :shell, :inline => <<-EOSH
+		#{package_manager} -y install git && \
+			git config --global user.name "Andrew Sharpe" && \
+			git config --global user.email "asharpe@squiz.com.au"
+
+		# ssh config
+		mkdir -p ~/.ssh && mv /tmp/authorized_keys ~/.ssh && chown -R root ~/.ssh
+
+		# reasonable editor
+		cp /tmp/vimrc /root/.vimrc
+
+		# tsc clocksource is sucking, just go straight to acpi_pm - note: this'll need a reboot to take effect
+		[[ -f /etc/grub.conf ]] && sed -ri -e "/^\s*kernel/ s/($| clocksource=acpi_pm)/ clocksource=acpi_pm/" /etc/grub.conf || :
+	EOSH
+
+
+	# I like using mdns for my VMs...
+	config.vm.provision :shell, :inline => <<-EOSH
+		echo "Allowing mDNS traffic"
+		cat <<-EOF > /etc/sysconfig/iptables
+			*filter
+			:INPUT ACCEPT [0:0]
+			:FORWARD ACCEPT [0:0]
+			:OUTPUT ACCEPT [0:0]
+			-A INPUT -m state --state RELATED,ESTABLISHED -j ACCEPT
+			-A INPUT -p icmp -j ACCEPT
+			-A INPUT -i lo -j ACCEPT
+			-A INPUT -p tcp -m state --state NEW -m tcp --dport 22 -j ACCEPT
+			-A INPUT -p udp -m udp --dport 5353 --destination 224.0.0.251 -j ACCEPT
+			-A INPUT -j REJECT --reject-with icmp-host-prohibited
+			-A FORWARD -j REJECT --reject-with icmp-host-prohibited
+			COMMIT
+		EOF
+		/etc/init.d/iptables restart
+
+		[[ -f /etc/yum.repos.d/epel.repo ]] && skip=1 || skip=0
+
+		type yum >&/dev/null && yum -y install http://mirror.aarnet.edu.au/pub/epel/6/i386/epel-release-6-8.noarch.rpm
+
+		((skip)) || {
+			# TODO this is fragile
+			# can't do this because we need it for puppet :-/
+			#sed -i -re "s%enabled(\\s*)=(\\s*)1%enabled\\1=\\20%g" /etc/yum.repos.d/epel.repo
+			:
+		}
+
+		echo "Enabling multicast DNS for the .local domain"
+		# this is the "default", with minor mods for this environment
+		cat <<-EOF > /tmp/avahi-daemon.conf
+			[server]
+			browse-domains=0pointer.de, zeroconf.org
+			use-ipv4=yes
+			use-ipv6=no
+			# see http://archlinuxarm.org/forum/viewtopic.php?f=31&t=6408#p35911
+			disallow-other-stacks=yes
+
+			[wide-area]
+			enable-wide-area=yes
+
+			[publish]
+
+			[reflector]
+
+			[rlimits]
+			rlimit-core=0
+			rlimit-data=4194304
+			rlimit-fsize=0
+			rlimit-nofile=300
+			rlimit-stack=4194304
+			rlimit-nproc=3
+		EOF
+		type yum >&/dev/null && yum -y --enablerepo=epel install nss-mdns && {
+			cp /etc/avahi/avahi-daemon.conf /etc/avahi/avahi-daemon.conf.orig
+			mv -f /tmp/avahi-daemon.conf /etc/avahi/avahi-daemon.conf
+			for service in messagebus avahi-daemon
+			do
+				chkconfig $service on
+				service $service start
+			done
+			# this including mdns4 as the last entry allows reverse lookups to work
+			sed -i "/^hosts:/chosts:      files mdns4_minimal [NOTFOUND=return] dns mdns4" /etc/nsswitch.conf
+		}
+
+		avahi_init=0
+		[[ -d /opt/avahi-alias ]] || {
+			echo "Setting up avahi cname support"
+			avahi_home=$(getent passwd avahi | awk -F: '{print $6}')
+			avahi_mount=$avahi_home/.local/lib/python2.6/site-packages
+			site_packages=/opt/avahi-alias/site-packages
+			git clone --recursive https://github.com/asharpe/avahi-alias.git /opt/avahi-alias && {
+				cp /opt/avahi-alias/avahi-alias.upstart-sl6 /etc/init/avahi-alias.conf
+				mkdir -p $site_packages/avahi
+				ln -s /usr/lib/python2.6/site-packages/dbus $site_packages
+				ln -s /usr/lib64/python2.6/site-packages/_dbus_bindings.so $site_packages
+				curl -so $site_packages/avahi/__init__.py http://git.0pointer.net/avahi.git/plain/avahi-python/avahi/__init__.py
+				mkdir -p /etc/avahi/alias.d $avahi_mount
+				grep -q $site_packages /etc/fstab || {
+					echo "$site_packages	$avahi_mount none bind,defaults" >> /etc/fstab
+					mount $avahi_mount
+					avahi_init=1
+				}
+			}
+		}
+
+		# setup sudoers (only RHEL supported for now)
+		grep -q '^#include sudoers.local' /etc/sudoers || \
+			echo '#include sudoers.local' >> /etc/sudoers
+		grep -q '^Defaults:root !requiretty' /etc/sudoers.local >&/dev/null || \
+			echo "Defaults:root !requiretty" >> /etc/sudoers.local
+
+		((avahi_init)) && {
+			start avahi-alias
+		}
+
+		cat <<-EOF >&2
+			To create an avahi cname, create a file in /etc/avahi/alias.d with one domain per line, then run:
+			 	restart avahi-alias
+		EOF
+
+	EOSH
+
+
+	#############
+	# and down here is cruft that should be fixfied sometime
+
+
+
+end
+
+
