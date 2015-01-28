@@ -8,7 +8,9 @@ then
   export LESSEDIT='mvim ?lm+%lm -- %f'
 fi
 
-export VISUAL="$EDITOR"
+# git picks this up and I don't like it
+#export VISUAL="$EDITOR"
+
 #alias q="$EDITOR"
 #alias qv="q $DOTFILES/link/.{,g}vimrc +'cd $DOTFILES'"
 #alias qs="q +'cd $DOTFILES'"
