@@ -157,6 +157,9 @@ else
   set t_Co=256
 endif
 
+" for terminator, and must be after 'set t_Co'
+hi normal ctermbg=none
+
 " Specific Terminals
 "" screen
 if &term =~ "screen"
@@ -252,40 +255,46 @@ if filereadable(local_vimrc)
   execute "source ".local_vimrc
 endif
 
+" the block is to allow editing of .vimrc while inside ~/.dotfiles
+if !exists("*NearestVimrc")
+	function! NearestVimrc()
+		let l:fullpath = expand('%:p')
+		let l:dirs = split(l:fullpath, '/')
+		let l:paths = []
+		let l:custom = ''
 
-function! NearestVimrc()
-	let l:fullpath = expand('%:p')
-	let l:dirs = split(l:fullpath, '/')
-	let l:paths = []
-	let l:custom = ''
+		" check paths starting from the top
+		let i = len(l:dirs) - 1
+		while i >= 0
+			let l:p = dirs[0:i]
+			let i -= 1
 
-	" check paths starting from the top
-	let i = len(l:dirs) - 1
-	while i >= 0
-		let l:p = dirs[0:i]
-		let i -= 1
+			let l:possibleDir = '/' . join(p, '/')
+			let l:possibleVimrc = possibleDir . '/.vimrc'
 
-		let l:possibleDir = '/' . join(p, '/')
-		let l:possibleVimrc = possibleDir . '/.vimrc'
+			" TODO this won't protected against loops
+			if !isdirectory(possibleDir) || possibleVimrc =~ s:current_file
+				continue
+			endif
+			" stop at the home directory
+			if possibleDir == expand('$HOME')
+				break
+			endif
 
-		" TODO this won't protected against loops
-		if !isdirectory(possibleDir) || possibleVimrc =~ s:current_file
-			continue
-		endif
-		" stop at the home directory
-		if possibleDir == expand('$HOME')
-			break
-		endif
+			if filereadable(possibleVimrc)
+				execute "source " . possibleVimrc
+				" we'll only load one file
+				break
+			endif
+		endwhile
+	endfunction
+else
+	"echom "NearestVimrc() already defined"
+endif
 
-		if filereadable(possibleVimrc)
-			execute "source " . possibleVimrc
-			" we'll only load one file
-			break
-		endif
-	endwhile
-endfunction
 " capture this to avoid loops
 let s:current_file=expand('<sfile>')
+" note: BufReadPost == BufRead, see also BufEnter
 autocmd! BufReadPost,BufNewFile * call NearestVimrc()
 
 function! ResCur()
@@ -304,8 +313,10 @@ augroup END
 au BufReadPost ~/work/code/svn/ops/sysadmin/ssh_config_template/conf.d/* setlocal filetype=sshconfig
 au BufReadPost ~/.ssh/conf.d/* setlocal filetype=sshconfig
 
-" the softabstop allows backspacing over an "indent" of spaces
-au BufReadPost ~/work/code/*.pp setlocal tabstop=4 shiftwidth=4 expandtab softtabstop=4
+" override iskeyword from the puppet bundle to allow "regular" word movement
+" TODO noautoindent isn't enough to stop stupid indenting with comments, need
+" to look into smartindent and the puppet module
+au BufReadPost *.pp setlocal iskeyword+=^:,^- indentkeys-=0# noautoindent nosmartindent
 
 au BufReadPost */Vagrantfile setlocal filetype=ruby tabstop=3 shiftwidth=3 noexpandtab
 
