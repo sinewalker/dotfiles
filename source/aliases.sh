@@ -1,6 +1,6 @@
 alias opssvn='cd $HOME/work/code/svn/ops'
-alias mount_work='mount -t nfs wdmycloud.local:/nfs/work $HOME/work'
-alias mount_downloads='mount -t nfs wdmycloud.local:/nfs/Downloads $HOME/Downloads/shared'
+alias mount_work='mount -t nfs -o locallocks wdmycloud.local:/nfs/work $HOME/work'
+alias mount_downloads='mount -t nfs -o locallocks wdmycloud.local:/nfs/Downloads $HOME/Downloads/shared'
 alias cdgit='cd $HOME/work/code/git'
 #alias work_mount='mount -t nfs wdmycloud.local:/nfs/work $HOME/work'
 
