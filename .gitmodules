@@ -43,3 +43,6 @@
 [submodule "link/.vim/bundle/vim-coffee-script"]
 	path = link/.vim/bundle/vim-coffee-script
 	url = https://github.com/kchmck/vim-coffee-script.git
+[submodule "link/.vim/bundle/closetag"]
+	path = link/.vim/bundle/closetag
+	url = https://github.com/docunext/closetag.vim.git
