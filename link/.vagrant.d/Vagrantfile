@@ -35,6 +35,7 @@ end
 #
 
 # may need to load the original first..
+=begin
 if not defined? VagrantPlugins::GuestRedHat::Cap::ChangeHostName
 	require "vagrant"
 #	puts "loading origin plugin from #{Vagrant.source_root}/plugins/guests/redhat/cap/change_host_name"
@@ -55,7 +56,14 @@ module VagrantPlugins
 		end
 	end
 end
+=end
   
+# overriding the setting of 127.0.0.1 as the fqdn of the host (we're using mDNS anyway)
+require_relative "Vagrantfile.avahi-hostname"
+
+# overriding the docker installer for debian, since it doesn't follow redirects with the cURL command
+require_relative "Vagrantfile.docker"
+
 
 
 Vagrant.configure("2") do |config|
@@ -72,6 +80,9 @@ Vagrant.configure("2") do |config|
 		# Configure cached packages to be shared between instances of the same base box.
 		# More info on http://fgrehm.viewdocs.io/vagrant-cachier/usage
 		config.cache.scope = :box
+		config.cache.synced_folder_opts = {
+			transient: true
+		}
 
 		# OPTIONAL: If you are using VirtualBox, you might want to use that to enable
 		# NFS for shared folders. This is also very useful for vagrant-libvirt if you
@@ -111,7 +122,7 @@ Vagrant.configure("2") do |config|
 	config.vm.provision :shell, :inline => <<-EOSH
 		# always remove the existing proxy config...
 		[[ -f /etc/yum.conf ]] && sed -ie "/^proxy=/d" /etc/yum.conf
-		[[ -f ~/.rpmmacros ]] && sed -ie "/^%_httpproxy=/d" ~/.rpmmacros
+		[[ -f ~/.rpmmacros ]] && sed -ie "/^%_httpproxy /d" ~/.rpmmacros
 
 		# then hook it back up if we have one...
 		[[ -n "#{proxy}" ]] && {
@@ -119,7 +130,8 @@ Vagrant.configure("2") do |config|
 			type rpm >&/dev/null && echo "%_httpproxy #{proxy}" >> ~/.rpmmacros
 		}
 
-		type yum >&/dev/null && yum -y update
+		type yum >&/dev/null && yum -y update || :
+		type yum >&/dev/null && yum -y install redhat-lsb-core || :
 	EOSH
 
 #	package_manager = config.vm.guest == "RedHat" ? 'yum' : 'apt-get'
@@ -138,6 +150,13 @@ Vagrant.configure("2") do |config|
 		# fixify the timezone
 #		ln -sf /usr/share/zoneinfo/Australia/Brisbane /etc/localtime
 		ln -sf /usr/share/zoneinfo/Australia/Hobart /etc/localtime
+
+		flavour=$(lsb_release -si)
+
+		case $flavour in
+			Scientific|Red[Hh]at) ;;
+			*) echo "Not doing any other customisations for $flavour"; exit;;
+		esac
 
 		# a "standard" bashrc
 		#{package_manager} -y install git
@@ -175,6 +194,13 @@ Vagrant.configure("2") do |config|
 
 	# setup git
 	config.vm.provision :shell, :inline => <<-EOSH
+		flavour=$(lsb_release -si)
+
+		case $flavour in
+			Scientific|Red[Hh]at) ;;
+			*) echo "Not doing any other customisations for $flavour"; exit;;
+		esac
+
 		#{package_manager} -y install git && \
 			git config --global user.name "Andrew Sharpe" && \
 			git config --global user.email "asharpe@squiz.com.au"
@@ -192,6 +218,13 @@ Vagrant.configure("2") do |config|
 
 	# I like using mdns for my VMs...
 	config.vm.provision :shell, :inline => <<-EOSH
+		flavour=$(lsb_release -si)
+
+		case $flavour in
+			Scientific|Red[Hh]at) ;;
+			*) echo "Not doing any other customisations for $flavour"; exit;;
+		esac
+
 		echo "Allowing mDNS traffic"
 		cat <<-EOF > /etc/sysconfig/iptables
 			*filter
@@ -211,7 +244,12 @@ Vagrant.configure("2") do |config|
 
 		[[ -f /etc/yum.repos.d/epel.repo ]] && skip=1 || skip=0
 
-		type yum >&/dev/null && yum -y install http://mirror.aarnet.edu.au/pub/epel/6/i386/epel-release-6-8.noarch.rpm
+		release_ver=$(rpm -q --qf "%{VERSION}" $(rpm -q --whatprovides redhat-release) | cut -d. -f1)
+
+		#type yum >&/dev/null && yum -y install http://mirror.aarnet.edu.au/pub/epel/6/i386/epel-release-6-8.noarch.rpm
+		#type yum >&/dev/null && yum -y install http://mirror.aarnet.edu.au/pub/epel/epel-release-latest-6.noarch.rpm
+		#type yum >&/dev/null && yum -y install https://dl.fedoraproject.org/pub/epel/6/i386/epel-release-6-8.noarch.rpm
+		type yum >&/dev/null && yum -y install https://dl.fedoraproject.org/pub/epel/epel-release-latest-${release_ver}.noarch.rpm
 
 		((skip)) || {
 			# TODO this is fragile
