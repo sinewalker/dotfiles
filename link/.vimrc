@@ -75,13 +75,13 @@ map  q: <C-g>
 vmap q: <C-g>
 "" graphical line movement when using arrow keys
 """ up
-map  <Up> g<Up>
-imap <Up> <C-o>g<Up>
-vmap <Up> g<Up>
+"map  <Up> g<Up>
+"imap <Up> <C-o>g<Up>
+"vmap <Up> g<Up>
 """ down
-map  <Down> g<Down>
-imap <Down> <C-o>g<Down>
-vmap <Down> g<Down>
+"map  <Down> g<Down>
+"imap <Down> <C-o>g<Down>
+"vmap <Down> g<Down>
 "" easy page up/down
 """ page up
 map  <C-k> <C-u>
@@ -93,13 +93,13 @@ imap <C-j> <C-d>
 vmap <C-j> <C-d>
 "" tab movement
 """ next
-map <C-l> :tabnext<CR>
-imap <C-l> <C-o>:tabnext<CR>
-vmap <C-l> :tabnext<CR>
+"map <C-l> :tabnext<CR>
+"imap <C-l> <C-o>:tabnext<CR>
+"vmap <C-l> :tabnext<CR>
 """ previous
-map <C-h> :tabprevious<CR>
-imap <C-h> <C-o>:tabprevious<CR>
-vmap <C-h> :tabprevious<CR>
+"map <C-h> :tabprevious<CR>
+"imap <C-h> <C-o>:tabprevious<CR>
+"vmap <C-h> :tabprevious<CR>
 
 " Interface
 "set mouse=a      " allow mouse use
@@ -295,7 +295,7 @@ endif
 " capture this to avoid loops
 let s:current_file=expand('<sfile>')
 " note: BufReadPost == BufRead, see also BufEnter
-autocmd! BufReadPost,BufNewFile * call NearestVimrc()
+autocmd! BufReadPre,BufNewFile * call NearestVimrc()
 
 function! ResCur()
 	if line("'\"") <= line("$")
@@ -316,9 +316,14 @@ au BufReadPost ~/.ssh/conf.d/* setlocal filetype=sshconfig
 " override iskeyword from the puppet bundle to allow "regular" word movement
 " TODO noautoindent isn't enough to stop stupid indenting with comments, need
 " to look into smartindent and the puppet module
-au BufReadPost *.pp setlocal iskeyword+=^:,^- indentkeys-=0# noautoindent nosmartindent
+au BufReadPost *.pp setlocal iskeyword+=^:,^- indentkeys-=0# softtabstop& "noautoindent nosmartindent
 
+" vagrant
 au BufReadPost */Vagrantfile setlocal filetype=ruby tabstop=3 shiftwidth=3 noexpandtab
+
+" see http://mirnazim.org/writings/vim-plugins-i-use/
+autocmd FileType html,htmldjango,jinjahtml,eruby,mako let b:closetag_html_style=1
+autocmd FileType html,xhtml,xml,htmldjango,jinjahtml,eruby,mako source ~/.vim/bundle/closetag/plugin/closetag.vim
 
 " see http://vim.wikia.com/wiki/Fix_indentation
 map <F7> mzgg=G'z<CR>
