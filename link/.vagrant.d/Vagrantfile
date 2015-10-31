@@ -158,8 +158,19 @@ Vagrant.configure("2") do |config|
 			*) echo "Not doing any other customisations for $flavour"; exit;;
 		esac
 
+		# setup sudoers (only RHEL supported for now)
+		grep -q '^#include sudoers.local' /etc/sudoers || \
+			echo '#include sudoers.local' >> /etc/sudoers
+		grep -q '^Defaults:root !requiretty' /etc/sudoers.local >&/dev/null || \
+			echo "Defaults:root !requiretty" >> /etc/sudoers.local
+
+		#{package_manager} -y install git nscd
+
+		# this speeds up DNS because glibc really wants to play with ipv6
+		/etc/init.d/nscd restart
+		/sbin/chkconfig nscd on
+
 		# a "standard" bashrc
-		#{package_manager} -y install git
 		cat <<-EOF > /root/.bashrc
 			alias rm='rm -i'
 			alias cp='cp -i'
@@ -175,7 +186,6 @@ Vagrant.configure("2") do |config|
 
 			# avoid ipv6 for java apps
 			export _JAVA_OPTIONS="-Djava.net.preferIPv4Stack=true"
-
 		EOF
 	EOSH
 
@@ -192,8 +202,21 @@ Vagrant.configure("2") do |config|
 	# vim configuration
 	config.vm.provision :file, :source => ENV['HOME'] + '/.vimrc', :destination => '/tmp/vimrc'
 
-	# setup git
 	config.vm.provision :shell, :inline => <<-EOSH
+		# tsc clocksource is sucking, just go straight to acpi_pm - note: this'll need a reboot to take effect
+		[[ -f /etc/grub.conf ]] && sed -ri -e "/^\s*kernel/ s/($| clocksource=acpi_pm)/ clocksource=acpi_pm/" /etc/grub.conf || :
+
+		for u in root vagrant
+		do
+			homedir=$(getent passwd $u | awk -F: '{print $6}')
+
+			# ssh config
+			mkdir -p "$homedir"/.ssh && cp /tmp/authorized_keys "$homedir"/.ssh && chown -R $u "$homedir"/.ssh
+
+			# reasonable editor
+			cp /tmp/vimrc "$homedir"/.vimrc && chown $u "$homedir"/.vimrc
+		done
+
 		flavour=$(lsb_release -si)
 
 		case $flavour in
@@ -204,18 +227,9 @@ Vagrant.configure("2") do |config|
 		#{package_manager} -y install git && \
 			git config --global user.name "Andrew Sharpe" && \
 			git config --global user.email "asharpe@squiz.com.au"
-
-		# ssh config
-		mkdir -p ~/.ssh && mv /tmp/authorized_keys ~/.ssh && chown -R root ~/.ssh
-
-		# reasonable editor
-		cp /tmp/vimrc /root/.vimrc
-
-		# tsc clocksource is sucking, just go straight to acpi_pm - note: this'll need a reboot to take effect
-		[[ -f /etc/grub.conf ]] && sed -ri -e "/^\s*kernel/ s/($| clocksource=acpi_pm)/ clocksource=acpi_pm/" /etc/grub.conf || :
 	EOSH
 
-
+=begin
 	# I like using mdns for my VMs...
 	config.vm.provision :shell, :inline => <<-EOSH
 		flavour=$(lsb_release -si)
@@ -332,6 +346,7 @@ Vagrant.configure("2") do |config|
 		EOF
 
 	EOSH
+=end
 
 
 	#############
