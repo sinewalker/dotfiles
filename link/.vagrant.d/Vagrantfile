@@ -58,12 +58,6 @@ module VagrantPlugins
 end
 =end
   
-# overriding the setting of 127.0.0.1 as the fqdn of the host (we're using mDNS anyway)
-require_relative "Vagrantfile.avahi-hostname"
-
-# overriding the docker installer for debian, since it doesn't follow redirects with the cURL command
-require_relative "Vagrantfile.docker"
-
 
 
 Vagrant.configure("2") do |config|
@@ -148,8 +142,8 @@ Vagrant.configure("2") do |config|
 #		/etc/init.d/iptables stop; chkconfig iptables off
 
 		# fixify the timezone
-#		ln -sf /usr/share/zoneinfo/Australia/Brisbane /etc/localtime
-		ln -sf /usr/share/zoneinfo/Australia/Hobart /etc/localtime
+		ln -sf /usr/share/zoneinfo/Australia/Brisbane /etc/localtime
+#		ln -sf /usr/share/zoneinfo/Australia/Hobart /etc/localtime
 
 		flavour=$(lsb_release -si)
 
@@ -211,10 +205,19 @@ Vagrant.configure("2") do |config|
 			homedir=$(getent passwd $u | awk -F: '{print $6}')
 
 			# ssh config
-			mkdir -p "$homedir"/.ssh && cp /tmp/authorized_keys "$homedir"/.ssh && chown -R $u "$homedir"/.ssh
+			# we're assuming that vagrant already has access via SSH and we're just adding our own
+			mkdir -p "$homedir"/.ssh
+			[[ -f "$homedir"/.ssh/authorized_keys ]] && grep -q "$(cat /tmp/authorized_keys)" "$homedir"/.ssh/authorized_keys || {
+				cat /tmp/authorized_keys >> "$homedir"/.ssh/authorized_keys
+				chown -R $u "$homedir"/.ssh
+			}
 
 			# reasonable editor
 			cp /tmp/vimrc "$homedir"/.vimrc && chown $u "$homedir"/.vimrc
+
+			# TODO a better way to propagate plugins etc
+			mkdir -p "$homedir"/.vim/bundle/closetag/plugin
+			touch "$homedir"/.vim/bundle/closetag/plugin/closetag.vim
 		done
 
 		flavour=$(lsb_release -si)
@@ -356,4 +359,10 @@ Vagrant.configure("2") do |config|
 
 end
 
+
+# overriding the setting of 127.0.0.1 as the fqdn of the host (we're using mDNS anyway)
+require_relative "Vagrantfile.avahi-hostname"
+
+# overriding the docker installer for debian, since it doesn't follow redirects with the cURL command
+require_relative "Vagrantfile.docker"
 
