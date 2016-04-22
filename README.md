@@ -4,6 +4,8 @@ My OSX / Ubuntu dotfiles.
 
 ## About this project
 
+[This README was written by the project's original author, Coyboy. All first-person referencs are to him. I, Mike ("sinewalker"), came aross it from a work colleage, who forked it from Coyboy and added work-specific things.  I forked it from him (asharpe) for the work things.  My own dotfiles are in GitHub too ("dotfiles-old") but are pretty sad. I think I'll adopt these instead and bring in any functions/aliases I still want.  I use a Mac at work (pretty ned to it). The linux flavour I use is SUSE, which may impact my customisations too. Or may not.]
+
 I've been using bash on-and-off for a long time (since Slackware Linux was distributed on 1.44MB floppy disks). In all that time, every time I've set up a new Linux or OS X machine, I've copied over my `.bashrc` file and my `~/bin` folder to each machine manually. And I've never done a very good job of actually maintaining these files. It's been a total mess.
 
 I finally decided that I wanted to be able to execute a single command to "bootstrap" a new system to pull down all of my dotfiles and configs, as well as install all the tools I commonly use. In addition, I wanted to be able to re-execute that command at any time to synchronize anything that might have changed. Finally, I wanted to make it easy to re-integrate changes back in, so that other machines could be updated.
