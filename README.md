@@ -1,6 +1,6 @@
 # Dotfiles
 
-My OSX / Ubuntu dotfiles.
+OSX / Linux dotfiles.
 
 ## About this project
 
