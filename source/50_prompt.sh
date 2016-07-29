@@ -42,8 +42,15 @@ done
 unset f
 type __git_ps1 >&/dev/null || _git_prompt=''
 
+export GIT_PS1_SHOWDIRTYSTATE=1
+export GIT_PS1_SHOWSTASHSTATE=1
+export GIT_PS1_SHOWUNTRACKEDFILES=1
+export GIT_PS1_SHOWUPSTREAM=auto
+export GIT_PS1_STATESEPARATOR=\:
+
 if [ "$color_prompt" = yes ]; then
-	if [ "$UID" -eq 0 ]; then
+    if [ "$UID" -eq 0 ]; then
+    EXPORT GIT_PS1_SHOWCOLORHINTS=1
 		PS1='${debian_chroot:+($debian_chroot)}\[\033[01;31m\]\u@\h\[\033[00m\]:\[\033[01;34m\]\W\[\033[00m\]'$_git_prompt'$ '
 #		PS1='${debian_chroot:+($debian_chroot)}\[\033[01;31m\]\u@\h\[\033[00m\]:\[\033[01;34m\]\W\[\033[00m\]$(__git_ps1)\$ '
 	else
