@@ -1,8 +1,8 @@
 [color]
 	ui = true
 [user]
-	name = Andrew Sharpe
-	email = asharpe@squiz.com.au
+	name = Mike Lockhart
+	email = mlockhart@squiz.com.au
 [push]
 	default = simple
 [alias]
@@ -12,7 +12,7 @@
 	spull = !echo git pull && git pull && echo git submodule update --init --recursive && git sup
 
 #[core]
-#	excludesfile = /Users/asharpe/.gitignore_global
+#	excludesfile = /Users/mlockhart/.gitignore_global
 
 # additions made by sourcetree
 #[difftool "sourcetree"]
