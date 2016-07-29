@@ -5,7 +5,9 @@
 
 =begin
 =end
-proxy = ['VAGRANT_PROXY', 'proxy', 'http_proxy'].reduce(false) { |acc, n| acc ||= ENV[n] } || 'http://10.0.2.2:3142'
+#proxy = ['VAGRANT_PROXY', 'proxy', 'http_proxy'].reduce(false) { |acc, n| acc ||= ENV[n] } || 'http://10.0.2.2:3142'
+proxy = ''
+
 ENV['proxy'] = proxy if proxy
 
 
