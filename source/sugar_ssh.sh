@@ -1,3 +1,5 @@
+export squiz_user=mlockhart@  #dirty hack
+
 function ssh_host() {
 	if ! (($#))
 	then
@@ -6,7 +8,7 @@ function ssh_host() {
 	fi
 
 	local vz_guest=$1
-	ssh -t $(host -t txt $vz_guest.syd.ipowered.com.au | awk -F\" 'END { print $(NF - 1)}')
+  ssh -t ${squiz_user}$(host -t txt $vz_guest.syd.ipowered.com.au | awk -F\" 'END { print $(NF - 1)}')
 }
 export -f ssh_host
 
@@ -20,7 +22,7 @@ function ssh_guest() {
 	local vz_guest="$1"
 	local site="$2"
 
-	ssh -t $(host -t txt $vz_guest.syd.ipowered.com.au | awk -F\" 'END { print $(NF - 1)}') "/bin/bash --login -c 'enter_host $vz_guest $site'"
+  ssh -t ${squiz_user}$(host -t txt $vz_guest.syd.ipowered.com.au | awk -F\" 'END { print $(NF - 1)}') "/bin/bash --login -c 'enter_host $vz_guest $site'"
 }
 export -f ssh_guest
 
@@ -49,7 +51,7 @@ function ssh_site() {
 
 
 	if [[ "$vz_guest" != "$site" ]]; then
-		ssh -t $(host -t txt $vz_guest.syd.ipowered.com.au | awk -F\" 'END { print $(NF - 1)}') "/bin/bash --login -c 'enter_host $vz_guest $site'"
+    ssh -t ${squiz_user}$(host -t txt $vz_guest.syd.ipowered.com.au | awk -F\" 'END { print $(NF - 1)}') "/bin/bash --login -c 'enter_host $vz_guest $site'"
 	else
 		echo "Site $site does not exist!"
 		return 1
