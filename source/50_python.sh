@@ -19,3 +19,5 @@ workon() {
 	fi 
 }
 
+alias activate=workon
+
