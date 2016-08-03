@@ -7,3 +7,15 @@ gpip() {
 	PIP_REQUIRE_VIRTUALENV="" pip "$@"
 }
 
+####
+
+export VIRTUALENV_BASE=${HOME}/lib
+
+workon() {
+	if [ -d ${VIRTUALENV_BASE}/${1} ]; then
+		source ${VIRTUALENV_BASE}/${1}/bin/activate
+	else
+		echo "No such env: ${1}"
+	fi 
+}
+
