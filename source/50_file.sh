@@ -12,17 +12,25 @@ else
 fi
 
 # Directory listing
-alias ll='ls -al'
-alias lsd='CLICOLOR_FORCE=1 ll | grep --color=never "^d"'
+alias ll='ls -l'
+alias la='ll -a'
+alias ld='CLICOLOR_FORCE=1 ll | grep --color=never "^d"'
 # optional override
-if false && [[ "$(type -P tree)" ]]; then
-  alias ll='tree --dirsfirst -aLpughDFiC 1'
-  alias lsd='ll -d'
+if true && [[ "$(type -P tree)" ]]; then
+  alias la='tree --dirsfirst -aLpughDFiC 1'
+  alias d='la -d'
 fi
+alias l='ls -F'
+alias lt='ll -t'
+alias lr='ll -tr'
+alias lh='ll -h'
+alias lrh='lr -h'
 
 # Easier navigation: .., ..., -
 alias ..='cd ..'
 alias ...='cd ../..'
+alias ....='cd ../../..'
+alias .....='cd ../../../..'
 alias -- -='cd -'
 
 # File size
@@ -45,3 +53,5 @@ mkdir -p $DOTFILES/caches/z
 _Z_NO_PROMPT_COMMAND=1
 _Z_DATA=$DOTFILES/caches/z/z
 #. $DOTFILES/vendor/z/z.sh
+
+alias rd=rmdir
