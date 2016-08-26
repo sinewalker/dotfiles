@@ -7,7 +7,7 @@ gpip() {
 	PIP_REQUIRE_VIRTUALENV="" pip "$@"
 }
 
-#### virtualenv-wrapper work-alikes
+#### virtualenv-wrapper work-alike
 
 #this is where Python Virtual Environments belong
 export VIRTUALENV_BASE=${HOME}/lib
@@ -74,3 +74,5 @@ EOV
         return 1
     fi
 }
+
+alias workon=activate
