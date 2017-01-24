@@ -21,3 +21,6 @@
 #[mergetool "sourcetree"]
 #	cmd = /Volumes/SourceTree/SourceTree.app/Contents/Resources/opendiff-w.sh \"$LOCAL\" \"$REMOTE\" -ancestor \"$BASE\" -merge \"$MERGED\"
 #	trustExitCode = true
+[core]
+	autocrlf = input
+	safecrlf = true
