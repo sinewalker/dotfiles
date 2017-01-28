@@ -52,7 +52,6 @@ Any file in the `link/` subdirectory gets symlinked into `~/` with `ln -s`. Edit
 ### The "init" step
 Scripts in the `init/` subdirectory will be executed whenever [dotfiles][dotfiles] is executed.  A whole bunch of things will be installed, but _only_ if they aren't already.
 
-
 #### macOS (OS X)
 
 * Minor XCode init via the [init/10_osx_xcode.sh](init/10_osx_xcode.sh) script
@@ -150,6 +149,7 @@ awk '/fetch/{print "git remote add " $1 " " $2}' < remotes.txt | bash
 
 
 ## Aliases and Functions
+
 To keep things easy, the `~/.bashrc` and `~/.bash_profile` files are extremely simple, and should never need to be modified.  Instead, aliases, functions, settings, etc are sourced from one of the files in the `source/` subdirectory. They're all automatically sourced when a new shell is opened. Take a look, there are [a lot of aliases and functions](source).  There is even a [fancy prompt](source/50_prompt.sh) that shows the current directory, time and current git/svn repo status.
 
 
