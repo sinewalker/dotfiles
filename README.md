@@ -42,7 +42,7 @@ On subsequent runs, step 1 is skipped, step 2 just updates the already-existing 
 
 
 ### The "copy" step
-Any file in the `copy/` subdirectory will be copied into `~/`. Any file that _needs_ to be modified with **personal or private information** (like [copy/.gitconfig](copy/.gitconfig) which contains an email address and private key) should be _copied_ into `~/`, and then updated _manually_ to add the private information.  Because the file you'll be editing is a _copy_ and longer in `~/.dotfiles/`, it's less likely to be accidentally committed into your public dotfiles repo.
+Any file in the `copy/` subdirectory will be copied into `~/`. Any file that _needs_ to be modified with **personal or private information** (like [copy/.gitconfig](copy/.gitconfig) which contains an email address and private key) should be _copied_ into `~/`, and then updated _manually_ to add the private information.  Because the file you'll be editing is a _copy_ and no longer in `~/.dotfiles/`, it's less likely to be accidentally committed into your public dotfiles repo.
 
 
 ### The "link" step
@@ -94,7 +94,7 @@ _Tested in OSX 10.10_
 
 ### Ubuntu Notes
 
-You might want to set up your ubuntu server [like I do it](https://github.com/cowboy/dotfiles/wiki/ubuntu-setup), but then again, you might not.
+You might want to set up your ubuntu server [like Cowboy does it](https://github.com/cowboy/dotfiles/wiki/ubuntu-setup), but then again, you might not.
 
 Either way, you should at least update/upgrade APT with `sudo apt-get -qq update && sudo apt-get -qq dist-upgrade` first.
 
@@ -125,9 +125,9 @@ There's a lot of stuff that requires admin access via `sudo`, so be warned that 
 
 There's an optional step you can do after installing: you can add this repo as a git remote, so that you can look at my own changes which are different to Cowboy's, and cherry pick commits or just copy in the parts you like:
 ```sh
-git remote add sinewalker git@github.com:sinewalker/dotfiles.git`
+git remote add sinewalker git@github.com:sinewalker/dotfiles.git
 ```
- (there are other remotes that you may find interesting too, see [remotes.txt][remotes.txt], which was produced from the following git command)
+ (There are other remotes that you may find interesting too, see [remotes.txt][remotes.txt], which was produced from the following git command)
 ```sh
 git remote -v > remotes.txt
 ```
@@ -137,14 +137,14 @@ git remote -v > remotes.txt
 ### Actual installation (for me)
 
 1. Download [dotfiles][dotfiles] and source it:
-```sh
-bash -c "$(curl -fsSL https://goo.gl/PR0ocr)" && source ~/.bashrc
-```
+  ```sh
+  bash -c "$(curl -fsSL https://goo.gl/PR0ocr)" && source ~/.bashrc
+  ```
 1. Add my [git remotes][remotes.txt] to the new clone:
-```sh
-cd ${DOTFILES}
-awk '/fetch/{print "git remote add " $1 " " $2}' < remotes.txt | bash
-```
+  ```sh
+  cd ${DOTFILES}
+  awk '/fetch/{print "git remote add " $1 " " $2}' < remotes.txt | bash
+  ```
 1. Edit [copied files](copy) (see `${DOTFILES}/copy` for which files in `${HOME}` will require edits). **Or** restore these from a **private backup**.
 
 
