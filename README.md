@@ -1,6 +1,8 @@
 # Dotfiles
 
-OSX / Linux dotfiles. Forked from [Cowboy's dotfiles](https://github.com/cowboy/dotfiles), by way of [ASharpe's dotfiles](https://github.com/asharpe/dotfiles). A longer history story is in [HISTORY.md][HISTORY.md].
+macOS / Linux dotfiles. Forked from [Cowboy's dotfiles](https://github.com/cowboy/dotfiles), by way of [ASharpe's dotfiles](https://github.com/asharpe/dotfiles). A longer history story is in [HISTORY.md][HISTORY.md].
+
+[HISTORY.md]: HISTORY.md
 
 ## About this project
 
@@ -10,7 +12,9 @@ In addition, `dotfiles` may be re-executed at any time to synchronize anything t
 
 Finally, having this on a central github repo makes it easy to re-integrate changes back in, so that other machines could be updated by re-synchronizing.
 
-The command to install or re-sync the dotfiles is [dotfiles]: bin/dotfiles
+The command to install or re-sync the dotfiles is [dotfiles][dotfiles].
+
+[dotfiles]: bin/dotfiles
 
 ## How the "dotfiles" command works
 
@@ -44,7 +48,7 @@ Any file in the `link/` subdirectory gets symlinked into `~/` with `ln -s`. Edit
 ### The "init" step
 Scripts in the `init/` subdirectory will be executed whenever [dotfiles][dotfiles] is executed.  A whole bunch of things will be installed, but _only_ if they aren't already.
 
-#### OS X
+#### macOS (OS X)
 
 * Minor XCode init via the [init/10_osx_xcode.sh](init/10_osx_xcode.sh) script
 * Homebrew via the [init/20_osx_homebrew.sh](init/20_osx_homebrew.sh) script
@@ -70,7 +74,7 @@ Also, before installing, be sure to [read my gently-worded note](#heed-this-crit
 
 ## Installation
 
-### OS X Notes
+### macOS Notes
 
 You need to have [XCode](https://developer.apple.com/downloads/index.action?=xcode) or, at the very minimum, the [XCode Command Line Tools](https://developer.apple.com/downloads/index.action?=command%20line%20tools), which are available as a much smaller download.
 
