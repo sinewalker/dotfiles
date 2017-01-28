@@ -137,15 +137,19 @@ git remote -v > remotes.txt
 ### Actual installation (for me)
 
 1. Download [dotfiles][dotfiles] and source it:
+
   ```sh
   bash -c "$(curl -fsSL https://goo.gl/PR0ocr)" && source ~/.bashrc
   ```
-1. Add my [git remotes][remotes.txt] to the new clone:
+  
+2. Add my [git remotes][remotes.txt] to the new clone:
+
   ```sh
   cd ${DOTFILES}
   awk '/fetch/{print "git remote add " $1 " " $2}' < remotes.txt | bash
   ```
-1. Edit [copied files](copy) (see `${DOTFILES}/copy` for which files in `${HOME}` will require edits). **Or** restore these from a **private backup**.
+  
+3. Edit [copied files](copy) (see `${DOTFILES}/copy` for which files in `${HOME}` will require edits). **Or** restore these from a **private backup**.
 
 
 ## Aliases and Functions
