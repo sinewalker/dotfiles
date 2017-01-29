@@ -21,7 +21,7 @@ Additionally, having this on a central github repo makes it easy to re-integrate
 When [dotfiles][dotfiles] is run for the first time, it does a few things:
 
 1. If necessary, **git** is installed via the native OS package manager
-1. This repo is cloned into your `${HOME}` directory (`~/`), under `~/.dotfiles/`.
+1. This repo is cloned into your `${HOME}` directory (`~/`), under `${DOTFILES}` (`~/.dotfiles/`, unless you change it in [dotfiles](bin/dotfiles#L24)).
 1. Files in `copy/` are copied into `~/`. ([read more](#the-copy-step))
 1. Files in `link/` are symlinked into `~/`. ([read more](#the-link-step))
 1. You are prompted to choose scripts in `init/` to be executed. The installer attempts to only select relevant scripts, based on the detected OS and the script filename.
