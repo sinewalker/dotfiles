@@ -45,9 +45,26 @@ function is_osx() {
 function is_ubuntu() {
     [[ $(lsb_release -i) =~ buntu ]] 2> /dev/null || return 1
 }
+function is_suse() {
+    [[ $(lsb_release -i) =~ SUSE ]] 2> /dev/null || return 1
+}
+function is_raspbian() {
+    #TODO work this out:  pretty sure lsb_release is not installed
+    return 1
+}
+function is_redhat6() {
+    [[ $(lsb_release -r|awk '{print $2}') =~ ^6\. ]] || return 1
+    local DIST=$(lsb_release -i) 2> /dev/null
+    $DIST =~ Scientific || $DIST =~ CentOS || $DIST =~ Red || return 1
+}
+function is_redhat7() {
+    local DIST=$(lsb_release -i) 2> /dev/null
+    $DIST =~ Fedora && return 0
+    [[ $(lsb_release -r|awk '{print $2}') =~ ^7\. ]] || return 1
+    $DIST =~ CentOS || $DIST =~ Red || return 1
 }
 function get_os() {
-  for os in osx ubuntu; do
+  for os in osx ubuntu suse raspbian redhat6 redhat7; do
     is_$os; [[ $? == ${1:-0} ]] && echo $os
   done
 }
