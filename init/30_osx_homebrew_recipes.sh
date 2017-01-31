@@ -23,14 +23,17 @@ recipes=(
   the_silver_searcher
   tree
   #MJL20170131 more by me
-  ispell
-  coreutils
   colordiff
+  coreutils
   gawk
   gnu-sed
   gnuplot
   graphviz
+  guile
+  homebrew/emacs/tern
   ipcalc
+  ispell
+  mc
   tidy-html5
   tmux
   watch
