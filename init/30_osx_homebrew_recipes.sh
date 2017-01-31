@@ -34,6 +34,8 @@ recipes=(
   ipcalc
   ispell
   mc
+  python
+  python3
   tidy-html5
   tmux
   watch
