@@ -22,6 +22,19 @@ recipes=(
   ssh-copy-id
   the_silver_searcher
   tree
+  #MJL20170131 more by me
+  ispell
+  coreutils
+  colordiff
+  gawk
+  gnu-sed
+  gnuplot
+  graphviz
+  ipcalc
+  tidy-html5
+  tmux
+  watch
+  wireshark
 )
 
 brew_install_recipes
