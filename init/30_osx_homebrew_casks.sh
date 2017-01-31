@@ -13,54 +13,57 @@ brew cask list > /dev/null 2>&1 ||  (e_error "Brew-cask failed to install." && r
 
 # Homebrew casks
 casks=(
-  # Applications
-  a-better-finder-rename
-  bettertouchtool
-  charles
-  chromium
-  chronosync
-  dropbox
-  fastscripts
-  firefox
-  google-chrome
-  gyazo
-  hex-fiend
-  istat-menus
-  iterm2
-  launchbar
-  macvim
-  moom
-  omnidisksweeper
-  race-for-the-galaxy
-  reaper
-  remote-desktop-connection
-  sonos
-  spotify
-  steam
-  synology-assistant
-  teamspeak-client
-  the-unarchiver
-  todoist
-  totalfinder
-  tower
-  transmission-remote-gui
-  vagrant
-  virtualbox
-  vlc
-  # Quick Look plugins
-  betterzipql
-  qlcolorcode
-  qlmarkdown
-  qlprettypatch
-  qlstephen
-  quicklook-csv
-  quicklook-json
-  quicknfo
-  suspicious-package
-  webp-quicklook
-  # Color pickers
-  colorpicker-developer
-  colorpicker-skalacolor
+    # apps
+    vagrant
+    virtualbox
+    # ## TODO: MJL20170131 - Maybe install these?
+    #chromium
+    #todoist
+    # Quick Look plugins
+    suspicious-package
+    webpquicklook
+
+    #TODO: MJL20170131 - All of these I have installed manually or Work has, and
+    #      they do not appear in `brew cask list`, which means they will be
+    #      downloaded *each time*, and then skipped, and then cleaned up... So I
+    #      probably need to uninstall them manually, and then uncomment and
+    #      install from Cask.
+
+    # ## Applications
+    # ### Free
+    # dropbox
+    # emacs
+    # iterm2
+    # hammerspoon
+    # spotify
+    # vlc
+
+    # ### MJL20170131 Purchased on my own account
+    # cathode
+    # enpass
+    # steam
+
+    # ## Quick Look plugins
+    # betterzipql
+    # qlcolorcode
+    # qlmarkdown
+    # qlprettypatch
+    # qlstephen
+    # quicklook-csv
+    # quicklook-json
+    # quicknfo
+
+    # ### MJL20170131 - Installed by Work
+    # google-chrome
+    # firefox
+    # the-unarchiver
+
+    # ### MJL20170131 - deprecated and/or missing (I'm thinking to replace some
+    #                   of these with Hammerspoon codes)
+    # bettersnaptool (not in the main Caskroom?)
+    # copyclip (not in the Caskroom?)
+    # systempal (not in Cask )
+    # MEGA NZ (not in Cask)
 )
 
 # Install Homebrew casks.
