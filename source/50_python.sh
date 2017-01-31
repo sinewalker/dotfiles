@@ -3,6 +3,8 @@
 # pip should only run if there is a virtualenv currently activated
 export PIP_REQUIRE_VIRTUALENV=true
 
+#except when it shouldn't (e.g. to install virtualenv)
+#so here's gpip (global pip)
 gpip() {
 	PIP_REQUIRE_VIRTUALENV="" pip "$@"
 }
