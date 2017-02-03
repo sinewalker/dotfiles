@@ -14,8 +14,22 @@ brew cask list > /dev/null 2>&1 ||  (e_error "Brew-cask failed to install." && r
 # Homebrew casks
 casks=(
     # apps
+    android-file-transfer
+    cathode
+    clementine
+    enpass
+    flux
+    gpgtools
+    hammerspoon
+    karabiner
+    keepassx
+    netbeans
+    netbeans-java-se
+    spotify
     vagrant
     virtualbox
+    vlc
+    xquartz
     # ## TODO: MJL20170131 - Maybe install these?
     #chromium
     #todoist
@@ -34,13 +48,8 @@ casks=(
     # dropbox
     # emacs
     # iterm2
-    # hammerspoon
-    # spotify
-    # vlc
 
     # ### MJL20170131 Purchased on my own account
-    # cathode
-    # enpass
     # steam
 
     # ## Quick Look plugins

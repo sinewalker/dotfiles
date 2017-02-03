@@ -23,6 +23,7 @@ recipes=(
   the_silver_searcher
   tree
   #MJL20170131 more by me
+  bash-git-prompt
   colordiff
   coreutils
   gawk
@@ -34,12 +35,22 @@ recipes=(
   ipcalc
   ispell
   mc
+  pcre
+  proctools
+  pwgen
   python
   python3
+  qcachegrind
+  rdesktop
+  socat
+  stunnel
   tidy-html5
+  tinyproxy
   tmux
   watch
   wireshark
+  xmlstarlet
+  xz
 )
 
 brew_install_recipes
