@@ -47,6 +47,18 @@ function prompt_exitcode() {
   [[ $1 != 0 ]] && echo " $c2$1$c9"
 }
 
+
+#MJL20170204 title bar
+#see https://goo.gl/6E8a2u (SO: "Using git-prompt.sh PROMPT_COMMAND to change
+# Cygwin Title Bar")
+function prompt_titlebar() {
+        case $TERM in
+            *xterm*|ansi|rxvt)
+                printf "\033]0;%s\007" "$*"
+                ;;
+        esac
+}
+
 # Git status.
 function prompt_git() {
   prompt_getcolors
@@ -122,6 +134,8 @@ function prompt_command() {
   prompt_getcolors
   # http://twitter.com/cowboy/status/150254030654939137
   PS1="\n"
+  #MJL20170204 titlebar [dir] - user@host:/full/working/dir
+  PS1="$PS1$(prompt_titlebar "[$(basename $PWD)] - $USER@${HOSTNAME%%.*}:$PWD")"
   # svn: [repo:lastchanged]
   PS1="$PS1$(prompt_svn)"
   # git: [branch:flags]
