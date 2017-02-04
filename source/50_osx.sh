@@ -3,6 +3,9 @@ is_osx || return 1
 
 # APPLE, Y U PUT /usr/bin B4 /usr/local/bin?!
 PATH="/usr/local/bin:$(path_remove /usr/local/bin)"
+
+#MJL20170204 Homebrew warns of missing /usr/local/sbin in $PATH
+PATH="/usr/local/sbin:$PATH"
 export PATH
 
 # Trim new lines and copy to clipboard
