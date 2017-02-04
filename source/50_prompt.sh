@@ -145,7 +145,7 @@ function prompt_command() {
   # http://twitter.com/cowboy/status/150254030654939137
   PS1="\n"
   #MJL20170204 titlebar [dir] - user@host:/full/working/dir
-  PS1="$PS1$(prompt_titlebar "[$(basename $PWD)] - $USER@${HOSTNAME%%.*}:$PWD")"
+  PS1="$PS1$(prompt_titlebar "[${HOSTNAME%%.*}:$(basename $PWD)] - $USER@${HOSTNAME%%.*}:$PWD")"
   # svn: [repo:lastchanged]
   PS1="$PS1$(prompt_svn)"
   # git: [branch:flags]
