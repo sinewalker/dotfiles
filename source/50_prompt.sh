@@ -27,17 +27,19 @@ if [[ ! "${prompt_colors[@]}" ]]; then
         "36" # information color
         "37" # bracket color
         "31;7" # error color
+        "37;1" #paren colour
         "35" # jobs colour
+        "33;1" #venv colour
   )
 
   if [[ "$SSH_TTY" ]]; then
     # connected via ssh
-      prompt_colors[0]="32"
+      prompt_colors[0]="32;1"
+      prompt_colors[1]="32"
   elif [[ "$USER" == "root" ]]; then
     # logged in as root
       prompt_colors[0]="41;37;1"
       prompt_colors[1]="41;33;1"
-      #prompt_colors[2]="31;7"
   fi
 fi
 
@@ -65,8 +67,15 @@ function prompt_titlebar() {
 #MJL20170204 jobs
 function prompt_jobs() {
     prompt_getcolors
+    local jobcount
     jobcount=$(jobs|wc -l|sed 's/ //g')
-    [[ $jobcount != 0 ]] && echo " ($c3$jobcount$c9)"
+    [[ $jobcount != 0 ]] && echo "$c3($c4$jobcount$c3)$c9"
+}
+
+#MJL20170205 python virtual environment name
+function prompt_venv() {
+    prompt_getcolors
+    [[ -z $VIRTUAL_ENV ]] || echo "$c3($c5$(basename $VIRTUAL_ENV)$c3)$c9"
 }
 
 # Git status.
@@ -161,6 +170,8 @@ function prompt_command() {
   PS1="$PS1$c1[$c0$(date +"%H$c1:$c0%M$c1:$c0%S")$c1]$c9"
   #MJL20170204 jobs (#)
   PS1="$PS1$(prompt_jobs)"
+  #MJL20170205 virtualenv: (name)
+  PS1="$PS1$(prompt_venv)"
   # exit code: 127
   PS1="$PS1$(prompt_exitcode "$exit_code")"
   PS1="$PS1 \$ "
