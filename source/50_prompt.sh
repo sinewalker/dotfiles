@@ -24,12 +24,13 @@
 
 if [[ ! "${prompt_colors[@]}" ]]; then
     prompt_colors=(
-        "36" # information color
-        "37" # bracket color
+        "36;1" # information color
+        "36" # bracket color
         "31;7" # error color
         "37;1" #paren colour
         "35" # jobs colour
         "33;1" #venv colour
+        "44;33;1" #screen window colour
   )
 
   if [[ "$SSH_TTY" ]]; then
@@ -38,8 +39,8 @@ if [[ ! "${prompt_colors[@]}" ]]; then
       prompt_colors[1]="32"
   elif [[ "$USER" == "root" ]]; then
     # logged in as root
-      prompt_colors[0]="41;37;1"
-      prompt_colors[1]="41;33;1"
+      prompt_colors[0]="31;1"
+      prompt_colors[1]="31"
   fi
 fi
 
@@ -75,6 +76,12 @@ function prompt_jobs() {
 function prompt_venv() {
     prompt_getcolors
     [[ -z $VIRTUAL_ENV ]] || echo "$c3($c5$(basename $VIRTUAL_ENV)$c3)$c9"
+}
+
+#MJL20170205 screen window number
+function prompt_screen() {
+    prompt_getcolors
+    [[ -z $WINDOW ]] || echo "$c6 $WINDOW $c9"
 }
 
 # Git status.
@@ -132,6 +139,16 @@ function prompt_svn() {
   fi
 }
 
+#MJL20170205 toggle using a simple prompt
+function prompt_kiss() {
+    if [[ -z $MJL_PS1_KISS ]]; then
+        export MJL_PS1_KISS=1
+    else
+        unset MJL_PS1_KISS
+    fi
+}
+alias simple_prompt=prompt_kiss
+
 # Maintain a per-execution call stack.
 prompt_stack=()
 trap 'prompt_stack=("${prompt_stack[@]}" "$BASH_COMMAND")' DEBUG
@@ -150,30 +167,48 @@ function prompt_command() {
   [[ "$simple_prompt" ]] && PS1='\n$ ' && return
 
   prompt_getcolors
-  # http://twitter.com/cowboy/status/150254030654939137
-  PS1="\n"
-  #MJL20170204 titlebar: [dir] - user@host:/full/working/dir
-  PS1="$PS1$(prompt_titlebar "[${HOSTNAME%%.*}:$(basename $PWD)] - $USER@${HOSTNAME%%.*}:$PWD")"
-  # svn: [repo:lastchanged]
-  PS1="$PS1$(prompt_svn)"
-  # git: [branch:flags]
-  PS1="$PS1$(prompt_git)"
-  # hg:  [branch:flags]
-  PS1="$PS1$(prompt_hg)"
-  # misc: [cmd#:hist#]
-  # PS1="$PS1$c1[$c0#\#$c1:$c0!\!$c1]$c9"
-  # path: [user@host:path]
-  PS1="$PS1$c1[$c0\u$c1@$c0\h$c1:$c0\w$c1]$c9"
-  PS1="$PS1\n"
-  # date: [HH:MM:SS]
-  PS1="$PS1$c1[$c0$(date +"%H$c1:$c0%M$c1:$c0%S")$c1]$c9"
-  #MJL20170204 jobs: (#)
-  PS1="$PS1$(prompt_jobs)"
-  #MJL20170205 virtualenv: (name)
-  PS1="$PS1$(prompt_venv)"
-  # exit code: 127
-  PS1="$PS1$(prompt_exitcode "$exit_code")"
-  PS1="$PS1\$ "
+  if [[ -z $MC_SID && -z $MJL_PS1_KISS ]]; then
+      # http://twitter.com/cowboy/status/150254030654939137
+      PS1="\n"
+      #MJL20170204 titlebar: [dir] - user@host:/full/working/dir
+      PS1="$PS1$(prompt_titlebar "[${HOSTNAME%%.*}:$(basename $PWD)] - $USER@${HOSTNAME%%.*}:$PWD")"
+      # svn: [repo:lastchanged]
+      PS1="$PS1$(prompt_svn)"
+      # git: [branch:flags]
+      PS1="$PS1$(prompt_git)"
+      # hg:  [branch:flags]
+      PS1="$PS1$(prompt_hg)"
+      # misc: [cmd#:hist#]
+      # PS1="$PS1$c1[$c0#\#$c1:$c0!\!$c1]$c9"
+      # path: [user@host:path]
+      PS1="$PS1$c1[$c0\u$c1@$c0\h$c1:$c0\w$c1]$c9"
+      PS1="$PS1\n"
+      #MJL20170205 screen: #
+      PS1="$PS1$(prompt_screen)"
+      # date: [HH:MM:SS]
+      PS1="$PS1$c1[$c0$(date +"%H$c1:$c0%M$c1:$c0%S")$c1]$c9"
+      #MJL20170204 jobs: (#)
+      PS1="$PS1$(prompt_jobs)"
+      #MJL20170205 virtualenv: (name)
+      PS1="$PS1$(prompt_venv)"
+      # exit code: 127
+      PS1="$PS1$(prompt_exitcode "$exit_code")"
+      PS1="$PS1\$ "
+  elif [[ $MC_SID ]]; then
+      #MJL20170205 single-line prompt for Midnight Commander
+      PS1="$(prompt_titlebar "MC - $USER@${HOSTNAME%%.*}")"
+      #flags: screen venv
+      PS1="$PS1$(prompt_screen)$(prompt_venv)"
+      #path: [user@host:path]
+      PS1="$PS1$c1[$c0\u$c1@$c0\h$c1:$c0\w$c1]$c9"
+      #codes: (jobs)exitcode
+      PS1="$PS1$(prompt_jobs)$(prompt_exitcode "$exit_code")"
+      PS1="$PS1> "
+  else
+      #MJL20170205 "Keep it simple, stupid"
+      # (use a very basic prompt, if $MJL_PS1_KISS is set)
+      PS1="[\u@\h:\w]\$ "
+  fi
 }
 
 PROMPT_COMMAND="prompt_command"
