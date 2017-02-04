@@ -23,18 +23,21 @@
 # 33  43  yellow    37  47  white
 
 if [[ ! "${prompt_colors[@]}" ]]; then
-  prompt_colors=(
-    "36" # information color
-    "37" # bracket color
-    "31" # error color
+    prompt_colors=(
+        "36" # information color
+        "37" # bracket color
+        "31;7" # error color
+        "35" # jobs colour
   )
 
   if [[ "$SSH_TTY" ]]; then
     # connected via ssh
-    prompt_colors[0]="32"
+      prompt_colors[0]="32"
   elif [[ "$USER" == "root" ]]; then
     # logged in as root
-    prompt_colors[0]="35"
+      prompt_colors[0]="41;37;1"
+      prompt_colors[1]="41;33;1"
+      #prompt_colors[2]="31;7"
   fi
 fi
 
@@ -57,6 +60,13 @@ function prompt_titlebar() {
                 printf "\033]0;%s\007" "$*"
                 ;;
         esac
+}
+
+#MJL20170204 jobs
+function prompt_jobs() {
+    prompt_getcolors
+    jobcount=$(jobs|wc -l|sed 's/ //g')
+    [[ $jobcount != 0 ]] && echo " ($c3$jobcount$c9)"
 }
 
 # Git status.
@@ -149,6 +159,8 @@ function prompt_command() {
   PS1="$PS1\n"
   # date: [HH:MM:SS]
   PS1="$PS1$c1[$c0$(date +"%H$c1:$c0%M$c1:$c0%S")$c1]$c9"
+  #MJL20170204 jobs (#)
+  PS1="$PS1$(prompt_jobs)"
   # exit code: 127
   PS1="$PS1$(prompt_exitcode "$exit_code")"
   PS1="$PS1 \$ "
