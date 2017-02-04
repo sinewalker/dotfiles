@@ -152,7 +152,7 @@ function prompt_command() {
   prompt_getcolors
   # http://twitter.com/cowboy/status/150254030654939137
   PS1="\n"
-  #MJL20170204 titlebar [dir] - user@host:/full/working/dir
+  #MJL20170204 titlebar: [dir] - user@host:/full/working/dir
   PS1="$PS1$(prompt_titlebar "[${HOSTNAME%%.*}:$(basename $PWD)] - $USER@${HOSTNAME%%.*}:$PWD")"
   # svn: [repo:lastchanged]
   PS1="$PS1$(prompt_svn)"
@@ -167,7 +167,7 @@ function prompt_command() {
   PS1="$PS1\n"
   # date: [HH:MM:SS]
   PS1="$PS1$c1[$c0$(date +"%H$c1:$c0%M$c1:$c0%S")$c1]$c9"
-  #MJL20170204 jobs (#)
+  #MJL20170204 jobs: (#)
   PS1="$PS1$(prompt_jobs)"
   #MJL20170205 virtualenv: (name)
   PS1="$PS1$(prompt_venv)"
