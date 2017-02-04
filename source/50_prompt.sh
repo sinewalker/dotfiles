@@ -49,9 +49,8 @@ alias prompt_getcolors='prompt_colors[9]=; local i; for i in ${!prompt_colors[@]
 # Exit code of previous command.
 function prompt_exitcode() {
   prompt_getcolors
-  [[ $1 != 0 ]] && echo " $c2$1$c9"
+  [[ $1 != 0 ]] && echo "$c2 $1 $c9"
 }
-
 
 #MJL20170204 title bar
 #see https://goo.gl/6E8a2u (SO: "Using git-prompt.sh PROMPT_COMMAND to change
@@ -174,7 +173,7 @@ function prompt_command() {
   PS1="$PS1$(prompt_venv)"
   # exit code: 127
   PS1="$PS1$(prompt_exitcode "$exit_code")"
-  PS1="$PS1 \$ "
+  PS1="$PS1\$ "
 }
 
 PROMPT_COMMAND="prompt_command"
