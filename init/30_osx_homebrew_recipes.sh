@@ -34,7 +34,8 @@ recipes=(
   homebrew/emacs/tern
   ipcalc
   ispell
-  mc
+  midnight-commander
+  openssl
   pcre
   proctools
   pwgen
@@ -48,6 +49,7 @@ recipes=(
   tinyproxy
   tmux
   watch
+  wget
   wireshark
   xmlstarlet
   xz
