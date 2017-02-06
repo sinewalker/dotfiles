@@ -11,7 +11,7 @@ Linux and macOS dotfiles. Forked from [Cowboy's dotfiles](https://github.com/cow
 
 A single command, [dotfiles][dotfiles], to "bootstrap" a new `${HOME}` directory and pull down personal dotfiles and config's, as well as install the tools I commonly use. 
 
-[dotfiles][dotfiles] may be re-executed at any time to synchronize anything that might have changed (e.g. after a `git pull` of this repo)
+[dotfiles][dotfiles] may be re-executed at any time to synchronize anything that might have changed (e.g. after a `git pull` of this repo, or to install a new tool listed in one of the Init steps).
 
 Additionally, having this on a central github repo makes it easy to re-integrate changes back in (via `git push`) so that other machines can be updated by re-synchronizing.
 
