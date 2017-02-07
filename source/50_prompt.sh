@@ -1,8 +1,12 @@
 # My awesome bash prompt
 #
-# Copyright (c) 2012 "Cowboy" Ben Alman
+# Copyright (c) 2012,2017 "Cowboy" Ben Alman, Michael Lockhart [MJL]
+#
 # Licensed under the MIT license.
 # http://benalman.com/about/license/
+#
+# small changes identified with "MJL" are Licensed Creative Commons by 4.0
+# https://creativecommons.org/licenses/by/4.0/
 #
 # Example:
 # [master:!?][cowboy@CowBook:~/.dotfiles]
