@@ -140,14 +140,16 @@ function prompt_svn() {
 }
 
 #MJL20170205 toggle using a simple prompt
-function prompt_kiss() {
-    if [[ -z $MJL_PS1_KISS ]]; then
-        export MJL_PS1_KISS=1
+# If an argument is supplied, force it to simple
+function prompt_simple() {
+    if [[ -z $simple_prompt || -n $1 ]]; then
+        export simple_prompt=1
     else
-        unset MJL_PS1_KISS
+        unset simple_prompt
     fi
 }
-alias simple_prompt=prompt_kiss
+alias simple_prompt=prompt_simple
+alias awesome_prompt=prompt_simple
 
 # Maintain a per-execution call stack.
 prompt_stack=()
@@ -163,11 +165,25 @@ function prompt_command() {
   # Manually load z here, after $? is checked, to keep $? from being clobbered.
   [[ "$(type -t _z)" ]] && _z --add "$(pwd -P 2>/dev/null)" 2>/dev/null
 
+  #MJL20170207 disable the awesome prompt for basic environments
+  [[ -n $ANDROID_ROOT ]] && prompt_simple 1
+
   # While the simple_prompt environment var is set, disable the awesome prompt.
-  [[ "$simple_prompt" ]] && PS1='\n$ ' && return
+  [[ "$simple_prompt" ]] && PS1='[\u@\h:\w]\$ ' && return
 
   prompt_getcolors
-  if [[ -z $MC_SID && -z $MJL_PS1_KISS ]]; then
+   if [[ -n $MC_SID ]]; then
+      #MJL20170205 single-line prompt for Midnight Commander
+      PS1="$(prompt_titlebar "MC - $USER@${HOSTNAME%%.*}")"
+      #flags: screen venv
+      PS1="$PS1$(prompt_screen)$(prompt_venv)"
+      #path: [user@host:path]
+      PS1="$PS1$c1[$c0\u$c1@$c0\h$c1:$c0\w$c1]$c9"
+      #codes: (jobs)exitcode
+      PS1="$PS1$(prompt_jobs)$(prompt_exitcode "$exit_code")"
+      PS1="$PS1> "
+  else
+      #MJL20170207 Cowboy's Awesome prompt is the fall-through case
       # http://twitter.com/cowboy/status/150254030654939137
       PS1="\n"
       #MJL20170204 titlebar: [dir] - user@host:/full/working/dir
@@ -194,20 +210,6 @@ function prompt_command() {
       # exit code: 127
       PS1="$PS1$(prompt_exitcode "$exit_code")"
       PS1="$PS1\$ "
-  elif [[ $MC_SID ]]; then
-      #MJL20170205 single-line prompt for Midnight Commander
-      PS1="$(prompt_titlebar "MC - $USER@${HOSTNAME%%.*}")"
-      #flags: screen venv
-      PS1="$PS1$(prompt_screen)$(prompt_venv)"
-      #path: [user@host:path]
-      PS1="$PS1$c1[$c0\u$c1@$c0\h$c1:$c0\w$c1]$c9"
-      #codes: (jobs)exitcode
-      PS1="$PS1$(prompt_jobs)$(prompt_exitcode "$exit_code")"
-      PS1="$PS1> "
-  else
-      #MJL20170205 "Keep it simple, stupid"
-      # (use a very basic prompt, if $MJL_PS1_KISS is set)
-      PS1="[\u@\h:\w]\$ "
   fi
 }
 
