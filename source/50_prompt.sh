@@ -68,7 +68,7 @@ function prompt_titlebar() {
 function prompt_jobs() {
     prompt_getcolors
     local jobcount
-    jobcount=$(jobs|wc -l|sed 's/ //g')
+    jobcount=$(jobs|wc -l); jobcount=${jobcount// /}
     [[ $jobcount != 0 ]] && echo "$c3($c4$jobcount$c3)$c9"
 }
 
