@@ -1,7 +1,9 @@
-alias opssvn='cd $HOME/work/code/svn/ops'
+alias cdsvn='cd $HOME/Work/svn'
 alias mount_work='mount -t nfs -o locallocks wdmycloud.local:/nfs/work $HOME/work'
 alias mount_downloads='mount -t nfs -o locallocks wdmycloud.local:/nfs/Downloads $HOME/Downloads/shared'
-alias cdgit='cd $HOME/work/code/git'
+alias cdgit='cd $HOME/Work/lab'
+alias cdlab='cd $HOME/Work/lab'
+
 #alias work_mount='mount -t nfs wdmycloud.local:/nfs/work $HOME/work'
 
 
@@ -48,8 +50,8 @@ alias teamviewer='schroot -p -c natty-i386 teamviewer'
 alias showip='curl http://ipecho.net/plain; echo'
 
 # I'm doing this too many times a day
-alias opssvn='cd ~/work/code/svn/ops'
-alias labssvn='cd ~/work/code/svn/labs'
+alias opssvn='cd ~/Work/svn/ops'
+alias labssvn='cd ~/Work/svn/labs'
 
 
 alias repoproxy='tmux has-session -t repoproxy >&/dev/null && tmux attach-session -t repoproxy || tmux new-session -s repoproxy "cd ~/work/code/git/repoproxy; ./repoproxy.js"'
