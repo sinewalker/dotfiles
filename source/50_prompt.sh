@@ -151,6 +151,17 @@ function prompt_simple() {
 alias simple_prompt=prompt_simple
 alias awesome_prompt=prompt_simple
 
+#MJL20170207 toggle command history trace
+# sometimes this can be useful
+function prompt_trace() {
+    if [[ -z $trace_prompt || -n $1 ]]; then
+        export trace_prompt=1
+    else
+        unset trace_prompt
+    fi
+}
+alias trace_prompt=prompt_trace
+
 # Maintain a per-execution call stack.
 prompt_stack=()
 trap 'prompt_stack=("${prompt_stack[@]}" "$BASH_COMMAND")' DEBUG
@@ -194,13 +205,17 @@ function prompt_command() {
       PS1="$PS1$(prompt_git)"
       # hg:  [branch:flags]
       PS1="$PS1$(prompt_hg)"
-      # misc: [cmd#:hist#]
-      # PS1="$PS1$c1[$c0#\#$c1:$c0!\!$c1]$c9"
       # path: [user@host:path]
       PS1="$PS1$c1[$c0\u$c1@$c0\h$c1:$c0\w$c1]$c9"
       PS1="$PS1\n"
+
       #MJL20170205 screen: #
       PS1="$PS1$(prompt_screen)"
+      #MJL20170207 turn on the command history trace if wanted
+      if [[ -n $trace_prompt ]]; then
+          # misc: [cmd#:hist#]
+          PS1="$PS1$c1[$c0#\#$c1:$c0!\!$c1]$c9"
+      fi
       # date: [HH:MM:SS]
       PS1="$PS1$c1[$c0$(date +"%H$c1:$c0%M$c1:$c0%S")$c1]$c9"
       #MJL20170204 jobs: (#)
