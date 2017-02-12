@@ -24,7 +24,8 @@ is_osx && BC=/usr/local/etc/bash_completion
 
 # Personal completions (if any)
 is_osx && XDG_CONFIG_HOME=${HOME}/.config
-[[ -f ${XDG_CONFIG_HOME}/bash_completion ]] && source ${XDG_CONFIG_HOME}/bash_completion
+BC=${XDG_CONFIG_HOME}/bash_completion
+[[ -f ${BC} ]] && source ${BC}
 
 # Disable ansible cows }:]
 export ANSIBLE_NOCOWS=1
