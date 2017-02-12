@@ -220,8 +220,8 @@ function prompt_command() {
           # misc: [cmd#:hist#]
           PS1="$PS1$c1[$c0#\#$c1:$c0!\!$c1]$c9"
       fi
-      # date: [HH:MM:SS]
-      PS1="$PS1$c1[$c0$(date +"%H$c1:$c0%M$c1:$c0%S")$c1]$c9"
+      # date: [HH:MM]
+      PS1="$PS1$c1[$c0$(date +"%H$c1:$c0%M$c1")$c1]$c9"
       #MJL20170204 jobs: (#)
       PS1="$PS1$(prompt_jobs)"
       #MJL20170205 virtualenv: (name)
