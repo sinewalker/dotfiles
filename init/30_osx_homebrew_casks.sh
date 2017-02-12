@@ -22,6 +22,7 @@ casks=(
     flux
     gpgtools
     hammerspoon
+    iterm2
     karabiner
     keepassx
     netbeans
@@ -48,7 +49,6 @@ casks=(
     # ### Free
     # dropbox
     # emacs
-    # iterm2
 
     # ### MJL20170131 Purchased on my own account
     # steam
