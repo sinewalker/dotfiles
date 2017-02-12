@@ -23,6 +23,7 @@ recipes=(
   the_silver_searcher
   tree
   #MJL20170131 more by me
+  bash-completion
   bash-git-prompt
   colordiff
   coreutils

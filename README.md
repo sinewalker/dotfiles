@@ -195,5 +195,5 @@ Copyright © 2014,2016 "Cowboy" Ben Alman
 Licensed under the [MIT license][LICENSE-MIT].
 [LICENSE-MIT]: LICENSE-MIT
 
-_Identified Portions_ Copyright © 2007-2009,2013,2014,2016-2017 Michael Lockhart
+_Identified Portions_ Copyright © 2005,2007-2009,2013,2014,2016-2017 Michael Lockhart
 Licensed under the [Creative Commons CC-by-4.0 License](https://creativecommons.org/licenses/by/4.0/)

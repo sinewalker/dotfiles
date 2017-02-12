@@ -1,0 +1,44 @@
+###############################################################################
+#
+#  File:       .inputrc
+#  Created:    2005-10-06
+#  Language:   GNU Readline configuration
+#  Time-stamp: <2017-02-12 22:22:39 mjl>
+#  Platform:   GNU
+#  OS:         GNU/Linux, GNU/Hurd, GNU/Solaris, GNU/Darwin, GNU/Cygwin
+#  Author:     Michael Lockhart [MJL]
+#
+#  Rights:     Use this however you like, just don't sue me
+#
+#  PURPOSE:    GNU Readline configuration
+#
+#       This file controls the behaviour of line input editing for programs that
+#       use the GNU Readline library. Existing programs include FTP, Bash, and
+#       GDB.
+#
+#       You can re-read the inputrc file with C-x C-r. Lines beginning with '#'
+#       are comments.
+#
+#  HISTORY
+#
+# MJL20051006 - Created
+# MJL20051028 - Cygwin recommendations
+# MJL20170212 - imported from dotfiles-old repository, removed some ancient things
+#
+
+
+# First, include any systemwide bindings and variable
+# assignments from /etc/Inputrc
+$include /etc/Inputrc
+
+# Bash completion
+
+#bash_completion: show all options straight away
+set show-all-if-ambiguous on
+#bash_completion: append stats symbol on completions, like ls -F
+set visible-stats on
+# Ignore case while completing
+set completion-ignore-case on
+# if there are more than 150 possible completions for
+# a word, ask the user if she wants to see all of them
+set completion-query-items 150
