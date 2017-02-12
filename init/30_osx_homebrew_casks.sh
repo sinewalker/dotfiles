@@ -15,6 +15,7 @@ brew cask list > /dev/null 2>&1 ||  (e_error "Brew-cask failed to install." && r
 casks=(
     # apps
     android-file-transfer
+    atom
     cathode
     clementine
     enpass
