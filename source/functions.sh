@@ -111,3 +111,13 @@ svn () {
 	# TODO we don't want to page the update command
 	fi | $pager
 }
+
+
+#MJL20170213 - my own functions. TODO: review this whole file and fold into 20_env.sh
+
+ssh-reset() {
+    #interactively remove the SSH control-master for specified/matching hosts
+    [[ -z ${1} ]] && echo "Specify a host to reset, or ALL for all hosts" && return 1
+    [[ ${1} =~ ALL ]] && rm -fvi ~/.ssh/*master* && return 0
+    rm -fvi ~/.ssh/*master*${1}*
+}
