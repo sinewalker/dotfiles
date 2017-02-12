@@ -1,1 +1,2 @@
-export DIR_opssvn="$HOME/work/code/svn/ops"
+export DIR_opssvn="$HOME/Work/svn"
+export DIR_DEFAULT="$HOME/Work/lab/edge-config/clients/actssict"
