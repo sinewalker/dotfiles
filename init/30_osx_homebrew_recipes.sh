@@ -34,6 +34,7 @@ recipes=(
   homebrew/emacs/tern
   ipcalc
   ispell
+  jq
   midnight-commander
   openssl
   pcre
