@@ -1,0 +1,11 @@
+#!/bin/bash
+#
+#  set Dell Latitude 6430u keyboard for my likings
+#
+# MJL20131018 - Created (just ctrl:nocaps for now)
+# MJL20131029 - Remap Super/Menu keys (note:- for Emacs, still must bind)
+
+setxkbmap -option ctrl:nocaps
+
+xmodmap -e "keycode 135 = Super_R"  # change Menu key to Super_R (right Win)
+xmodmap -e "keycode  37 = Menu"     # change Ctrl_L key to Menu (Apps)
