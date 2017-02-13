@@ -78,3 +78,6 @@ alias path='echo ${PATH}'
 
 #show SSH control-master files
 alias ssh-master='ls -so ~/.ssh/*master*'
+
+#show where a command comes from
+alias whence='type -a'
