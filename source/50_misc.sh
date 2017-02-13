@@ -29,3 +29,8 @@ BC=${XDG_CONFIG_HOME}/bash_completion
 
 # Disable ansible cows }:]
 export ANSIBLE_NOCOWS=1
+
+#MJL20170213 misc bash controls
+# this is to allow incremental forward search on the command line using ^S
+# (the test checks that stdin is a terminal. see: http://tldp.org/LDP/abs/html/intandnonint.html#II2TEST)
+[[ -t 0 ]] && stty stop 
