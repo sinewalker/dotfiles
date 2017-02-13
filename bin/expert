@@ -1,0 +1,17 @@
+#!/bin/bash
+#
+#  turn on emulation of scroll wheel for my four-button Kensington
+#  Expert Mouse (trackball)
+#
+#   Note: the top-right button is Button 8
+#         Axes UP DOWN LEFT RIGHT map to dragging Down(7) Up(6) Left(4)
+#         Right(5), for "natural" scroll, like a touch screen
+#
+# (got this tip from http://unix.stackexchange.com/questions/101867/make-mouse-movements-scroll-when-the-middle-button-is-held-down)
+#
+# MJL20150731 - Created
+
+xinput --set-prop 'Kensington      Kensington Expert Mouse' 'Evdev Wheel Emulation' 1
+xinput --set-prop 'Kensington      Kensington Expert Mouse' 'Evdev Wheel Emulation Button' 8
+xinput --set-prop 'Kensington      Kensington Expert Mouse' 'Evdev Wheel Emulation Axes' 7 6 4 5
+
