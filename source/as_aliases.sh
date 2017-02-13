@@ -24,9 +24,6 @@ alias wiki_urls='cat <<EOF | sed -re "s^(.*)^|| http://\1 ||^"'
 alias mq='hg -R $(hg root)/.hg/patches'
 
 
-alias vso='curl -vso /dev/null'
-# the 'c' means 'bust cache'
-alias vsoc='vso -H "Cache-Control: no-cache"'
 
 # http-replicator for RPM package downloading
 # there should be an appropriate firewall rule to work with this, ie
@@ -42,9 +39,6 @@ alias svnx='svn --ignore-externals'
 # teamviewer
 alias teamviewer='schroot -p -c natty-i386 teamviewer'
 #alias music='screen -xRR -q -S music vlc playlist.pls'
-
-# see https://opswiki.squiz.net/ncallahan
-alias showip='curl http://ipecho.net/plain; echo'
 
 # I'm doing this too many times a day
 alias opssvn='cd ~/Work/svn/ops'
