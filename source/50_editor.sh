@@ -1,12 +1,12 @@
 # Editing
 
-export EDITOR='vim'
+export EDITOR='mcedit'
 
-if [[ ! "$SSH_TTY" ]] && is_osx && type mvim >&/dev/null
-then
-  export EDITOR='mvim'
-  export LESSEDIT='mvim ?lm+%lm -- %f'
-fi
+#if [[ ! "$SSH_TTY" ]] && is_osx && type mvim >&/dev/null
+#then
+#  export EDITOR='mvim'
+#  export LESSEDIT='mvim ?lm+%lm -- %f'
+#fi
 
 # git picks this up and I don't like it
 #export VISUAL="$EDITOR"
