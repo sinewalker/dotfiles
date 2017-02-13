@@ -43,9 +43,6 @@ alias svnx='svn --ignore-externals'
 alias teamviewer='schroot -p -c natty-i386 teamviewer'
 #alias music='screen -xRR -q -S music vlc playlist.pls'
 
-# saving two characters... really!?
-#alias ssht='ssh -t'
-
 # see https://opswiki.squiz.net/ncallahan
 alias showip='curl http://ipecho.net/plain; echo'
 
@@ -75,9 +72,6 @@ alias puppet='tmux new-session -A -t puppet'
 #MJL20170213 - my own aliases.  TODO: review this whole file and fold into 20_env.sh
 
 alias path='echo ${PATH}'
-
-#show SSH control-master files
-alias ssh-master='ls -so ~/.ssh/*master*'
 
 #show where a command comes from
 alias whence='type -a'
