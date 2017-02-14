@@ -46,7 +46,6 @@ ssh-reset() {
     [[ ${1} =~ ALL ]] && rm -fvi ~/.ssh/*master* && return 0
     rm -fvi ~/.ssh/*master*${1}*
 }
-export -f ssh-reset
 
 #show SSH control-master files
 alias ssh-master='ls -so ~/.ssh/*master*'
