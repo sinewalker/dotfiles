@@ -57,6 +57,9 @@ function md() {
   mkdir -p "$@" && cd "$@"
 }
 
+# Bashmarks directory bookmarks
+source ${DOTFILES}/vendor/bashmarks/bashmarks.sh
+
 # Fast directory switching
 
 # TODO: the manual page for z needs to be linked or copied somewhere that will
@@ -67,9 +70,9 @@ function md() {
 # but doing that every time this file is sourced would be silly.
 # (and setting $MANPATH overrides /etc/man.conf)
 
-mkdir -p $DOTFILES/caches/z
+mkdir -p ${DOTFILES}/caches/z
 #_Z_NO_PROMPT_COMMAND=1
-_Z_DATA=$DOTFILES/caches/z/z
-source $DOTFILES/vendor/z/z.sh
+_Z_DATA=${DOTFILES}/caches/z/z
+source ${DOTFILES}/vendor/z/z.sh
 
 alias rd=rmdir
