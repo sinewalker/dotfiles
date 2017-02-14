@@ -37,6 +37,12 @@ function assert() {
   [[ "$actual" == "$expected" ]] && success=1 || success=0
   ${modes[success]} "\"$actual\" ${equals[success]} \"$expected\""
 }
+# source mechanics
+
+# test if all arguments are runnable command
+function is_exe() {
+  type -p $@ > /dev/null
+}
 
 # OS detection
 function is_osx() {

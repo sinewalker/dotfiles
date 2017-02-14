@@ -1,16 +1,20 @@
 # Editing
 
-export EDITOR='mcedit'
+#Let's jump ahead 20 years and make the default Unix editor be
+#Midnight Commander, since I install it everywhere with this repo
+export EDITOR=mcedit
 
-#if [[ ! "$SSH_TTY" ]] && is_osx && type mvim >&/dev/null
-#then
-#  export EDITOR='mvim'
-#  export LESSEDIT='mvim ?lm+%lm -- %f'
-#fi
+#Or, if we're on a 21st century computer, let's default to
+#Using Atom if we have it and we're not on a secure shell
+if [[ ! "$SSH_TTY" ]] && is_exe atom
+then
+  EDITOR=atom
+fi
 
-# git picks this up and I don't like it
-#export VISUAL="$EDITOR"
+alias edit=${EDITOR}
 
-#alias q="$EDITOR"
-#alias qv="q $DOTFILES/link/.{,g}vimrc +'cd $DOTFILES'"
-#alias qs="q +'cd $DOTFILES'"
+#if 'mc' can launch the whole Midnight Commander, why not these too?
+alias mce=mcedit
+alias mcv=mcview
+alias mcd=mcdiff
+alias view=mcview
