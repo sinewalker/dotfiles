@@ -75,4 +75,13 @@ mkdir -p ${DOTFILES}/caches/z
 _Z_DATA=${DOTFILES}/caches/z/z
 source ${DOTFILES}/vendor/z/z.sh
 
+#MJL20170214 also use CDPATH. Between above vendor tools and this bash-feature,
+#I should be able to quickly move around now.
+export CDPATH=~:~/Projects:~/Work:~/Documents:~/net:~/Grid:~/Uploads:~/Downloads:~/dev:~/tmp
+
+[[ -d ~/Work/svn ]] && CDPATH=$CDPATH:~/Work/svn
+[[ -d ~/Work/lab ]] && CDPATH=$CDPATH:~/Work/lab
+[[ -d ~/Work/Projects ]] && CDPATH=~/Work/Projects:$CDPATH
+[[ -d ~/Work/Documents ]] && CDPATH=~/Work/Documents:$CDPATH
+
 alias rd=rmdir
