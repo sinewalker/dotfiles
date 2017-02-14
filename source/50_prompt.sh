@@ -71,9 +71,9 @@ function prompt_titlebar() {
 #MJL20170204 jobs
 function prompt_jobs() {
     prompt_getcolors
-    local jobcount
-    jobcount=$(jobs|wc -l); jobcount=${jobcount// /}
-    [[ $jobcount != 0 ]] && echo "$c3($c4$jobcount$c3)$c9"
+    local JOBCOUNT
+    JOBCOUNT=$(jobs -r|awk 'END{print NR}')
+    [[ ${JOBCOUNT} > 0 ]] && echo "$c3($c4${JOBCOUNT}$c3)$c9"
 }
 
 #MJL20170205 python virtual environment name
