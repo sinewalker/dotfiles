@@ -140,3 +140,17 @@ function wiid() {
 	  ssh squiz-cru01.hba.squiz.net.au "su - wiid -c '~/whyisitdown/whyisitdown $1 "$2"'"
 }
 export -f wiid
+
+
+#MJL20170216 squizisms from 2014
+
+alias squizup='pushd ~/Work/svn; ./update; popd'
+alias squizwords='gpg -d ~/Work/svn/sysadmin/support-passwords.txt.gpg|less'
+alias edpass='pushd ~/Work/svn/sysadmin; svn up; ed support-passwords.txt.gpg; popd'
+
+#bounce to the UK
+alias bounce="ssh bounce.squiz.co.uk -lmlockhart -o ForwardAagent=yes"
+
+#better rdesktop experience for Squiz (uploads from \\tsclient\upload)
+# (see https://opswiki.squiz.net/Clients/CSU ):
+alias rdp="rdesktop -g 1200x800 -a 15 -z -x b -P -r disk:upload=${HOME}/Uploads -rclipboard:PRIMARYCLIPBOARD"

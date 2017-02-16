@@ -35,6 +35,26 @@ export ANSIBLE_NOCOWS=1
 #show where a command comes from
 alias whence='type -a'
 
+#nice commands
+alias que=${PLAYER}
+alias view=${VIEWER}
+alias web=${BROWSER}
+alias whence="type -a"
+
+#doo eet
+alias fuck='sudo $(history -p \!\!)'
+alias sammich='sudo $(history -p \!\!)'
+alias please=sudo
+
+is_osx || is_exe tracepath && alias traceroute=tracepath
+alias tracert=traceroute
+
+#terminals
+alias kons="konsole --profile $1 2> /dev/null"
+alias kons-show="konsole --list-profiles"
+alias root="konsole --profile 'Root Shell'"
+
+
 #MJL20170213 misc bash controls
 # this is to allow incremental forward search on the command line using ^S
 # (the test checks that stdin is a terminal. see: http://tldp.org/LDP/abs/html/intandnonint.html#II2TEST)

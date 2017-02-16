@@ -16,3 +16,5 @@ export HISTFILESIZE=10000
 
 # Easily re-execute the last history command.
 alias r="fc -s"
+# Easily forget the last command
+alias whoops=' history -d $(($HISTCMD-1))'
