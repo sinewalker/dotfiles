@@ -28,6 +28,7 @@ recipes=(
   bash-git-prompt
   colordiff
   coreutils
+  flac
   gawk
   gnu-sed
   gnuplot
@@ -37,7 +38,10 @@ recipes=(
   ipcalc
   ispell
   jq
+  lame
+  libvorbis
   midnight-commander
+  opencore-amr
   openssl
   pcre
   proctools
@@ -59,6 +63,12 @@ recipes=(
 )
 
 brew_install_recipes
+
+#MJL20170216 Special recipes
+
+#MJL20170216 SOX will support libvorbis, but not by default in Homebrew
+# which is a shame since it's my go-to codec
+brew_install_special_recipe sox --with-libvorbis --with-flac --with-lame --with-opencore-amr
 
 # Misc cleanup!
 
