@@ -30,6 +30,7 @@ recipes=(
   coreutils
   flac
   gawk
+  goaccess
   gnu-sed
   gnuplot
   graphviz
