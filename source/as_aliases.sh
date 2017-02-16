@@ -14,9 +14,6 @@ alias vbox='tmux has-session -t vbox && tmux attach-session -t vbox || tmux new-
 #alias imap='screen -S imap -xRR -q'
 #alias imap='screen -xRR -q -S imap sh /home/asharpe/bin/imapfilter.sh'
 
-# to make SQ_CONF_ROOT_URLS into wiki urls
-# just enter the URLS followed by EOF
-alias wiki_urls='cat <<EOF | sed -re "s^(.*)^|| http://\1 ||^"'
 
 
 # work on an mq repository
@@ -48,8 +45,6 @@ alias labssvn='cd ~/Work/svn/labs'
 alias repoproxy='tmux has-session -t repoproxy >&/dev/null && tmux attach-session -t repoproxy || tmux new-session -s repoproxy "cd ~/work/code/git/repoproxy; ./repoproxy.js"'
 
 
-# according to https://opswiki.squiz.net/Policies/Password_Guidelines#GeneralPasswordGuidelines
-alias pwgen='pwgen -1 -c -n -y 12'
 
 #alias hibernate='sudo rootsh -- pm-hibernate'
 #alias suspend='sudo rootsh -- pm-suspend'
@@ -62,8 +57,3 @@ alias cgoban='/usr/lib/jvm/java-6-sun/jre/bin/java -Xmx150m -Dapple.awt.textanti
 #alias internet="sudo usb_modeswitch -v 12d1 -p 1446 -I -c 12d1\:1446"
 
 alias puppet='tmux new-session -A -t puppet'
-
-#MJL20170213 - my own aliases.  TODO: review this whole file and fold into 20_env.sh
-
-#show where a command comes from
-alias whence='type -a'
