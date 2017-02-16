@@ -7,9 +7,6 @@ shopt -s checkwinsize
 
 export GREP_OPTIONS='--color=auto'
 
-# Prevent less from clearing the screen while still showing colors.
-export LESS=-XR
-
 # Set the terminal's title bar.
 function titlebar() {
   echo -n $'\e]0;'"$*"$'\a'
@@ -59,3 +56,8 @@ alias root="konsole --profile 'Root Shell'"
 # this is to allow incremental forward search on the command line using ^S
 # (the test checks that stdin is a terminal. see: http://tldp.org/LDP/abs/html/intandnonint.html#II2TEST)
 [[ -t 0 ]] && stty stop 
+
+#MJL20170216 temporary files
+export TMP=${HOME}/tmp
+export TEMP=${TMP}
+export TMPDIR=${TMP}
