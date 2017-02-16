@@ -86,8 +86,3 @@ if (( ${#casks[@]} > 0 )); then
   brew cask cleanup
 fi
 
-#MJL20170213 install the emacs daemon
-
-EMACS_DAEMON=homebrew.mxcl.emacs
-ln -sfv /usr/local/opt/emacs/$EMACS_DAEMON.plist ~/Library/LaunchAgents
-launchctl list $EMACS_DAEMON > /dev/nunll || load ~/Library/LaunchAgents/$EMACS_DAEMON.plist
