@@ -65,7 +65,5 @@ alias puppet='tmux new-session -A -t puppet'
 
 #MJL20170213 - my own aliases.  TODO: review this whole file and fold into 20_env.sh
 
-alias path='echo ${PATH}'
-
 #show where a command comes from
 alias whence='type -a'

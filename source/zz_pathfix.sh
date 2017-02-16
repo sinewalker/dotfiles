@@ -35,8 +35,9 @@ path_add() {
 
 
 #path_add ~/lib/anaconda/bin 1
-path_add ~/Squiz/bin
+path_add ~/Work/bin
 path_add .
 
 dedupe_path
 export PATH
+alias path='echo ${PATH}'
