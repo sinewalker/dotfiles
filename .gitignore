@@ -21,4 +21,11 @@
 
 # Ignore any file with LOCAL in the name (good for per-machine vars/functions)
 *LOCAL*
+
+#ignore SSH control-master files
 link/.ssh/*master*
+
+#ignore files within link/.config
+link/.config/*
+#except for midnight commander -- I want this in my repo
+!link/.config/mc
