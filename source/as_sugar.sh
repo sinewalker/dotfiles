@@ -1,3 +1,6 @@
+#TODO: review this file -- it is specific for Squiz, and these ipowered hosts
+#      are all due to be decommissioned One Day, making this obsolete.
+
 export squiz_user=mlockhart@  #dirty hack
 
 function ssh_host() {
