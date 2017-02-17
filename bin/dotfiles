@@ -55,7 +55,8 @@ function is_suse() {
     [[ $(lsb_release -i 2> /dev/null) =~ SUSE ]] || return 1
 }
 function is_raspbian() {
-    #TODO work this out:  pretty sure lsb_release is not installed
+    #lsb_release is not installed by default in Raspbian
+    [[ "$(cat /etc/os-release 2> /dev/null)" =~ Raspbian ]] || return 1
     return 1
 }
 function is_redhat6() {
