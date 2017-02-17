@@ -7,3 +7,6 @@ is_osx || return 1
 if [[ ! -d "$('xcode-select' -print-path 2>/dev/null)" ]]; then
   sudo xcode-select -switch /usr/bin
 fi
+
+#MJL20170217 link personal tmp directory
+[[ $TMPDIR =~ ^/var ]] && echo LINK && ln -sf $TMPDIR ~/tmp
