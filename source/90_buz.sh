@@ -5,31 +5,30 @@ export BUZDIR=${HOME}/Audio/buz
 
 #play a sound, or list all the buz sounds if no arg
 buz() {
-  if [[ -z ${1} ]]; then
-      pushd ${BUZDIR}
-      ls -F
-      popd
-      return 1
-  fi
-  local buz=$(find ${BUZDIR} -name ${1})
-  if [[ $(file ${buz} =~ directory) ]]; then
-    pushd ${buz}
-    ls *
-    popd > /dev/null
-  else
-    play ${buz}
-  fi
+    if [[ -z ${1} ]]; then
+        pushd ${BUZDIR}
+        ls -F
+        popd
+        return 1
+    fi
+    local buz=$(find ${BUZDIR} -name ${1})
+    if [[ $(file ${buz} =~ directory) ]]; then
+        pushd ${buz}
+        ls *
+        popd > /dev/null
+    else
+        play ${buz}
+    fi
 }
 
 #Bash completions
 _buz() {
-  local cur prev sounds
-  COMPREPLY=()
-  cur="${COMP_WORDS[COMP_CWORD]}"
-  prev="${COMP_WORDS[COMP_CWORD-1]}"
-  sounds="$(find ${BUZDIR}|xargs basename)"
+    COMPREPLY=()
+    local cur sounds
+    cur="${COMP_WORDS[COMP_CWORD]}"
+    sounds="$(find ${BUZDIR}|xargs basename)"
 
-  COMPREPLY=( $(compgen -W "${sounds}" -- ${cur}) )
-  return 0
+    COMPREPLY=( $(compgen -W "${sounds}" -- ${cur}) )
+    return 0
 }
 complete -F _buz buz
