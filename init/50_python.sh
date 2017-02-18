@@ -5,10 +5,12 @@ source $DOTFILES/source/50_python.sh
 # see http://hackercodex.com/guide/python-development-environment-on-mac-osx/
 # (which ideas are more widely applicable than just macOS)
 
-echo <<EOF
+e_header "Installing system-wide Python tools"
+cat <<EOM
 You may need to enter a password for root access (either your own or
 the system root password) depending on the system's sudo configuration.
-EOF
+
+EOM
 gpip install --upgrade pip setuptools wheel virtualenv
 gpip install --upgrade Mercurial hg-git
 gpip install --upgrade isort ipython
