@@ -16,6 +16,7 @@ function src() {
     done
   fi
 }
+
 alias lssrc='\ls ${DOTFILES}/source/|egrep "\.sh$"|sed "s/\.sh//g"'
 
 # Run dotfiles script, then source.
@@ -24,6 +25,20 @@ function dotfiles() {
 }
 
 src
+
+# Completion for src function (requires bash_rompletion)
+_src() {
+  local cur sources
+  COMPREPLY=()
+  cur="${COMP_WORDS[COMP_CWORD]}"
+  pushd ${DOTFILES}/source > /dev/null
+  sources="$(\ls *.sh|sed 's/\.sh$//g')"
+  popd > /dev/null
+
+  COMPREPLY=( $(compgen -W "${sources}" -- ${cur}) )
+  return 0
+}
+complete -F _src src
 
 # fix SSH connections
 bind '"\e[1;5D": backward-word'
