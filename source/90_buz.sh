@@ -12,7 +12,7 @@ buz() {
         return 1
     fi
     local buz=$(find ${BUZDIR} -name ${1})
-    if [[ $(file ${buz}) =~ directory ]]; then
+    if [[ -d ${buz} ]]; then
         pushd ${buz}
         ls *
         popd > /dev/null
