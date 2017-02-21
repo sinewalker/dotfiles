@@ -12,19 +12,33 @@ else
 fi
 
 # Directory listing
-alias ll='ls -l'
-alias la='ll -a'
-alias ld='CLICOLOR_FORCE=1 ll | grep --color=never "^d"'
-# optional override
-if true && [[ "$(type -P tree)" ]]; then
-  alias la='tree --dirsfirst -aLpughDFiC 1'
-  alias d='la -d'
-fi
+# use GNU ls on macOS, if we have it
+is_osx && [[ "$(type -P gls)" ]] && alias ls='gls'
 alias l='ls -F'
+alias la='ls -a'
+alias ll='ls -l'
+alias lh='ll -h'
+alias lk='ll -sk'
 alias lt='ll -t'
 alias lr='ll -tr'
-alias lh='ll -h'
+
+alias lth='lt -h'
 alias lrh='lr -h'
+alias ltk='lt -k'
+alias lrk='lr -sk'
+
+alias lla='ll -a'
+alias lll='ll -ah'
+alias llh='lh'
+alias llk='ll -ask'
+
+alias ld='CLICOR_FORCE=1 lla | sort -r'
+alias d='CLICOLOR_FORCE=1 lla | grep --color=never "^d"'
+# optional override with tree
+if [[ "$(type -P tree)" ]]; then
+  alias ld='tree --dirsfirst -aLpughDFiC 1'
+  alias d='ld -d'
+fi
 
 # Easier navigation: .., ..., -
 alias ..='cd ..'
@@ -38,6 +52,7 @@ alias .........='cd ../../../../../../../..'
 alias ..........='cd ../../../../../../../../..'
 alias ...........='cd ../../../../../../../../../..'
 
+#this aliases '-' to go back to previous directory
 alias -- -='cd -'
 
 # File size
@@ -77,11 +92,21 @@ source ${DOTFILES}/vendor/z/z.sh
 
 #MJL20170214 also use CDPATH. Between above vendor tools and this bash-feature,
 #I should be able to quickly move around now.
-export CDPATH=~:~/Projects:~/Work:~/Documents:~/net:~/Grid:~/Uploads:~/Downloads:~/dev:~/tmp
+export CDPATH=~:~/Projects:~/Documents:~/net:~/Grid:~/Uploads:~/Downloads:~/dev:~/tmp
 
+[[ -d ~/Work ]] && CDPATH=~/Work:$CDPATH
 [[ -d ~/Work/svn ]] && CDPATH=$CDPATH:~/Work/svn
 [[ -d ~/Work/lab ]] && CDPATH=$CDPATH:~/Work/lab
 [[ -d ~/Work/Projects ]] && CDPATH=~/Work/Projects:$CDPATH
 [[ -d ~/Work/Documents ]] && CDPATH=~/Work/Documents:$CDPATH
 
 alias rd=rmdir
+alias rrm='rm -r'
+
+function rmrf() {
+    echo "Recursively REMOVE $@ and ALL CHILD iNODES"; echo
+    [[ "$(type -P tree)" ]] && tree -d -L 3 $@
+    echo -n "ARE YOU CERTAIN (y/N)? "
+    read DOIT
+    [[ $DOIT =~ y ]] && rm -rf $@ || echo "Aborted."
+}
