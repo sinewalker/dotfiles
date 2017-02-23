@@ -1,18 +1,26 @@
 #!/usr/bin/env bash
 
-#[[ "$1" == "source" ]] || \
-#echo 'Dotfiles - "Cowboy" Ben Alman - http://benalman.com/'
+[[ "$1" == "source" ]] || cat <<BANNER
+
+Dotfiles - "Cowboy" Ben Alman - http://benalman.com/
+     this fork: Mike Lockhart - http://milosophical.me/
+BANNER
 
 if [[ "$1" == "-h" || "$1" == "--help" ]]; then cat <<HELP
 
 Usage: $(basename "$0")
 
 See the README for documentation.
-https://github.com/cowboy/dotfiles
+https://github.com/sinewalker/dotfiles
 
-Copyright (c) 2014 "Cowboy" Ben Alman
+Portions Copyright © 2017 Mike Lockhart
+Creative Commons CC-by-4.0
+https://creativecommons.org/licenses/by/4.0/
+
+Original work Copyright (c) 2014 "Cowboy" Ben Alman
 Licensed under the MIT license.
 http://benalman.com/about/license/
+
 HELP
 exit; fi
 
@@ -69,7 +77,8 @@ function assert() {
   [[ "$actual" == "$expected" ]] && success=1 || success=0
   ${modes[success]} "\"$actual\" ${equals[success]} \"$expected\""
 }
-# source mechanics
+
+# MJL20170214 source mechanics
 
 # test if all arguments are runnable command
 function is_exe() {
