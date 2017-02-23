@@ -70,16 +70,14 @@ function prompt_titlebar() {
 
 #MJL20170204 jobs
 function prompt_jobs() {
-    prompt_getcolors
-    local JOBCOUNT
-    JOBCOUNT=$(jobs -r|awk 'END{print NR}')
-    [[ ${JOBCOUNT} > 0 ]] && echo "$c3($c4${JOBCOUNT}$c3)$c9"
+    local JOBCOUNT=$(jobs -r|awk 'END{print NR}')
+    [[ ${JOBCOUNT} = 0 ]] && return
+    echo "$c3($c4${JOBCOUNT}$c3)$c9"
 }
 
 #MJL20170205 python virtual environment name
 function prompt_venv() {
-    prompt_getcolors
-    [[ -z $VIRTUAL_ENV ]] || echo "$c3($c5$(basename $VIRTUAL_ENV)$c3)$c9"
+    [[ -z $VIRTUAL_ENV ]] && return
     local venv=$VIRTUAL_ENV
     is_exe conda && venv=$CONDA_DEFAULT_ENV
     echo "$c3($c5$(basename $venv)$c3)$c9"
@@ -87,13 +85,12 @@ function prompt_venv() {
 
 #MJL20170205 screen window number
 function prompt_screen() {
-    prompt_getcolors
-    [[ -z $WINDOW ]] || echo "$c6 $WINDOW $c9"
+    [[ -z $WINDOW ]] && return
+    echo "$c6 $WINDOW $c9"
 }
 
 # Git status.
 function prompt_git() {
-  prompt_getcolors
   local status output flags branch
   status="$(git status 2>/dev/null)"
   [[ $? != 0 ]] && return;
@@ -115,7 +112,6 @@ function prompt_git() {
 
 # hg status.
 function prompt_hg() {
-  prompt_getcolors
   local summary output bookmark flags
   summary="$(hg summary 2>/dev/null)"
   [[ $? != 0 ]] && return;
@@ -136,9 +132,8 @@ function prompt_hg() {
 
 # SVN info.
 function prompt_svn() {
-  prompt_getcolors
-  local info="$(svn info . 2> /dev/null)"
-  local last current
+  local info last current
+  info="$(svn info . 2> /dev/null)"
   if [[ "$info" ]]; then
     last="$(echo "$info" | awk '/Last Changed Rev:/ {print $4}')"
     current="$(echo "$info" | awk '/Revision:/ {print $2}')"
