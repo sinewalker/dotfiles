@@ -14,6 +14,7 @@ brew cask list > /dev/null 2>&1 ||  (e_error "Brew-cask failed to install." && r
 # Homebrew casks
 casks=(
     # apps
+    anaconda
     android-file-transfer
     atom
     cathode

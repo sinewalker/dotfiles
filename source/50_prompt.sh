@@ -80,6 +80,9 @@ function prompt_jobs() {
 function prompt_venv() {
     prompt_getcolors
     [[ -z $VIRTUAL_ENV ]] || echo "$c3($c5$(basename $VIRTUAL_ENV)$c3)$c9"
+    local venv=$VIRTUAL_ENV
+    is_exe conda && venv=$CONDA_DEFAULT_ENV
+    echo "$c3($c5$(basename $venv)$c3)$c9"
 }
 
 #MJL20170205 screen window number
@@ -143,6 +146,16 @@ function prompt_svn() {
   fi
 }
 
+#MJL20170223 show a snake if Anaconda is active
+function prompt_conda() {
+    is_exe conda || return
+    local snake venv
+    #TODO: verify this unicode SNAKE will draw on Linux
+    SNAKE="🐍 "
+    [[ $SSH_TTY ]] || [[ $WINDOW ]] && SNAKE="\[\e[0;30;42m\]S"
+    [[ $CONDA_DEFAULT_ENV ]] && venv="$c3-$c5$CONDA_DEFAULT_ENV"
+    echo "$c1($c9$SNAKE$venv$c1)$c9"
+}
 #MJL20170218 files and size count (from "monster prompt" in my ancient dotfiles)
 function prompt_sizes() {
     #TODO: formatting/colouring and testing.
@@ -171,6 +184,7 @@ function prompt_simple() {
 }
 alias simple_prompt=prompt_simple
 alias awesome_prompt=prompt_simple
+alias monster_prompt=prompt_simple
 
 #MJL20170207 toggle command history trace
 # sometimes this can be useful
@@ -243,6 +257,8 @@ function prompt_command() {
       PS1="$PS1$(prompt_jobs)"
       #MJL20170205 virtualenv: (name)
       PS1="$PS1$(prompt_venv)"
+      #MJL20170223 anaconda: (S)
+      PS1="$PS1$(prompt_conda)"
       # exit code: 127
       PS1="$PS1$(prompt_exitcode "$exit_code")"
       PS1="$PS1\$ "

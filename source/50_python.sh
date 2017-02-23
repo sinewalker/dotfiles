@@ -27,7 +27,8 @@ usage() {
 
 mkvenv() {
     FUNCDESC="Makes a Python Virtual env in ${VIRTUALENV_BASE}."
-    [ -z ${1} ] && usage "$FUNCNAME <venv> [virtualenv options]" $FUNCDESC && return 1
+    [ -z ${1} ] && usage "$FUNCNAME <venv> [virtualenv options]" $FUNCDESC \
+        && return 1
     VENV=${VIRTUALENV_BASE}/${1}
     [ -d ${VENV} ] && error "$FUNCNAME: Directory exists: ${VENV}" && return 1
     shift
@@ -35,7 +36,7 @@ mkvenv() {
 }
 
 rmvenv() {
-    FUNCDESC="Interactively removes a Python Virtual env from ${VIRTUALENV_BASE}"
+    FUNCDESC="Interactively remove a Python Virtual env from ${VIRTUALENV_BASE}"
     [ -z ${1} ] && usage "$FUNCNAME <venv>" $FUNCDESC && return 1
     VENV=${VIRTUALENV_BASE}/${1}
     if [ -f ${VENV}/bin/activate ]; then
@@ -64,6 +65,15 @@ activate() {
 Activtes a Python Virtual env that's in ${VIRTUALENV_BASE}
 (will deactivate current Venv if one is active).
 EOV
+    #If Anaconda is active (conda command is in the PATH) then source the
+    # 'anaconda' script instead, per conda practice. Bail after sourcing.
+    if is_exe conda; then
+        source $(conda info|awk '/root env/{print $4}')/bin/activate $@
+        ret=$?
+        #why is Anaconda's deactivate so unkind?
+        alias deactivate='unalias deactivate; source deactivate'
+        return $?
+    fi
     [ -z ${1} ] && usage "$FUNCNAME <venv>" $FUNCDESC && return 1
     VENV=${VIRTUALENV_BASE}/${1}
     if [ -f ${VENV}/bin/activate ]; then
@@ -71,10 +81,35 @@ EOV
         source ${VENV}/bin/activate
     else
         error "$FUNCNAME: No such Venv: ${1}"
+        echo
         echo "Available Python Venvs are:"
-        lsvenv
+        lsvenv|grep -v anaconda
         return 1
     fi
 }
-
 alias workon=activate
+
+_activate() {
+    COMPREPLY=()
+    local cur venvs
+    cur="${COMP_WORDS[COMP_CWORD]}"
+    venvs="$(lsvenv|grep -v anaconda)"
+
+    COMPREPLY=( $(compgen -W "${venvs}" -- ${cur}) )
+    return 0
+}
+complete -F _activate activate
+
+#### Anaconda
+
+sucuri() {
+    FUNCDESC='activate or deactivate Anaconda by inspecting and changing $PATH'
+    if [[ $PATH =~ anaconda ]]; then
+        [[ $CONDA_DEFAULT_ENV ]] && source deactivate
+        export PATH=$(path_remove ${VIRTUALENV_BASE}/anaconda/bin)
+        echo "Anaconda: deactivated"
+    else
+        path_add ${VIRTUALENV_BASE}/anaconda/bin PREPEND
+        echo "Anaconda: ACTIVATED 🐍"
+    fi
+}
