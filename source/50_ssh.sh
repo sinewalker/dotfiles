@@ -16,6 +16,21 @@ function install_ssh_keys() {
 }
 export -f install_ssh_keys
 
+#TODO this kinda-sorta works, but only for the first TAB
+export KEYDIR=${HOME}/key
+alias keys='ls ${KEYDIR}'
+
+_ssh-add () {
+    COMPREPLY=()
+    local cur keys
+    cur="${COMP_WORDS[COMP_CWORD]}"
+    keys="$(keys|egrep -v '\.pub$')"
+
+    COMPREPLY=( ${KEYDIR}/$(compgen -W "${keys}" -- ${cur}) )
+    return 0
+}
+complete -F _ssh-add ssh-add
+
 function ssh() {
 	  local args=()
 	  local disable_control_path=0
