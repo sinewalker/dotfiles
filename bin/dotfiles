@@ -29,6 +29,38 @@ function e_success()  { echo -e " \033[1;32m✔\033[0m  $@"; }
 function e_error()    { echo -e " \033[1;31m✖\033[0m  $@"; }
 function e_arrow()    { echo -e " \033[1;34m➜\033[0m  $@"; }
 
+# MJL20170222 utility functions.
+
+error() {
+    local FUNCDESC="Echo arguments to STDERR"
+    [[ -z ${1} ]] && usage "$FUCNAME <message> [<more messages>]" $FUNCDESC \
+        && return 1
+    >&2 echo $@
+}
+
+usage() {
+    local FUNCDESC
+    read -d '' FUNCDESC <<EOV
+
+Show instructions for using a function, supplied as arguments. The first
+argument is a string describing how to use a function. There can be multiple
+usage string arguments. All will be strung together and folded at the terminal
+width.
+
+The LAST argument is taken to be a string describing what the function does. It
+is useful to keep this in a $FUNCDESC variable and pass it as the last argument
+to usage().
+
+EOV
+    USAGE=${1}; shift
+    [[ -z ${1} ]] && \
+        usage "$FUNCNAME <instruction> [<strings>] <description>" \
+              $FUNCDESC && return 1
+    MESSAGE=$@
+    error Usage: ${USAGE}
+    echo ${MESSAGE} | fold -s -w $COLUMNS
+}
+
 # For testing.
 function assert() {
   local success modes equals actual expected

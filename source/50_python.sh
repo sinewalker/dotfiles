@@ -14,17 +14,6 @@ gpip() {
 #this is where Python Virtual Environments belong
 export VIRTUALENV_BASE=${HOME}/lib
 
-error() {
-    >&2 echo $@
-}
-
-usage() {
-    USAGE=${1}; shift
-    MESSAGE=$@
-    error Usage: ${USAGE}
-    echo ${MESSAGE}
-}
-
 mkvenv() {
     FUNCDESC="Makes a Python Virtual env in ${VIRTUALENV_BASE}."
     [ -z ${1} ] && usage "$FUNCNAME <venv> [virtualenv options]" $FUNCDESC \
