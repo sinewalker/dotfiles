@@ -12,6 +12,9 @@ function titlebar() {
   echo -n $'\e]0;'"$*"$'\a'
 }
 
+# Disable ansible cows }:]
+export ANSIBLE_NOCOWS=1
+
 #MJL20170212 bash_completion using bash_completion package
 
 # source System-wide completions (if installed)
@@ -24,19 +27,17 @@ is_osx && XDG_CONFIG_HOME=${HOME}/.config
 BC=${XDG_CONFIG_HOME}/bash_completion
 [[ -f ${BC} ]] && source ${BC}
 
-# Disable ansible cows }:]
-export ANSIBLE_NOCOWS=1
-
 #MJL20170213 - my own aliases.  TODO: review this whole file and fold into 20_env.sh
 
 #show where a command comes from
 alias whence='type -a'
+complete -F _command whence
 
 #nice commands
 alias que=${PLAYER}
 alias view=${VIEWER}
 alias web=${BROWSER}
-alias whence="type -a"
+
 
 #doo eet
 alias fuck='sudo $(history -p \!\!)'
