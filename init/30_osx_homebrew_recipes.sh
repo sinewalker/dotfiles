@@ -46,6 +46,7 @@ recipes=(
   lame
   libvorbis
   midnight-commander
+  mu
   opencore-amr
   openssl
   pcre
