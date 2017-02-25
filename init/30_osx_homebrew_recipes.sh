@@ -32,11 +32,12 @@ recipes=(
   bash-git-prompt
   colordiff
   coreutils
+  ffmpeg
   flac
   gawk
-  goaccess
   gnu-sed
   gnuplot
+  goaccess
   graphviz
   guile
   homebrew/emacs/tern
@@ -66,6 +67,7 @@ recipes=(
   wireshark
   xmlstarlet
   xz
+  youtube-dl
 )
 
 brew_install_recipes
