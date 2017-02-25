@@ -62,3 +62,5 @@ alias root="konsole --profile 'Root Shell'"
 export TMP=${HOME}/tmp
 export TEMP=${TMP}
 export TMPDIR=${TMP}
+#MJL20170226 in case ~/tmp is missing...
+[[ -d ${TMP} ]] || mkdir ${TMP}
