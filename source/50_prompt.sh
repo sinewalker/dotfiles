@@ -62,7 +62,7 @@ function prompt_exitcode() {
 # Cygwin Title Bar")
 function prompt_titlebar() {
         case $TERM in
-            *xterm*|ansi|rxvt)
+            *xterm*|ansi|rxvt|*konsole*)
                 printf "\033]0;%s\007" "$*"
                 ;;
         esac
