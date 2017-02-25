@@ -145,12 +145,12 @@ function prompt_svn() {
 function prompt_conda() {
     is_exe conda || return
     local snake venv
-    #TODO: verify this unicode SNAKE will draw on Linux
-    SNAKE="🐍 "
-    [[ $SSH_TTY ]] || [[ $WINDOW ]] && SNAKE="\[\e[0;30;42m\]S"
+    snake="\[\e[0;30;42m\]S"
+    is_osx && [[ -z $SSH_TTY ]] && [[ -z $WINDOW ]] && snake="🐍 "
     [[ $CONDA_DEFAULT_ENV ]] && venv="$c3-$c5$CONDA_DEFAULT_ENV"
-    echo "$c1($c9$SNAKE$venv$c1)$c9"
+    echo "$c1($c9$snake$venv$c1)$c9"
 }
+
 #MJL20170218 files and size count (from "monster prompt" in my ancient dotfiles)
 function prompt_sizes() {
     #TODO: formatting/colouring and testing.
