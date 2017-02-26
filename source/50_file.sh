@@ -92,7 +92,7 @@ source ${DOTFILES}/vendor/z/z.sh
 
 #MJL20170214 also use CDPATH. Between above vendor tools and this bash-feature,
 #I should be able to quickly move around now.
-export CDPATH=~:~/Projects:~/Documents:~/net:~/Grid:~/Uploads:~/Downloads:~/dev:~/tmp
+export CDPATH=.:~:~/Projects:~/Documents:~/net:~/Grid:~/Uploads:~/Downloads:~/dev:~/tmp
 
 [[ -d ~/Work ]] && CDPATH=~/Work:$CDPATH
 [[ -d ~/Work/svn ]] && CDPATH=$CDPATH:~/Work/svn
