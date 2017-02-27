@@ -41,6 +41,7 @@ recipes=(
   graphviz
   guile
   homebrew/emacs/tern
+  httrack
   ipcalc
   ispell
   jq
