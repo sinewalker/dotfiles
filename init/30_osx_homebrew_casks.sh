@@ -19,7 +19,6 @@ casks=(
     atom
     cathode
     clementine
-    emacs
     enpass
     flux
     gpgtools
@@ -87,3 +86,5 @@ if (( ${#casks[@]} > 0 )); then
   brew cask cleanup
 fi
 
+#MJL20170301 Emacs with more options
+brew_install_special_cask emacs --with-imagemagick --with-librsvg --with-cocoa

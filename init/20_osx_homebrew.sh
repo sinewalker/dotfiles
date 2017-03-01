@@ -65,3 +65,13 @@ function brew_reinstall_special_recipe() {
     echo $BREW_CMD
     eval $BREW_CMD
 }
+
+#MJL20170216 Install a recipe with special options
+function brew_install_special_cask() {
+    local FORMULA=$1
+    shift
+    if [[ $(setdiff "$FORMULA" "$(brew list)") ]]; then
+        e_header "Installing Homebrew cask: $FORMULA, special options: $@"
+        brew cask install $FORMULA $@
+    fi
+}

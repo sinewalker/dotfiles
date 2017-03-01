@@ -42,10 +42,12 @@ recipes=(
   guile
   homebrew/emacs/tern
   httrack
+  imagemagick
   ipcalc
   ispell
   jq
   lame
+  librsvg
   libvorbis
   midnight-commander
   mu
