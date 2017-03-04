@@ -167,22 +167,26 @@ In addition to the [dotfiles][dotfiles] script, there are a few other [bin scrip
 
 
 ## Prompt
-[Cowboy's bash prompt](source/50_prompt.sh) is awesome. It shows git and svn repo status, a timestamp, error exit codes, and even changes color depending on how you've logged in.
+[My monster bash prompt](source/50_prompt.sh) builds upon [Cowboy's awesome prompt](https://github.com/cowboy/dotfiles/blob/master/source/50_prompt.sh):
 
-Git repos display as **[branch:flags]** where flags are:
+ * It shows git and svn repo status, a timestamp, error exit codes, and even changes color depending on how you've logged in.
 
-**?** untracked files  
-**!** changed (but unstaged) files  
-**+** staged files
+   * Git repos display as **[branch:flags]** where flags are:
 
-SVN repos display as **[rev1:rev2]** where rev1 and rev2 are:
+     **?** untracked files  
+     **!** changed (but unstaged) files  
+     **+** staged files
 
-**rev1** last changed revision  
-**rev2** revision
+   * SVN repos display as **[rev1:rev2]** where rev1 and rev2 are:
 
-Check it out:
+     **rev1** last changed revision  
+     **rev2** revision
 
-![Cowboy's bash prompt](http://farm8.staticflickr.com/7142/6754488927_563dd73553_b.jpg)
+ * The prompt also shows GNU `screen` window numbers, activated python/conda environments and how many running background jobs you have. 
+ * It optionally can include command history recall numbers and directory size and file counts
+ * It includes a title bar setting for xterm/rxvt/konsole/iTerm windows
+ * It adapts when you're running _Midnight Commander_ to show only one line of detail, and a different title bar.
+ * If all of this is too much for the computer to handle, you can quickly switch back to a more simple prompt
 
 
 ## Inspiration

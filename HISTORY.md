@@ -36,3 +36,21 @@ Why? Because I often completely break this repo while updating. Which means that
 ```sh
 bash -c "$(curl -fsSL https://bit.ly/cowboy-dotfiles)" && source ~/.bashrc
 ```
+
+## Prompt
+I think [my bash prompt](https://github.com/cowboy/dotfiles/blob/master/source/50_prompt.sh) is awesome. It shows git and svn repo status, a timestamp, error exit codes, and even changes color depending on how you've logged in.
+
+Git repos display as **[branch:flags]** where flags are:
+
+**?** untracked files  
+**!** changed (but unstaged) files  
+**+** staged files
+
+SVN repos display as **[rev1:rev2]** where rev1 and rev2 are:
+
+**rev1** last changed revision  
+**rev2** revision
+
+Check it out:
+
+![Cowboy's bash prompt](http://farm8.staticflickr.com/7142/6754488927_563dd73553_b.jpg)
