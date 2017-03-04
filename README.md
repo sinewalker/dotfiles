@@ -58,17 +58,16 @@ Scripts in the `init/` subdirectory will be executed whenever [dotfiles][dotfile
 * Homebrew via the [init/20_osx_homebrew.sh](init/20_osx_homebrew.sh) script
 * Homebrew recipes via the [init/30_osx_homebrew_recipes.sh](init/30_osx_homebrew_recipes.sh) script
 * Homebrew casks via the [init/30_osx_homebrew_casks.sh](init/30_osx_homebrew_casks.sh) script
-* [Fonts](/cowboy/dotfiles/tree/master/conf/osx/fonts) via the [init/50_osx_fonts.sh](init/50_osx_fonts.sh) script
-
 
 #### Ubuntu
 * APT packages and git-extras via the [init/20_ubuntu_apt.sh](init/20_ubuntu_apt.sh) script
 
 
-#### Both
+#### All systems
 * System-wide iPython, pip, virtualenv, and other tools via the [init/50_python.sh](init/50_python.sh) script
 * Node.js, npm and nave via the [init/50_node.sh](init/50_node.sh) script
 * Ruby, gems and rbenv via the [init/50_ruby.sh](init/50_ruby.sh) script
+* [Fonts](/sinewalker/dotfiles/tree/master/conf/fonts) via the [init/50_fonts.sh](init/50_fonts.sh) script
 * Vim plugins via the [init/50_vim.sh](init/50_vim.sh) script
 
 
