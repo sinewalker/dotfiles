@@ -59,9 +59,9 @@ EOV
     if is_exe conda; then
         source $(conda info|awk '/root env/{print $4}')/bin/activate $@
         ret=$?
-        #why is Anaconda's deactivate so unkind?
+        #make Anaconda's deactivate less clunky
         alias deactivate='unalias deactivate; source deactivate'
-        return $?
+        return $ret
     fi
     [ -z ${1} ] && usage "$FUNCNAME <venv>" $FUNCDESC && return 1
     VENV=${VIRTUALENV_BASE}/${1}
@@ -98,7 +98,15 @@ sucuri() {
         export PATH=$(path_remove ${VIRTUALENV_BASE}/anaconda/bin)
         echo "Anaconda: deactivated"
     else
+        local snake warn; snake='(S)'; warn='[!]'
+        is_osx && [[ -z $SSH_TTY ]] && [[ -z $WINDOW ]] && \
+            snake="🐍";  warn="⚠"
         path_add ${VIRTUALENV_BASE}/anaconda/bin PREPEND
-        echo "Anaconda: ACTIVATED 🐍"
+        if [[ $PATH =~ anaconda ]]; then
+            echo "Anaconda: ACTIVATED $snake"
+        else
+            echo "Anaconda: NOT FOUND $warn"
+            return 1
+        fi
     fi
 }
