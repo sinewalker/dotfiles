@@ -49,7 +49,7 @@ If Anaconda is active, use conda to show its  venvs,
 otherwise list venvs installed to ${VIRTUALENV_BASE}
 EOV
     if is_exe conda; then
-        conda info --envs
+        conda info --envs|awk '/^#/{next}/./{print $1}'
     else
         for FILESPEC in ${VIRTUALENV_BASE}/*/bin/activate; do
             [[ ${FILESPEC} =~ anaconda ]] || \
@@ -65,26 +65,39 @@ Activtes a Python Virtual env that's in ${VIRTUALENV_BASE}
 EOV
     #If Anaconda is active (conda command is in the PATH) then source the
     # 'anaconda' script instead, per conda practice. Bail after sourcing.
+    local ret=0
+    local doconda=0
     if is_exe conda; then
+        doconda=1
         source $(conda info|awk '/root env/{print $4}')/bin/activate $@
         ret=$?
-        [[ $ret -gt 0 ]] && conda info --envs && return $ret
+        [[ $ret -eq 0 ]] || echo
         #make Anaconda's deactivate less clunky
-        alias deactivate='unalias deactivate; source deactivate'
-        return
+        [[ $ret -eq 0 ]] && \
+            alias deactivate='unalias deactivate; source deactivate'
     fi
-    [ -z ${1} ] && usage "$FUNCNAME <venv>" $FUNCDESC && return 1
-    VENV=${VIRTUALENV_BASE}/${1}
-    if [ -f ${VENV}/bin/activate ]; then
-        type deactivate &> /dev/null && deactivate
-        source ${VENV}/bin/activate
-    else
-        error "$FUNCNAME: No such Venv: ${1}"
+    if [[ $doconda -eq 0 ]]; then
+        [ -z ${1} ] && usage "$FUNCNAME <venv>" $FUNCDESC && return 1
+        VENV=${VIRTUALENV_BASE}/${1}
+        if [ -f ${VENV}/bin/activate ]; then
+            is_exe deactivate && deactivate
+            source ${VENV}/bin/activate
+            ret=$?
+        else
+            ret=2
+        fi
+    fi
+    if [[ $ret -gt 0 ]]; then
+        error "$FUNCNAME: Error activating Venv: ${1}"
         echo
-        echo "Available Python Venvs are:"
+        if [[ $doconda -eq 0 ]]; then
+            echo "Available Python Venvs are:"
+        else
+            echo "Available Conda envs are:"
+        fi
         lsvenv
-        return 1
     fi
+    return $ret
 }
 alias workon=activate
 
@@ -92,11 +105,7 @@ _activate() {
     COMPREPLY=()
     local cur venvs
     cur="${COMP_WORDS[COMP_CWORD]}"
-    if is_exe conda; then
-        venvs="$(conda info --envs|awk '/^#/{next}/./{print $1}')"
-    else
-        venvs="$(lsvenv)"
-    fi
+    venvs="$(lsvenv)"
     COMPREPLY=( $(compgen -W "${venvs}" -- ${cur}) )
     return 0
 }
@@ -109,6 +118,7 @@ sucuri() {
     if [[ $PATH =~ anaconda ]]; then
         [[ $CONDA_DEFAULT_ENV ]] && source deactivate
         export PATH=$(path_remove ${VIRTUALENV_BASE}/anaconda/bin)
+        is_exe deactivate && unalias deactivate
         echo "Anaconda: deactivated"
     else
         local snake warn; snake='(S)'; warn='[!]'
