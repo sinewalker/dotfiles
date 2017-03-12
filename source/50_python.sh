@@ -43,10 +43,19 @@ rmvenv() {
 }
 
 lsvenv() {
-    FUNCDESC="Lists Python Virtual envs installed to ${VIRTUALENV_BASE}"
-    for FILESPEC in ${VIRTUALENV_BASE}/*/bin/activate; do
-        basename $(dirname $(dirname ${FILESPEC}))
-    done
+    read -d '' FUNCDESC <<EOV
+List Anaconda or Python Virtual Environments.
+If Anaconda is active, use conda to show its  venvs,
+otherwise list venvs installed to ${VIRTUALENV_BASE}
+EOV
+    if is_exe conda; then
+        conda info --envs
+    else
+        for FILESPEC in ${VIRTUALENV_BASE}/*/bin/activate; do
+            [[ ${FILESPEC} =~ anaconda ]] || \
+                basename $(dirname $(dirname ${FILESPEC}))
+        done
+    fi
 }
 
 activate() {
@@ -59,9 +68,10 @@ EOV
     if is_exe conda; then
         source $(conda info|awk '/root env/{print $4}')/bin/activate $@
         ret=$?
+        [[ $ret -gt 0 ]] && conda info --envs && return $ret
         #make Anaconda's deactivate less clunky
         alias deactivate='unalias deactivate; source deactivate'
-        return $ret
+        return
     fi
     [ -z ${1} ] && usage "$FUNCNAME <venv>" $FUNCDESC && return 1
     VENV=${VIRTUALENV_BASE}/${1}
@@ -72,7 +82,7 @@ EOV
         error "$FUNCNAME: No such Venv: ${1}"
         echo
         echo "Available Python Venvs are:"
-        lsvenv|grep -v anaconda
+        lsvenv
         return 1
     fi
 }
@@ -82,8 +92,11 @@ _activate() {
     COMPREPLY=()
     local cur venvs
     cur="${COMP_WORDS[COMP_CWORD]}"
-    venvs="$(lsvenv|grep -v anaconda)"
-
+    if is_exe conda; then
+        venvs="$(conda info --envs|awk '/^#/{next}/./{print $1}')"
+    else
+        venvs="$(lsvenv)"
+    fi
     COMPREPLY=( $(compgen -W "${venvs}" -- ${cur}) )
     return 0
 }
