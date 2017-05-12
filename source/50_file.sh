@@ -110,3 +110,12 @@ function rmrf() {
     read DOIT
     [[ $DOIT =~ y ]] && rm -rf $@ || echo "Aborted."
 }
+
+function du-no-traverse() {
+    $FUNCDESC="show disk space usage, do not traverse filesystems, works with wildcard"
+    [[ -z ${1} ]] && error "Must specify a path" && usage $FUNCNAME $FUNCDESC && return
+
+    for X in ${1}; do
+        mountpoint -q -- ${X} || du -shx ${X}
+    done
+}
