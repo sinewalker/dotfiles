@@ -29,10 +29,12 @@ alias ed=edit   #sorry /bin/ed, you're ancient history
 alias e=edit
 
 #if 'mc' can launch the whole Midnight Commander, why not these too?
-alias mce=mcedit
-alias mcv=mcview
-alias mcd=mcdiff
-alias mdiff=mcdiff
+if is_exe mcedit; then
+    alias mce=mcedit
+    alias mcv=mcview
+    alias mcd=mcdiff
+    alias mdiff=mcdiff
+fi
 
 ########
 # Emacs
@@ -41,37 +43,51 @@ alias mdiff=mcdiff
 #       around, then you're Doing It Wrong, look at eshell. But it's sometimes
 #       handy to be able to call to a running emacs from a terminal window, for
 #       a few things: edit some files, diff/merge, or start dired
-alias ec=emacsclient
-alias em=emacsclient
 
-function ediff() {
-    if [[ $# = 2 ]]; then
-        emacsclient -e '(ediff-files "'${1}'" "'${2}'")'  > /dev/null
-    elif [[ $# = 3 ]]; then
-        emacsclient -e '(ediff-files3 "'${1}'" "'${2}'" "'${3}'")' > /dev/null
-    else
-        echo "Compare two or three files with Emacs Diff"
-        echo "Usage: $FUNCNAME <fileA> <fileB> [<fileC>]"
-        return 1
-    fi
-}
+if is_exe emacsclient; then
+    # various synonyms for emacsclient:
+    alias ecedit='emacsclient -n'
+    alias ec=ecedit
+    alias em=ecedit
 
-function emerge() {
-    if [[ $# = 3 ]]; then
-        emacsclient -e '(emerge-files nil "'${1}'" "'${2}'" "'${3}'")' > /dev/null
-    else
-        echo "Merge two specified files into a third using Emacs Merge"
-        echo "Usage: $FUNCNAME <fileA> <fileB> <merge-output>"
-        return 1
-    fi
-}
+    # emacs 'commands'
+    alias eedit='emacsclient -n'
+    alias eed=eedit
+    alias eexec='emacsclient -n -e -a $(which emacs)'
+    alias ebatch='emacs --batch -e '
+    alias elisp='emacs --script'
 
-# Open specified DIR (or CWD) in emacs' dired
-function edir() {
-    DIR=${1}
-    [[ -z ${DIR} ]] && DIR=$(pwd)
-    [[ -d ${DIR} ]] && emacsclient -e '(dired "'${DIR}'")' > /dev/null
-}
+    function ediff() {
+        local FUNCDESC="Compare two or three files with Emacs Diff"
+        if [[ $# = 2 ]]; then
+            emacsclient -n -e -a $(which emacs) '(ediff-files "'${1}'" "'${2}'")'  > /dev/null
+        elif [[ $# = 3 ]]; then
+            emacsclient -n -e -a $(which emacs) '(ediff-files3 "'${1}'" "'${2}'" "'${3}'")' > /dev/null
+        else
+            error "$FUNCNAME: Must specify 2 or 3 files to compare."
+            usage "$FUNCNAME <fileA> <fileB> [<fileC>]" $FUNCDESC
+            return 1
+        fi
+    }
+
+    function emerge() {
+        local FUNCDESC="Merge two specified files into a third with Emacs Merge"
+        if [[ $# = 3 ]]; then
+            emacsclient -n -e -a $(which emacs) '(emerge-files nil "'${1}'" "'${2}'" "'${3}'")' > /dev/null
+        else
+            error "$FUNCNAME: wrong number of arguments."
+            usage "$FUNCNAME: <fileA> <fileB> <merge-output>" $FUNCDESC
+            return 1
+        fi
+    }
+
+    function edir() {
+        local FUNCDESC="Open specified DIR (or CWD) in emacs' dired"
+        DIR=${1}
+        [[ -z ${DIR} ]] && DIR=${PWD}
+        [[ -d ${DIR} ]] && emacsclient -n -e -a $(which emacs) '(dired "'${DIR}'")' > /dev/null
+    }
+fi
 
 ################
 # Viewers
@@ -86,11 +102,11 @@ alias v=view
 
 #this is stupidly named in Linux/FreeDesktop:
 is_osx || alias open=xdg-open
-alias o=open
+is_exe open && alias o=open
 
 #other viewer vars
 export PLAYER=play
-is_exe vlc && PLAYER=vlcs
+is_exe vlcs && PLAYER=vlcs
 is_exe clementine && PLAYER=clementine
 export VIEWER=display
 export BROWSER=firefox
@@ -116,18 +132,11 @@ if is_osx; then
     BROWSER=open
 fi
 
-
-
 ########
 # KDE
-function kman() {
-    khelpcenter man:/${@} 2> /dev/null
-}
 
-function kinfo() {
-    khelpcenter info:/${@} 2> /dev/null
-}
-
-function khelp() {
-    khelpcenter help:/${@} 2> /dev/null
-}
+if is_exe khelpcenter; then
+    alias kman='khelpcenter man:/${@} 2> /dev/null'
+    alias kinfo='khelpcenter info:/${@} 2> /dev/null'
+    alias khelp='khelpcenter help:/${@} 2> /dev/null'
+fi
