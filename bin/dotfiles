@@ -335,9 +335,12 @@ fi
 
 # If Git is not installed, install it (Ubuntu only, since Git comes standard
 # with recent XCode or CLT)
-if [[ ! "$(type -P git)" ]] && is_ubuntu; then
+if [[ ! "$(type -P git)" ]]; then
   e_header "Installing Git"
-  sudo apt-get -qq install git-core
+  is_ubuntu || is_raspbian && sudo apt-get -qq install git-core
+  is_suse && sudo zypper install -y git-core
+  is_redhat6 && sudo yum -y install git-core
+  is_redhat7 && sudo dnf -y install git-core
 fi
 
 # If Git isn't installed by now, something exploded. We gots to quit!
