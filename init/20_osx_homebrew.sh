@@ -41,11 +41,13 @@ function brew_install_recipes() {
 #MJL20170216 Install a recipe with special options
 function brew_install_special_recipe() {
     local FORMULA=$1
+    pushd ${HOME} >/dev/null
     shift
     if [[ $(setdiff "$FORMULA" "$(brew list)") ]]; then
         e_header "Installing Homebrew recipe: $FORMULA, special options: $@"
         brew install $FORMULA $@
     fi
+    popd > /dev/null
 }
 
 #MJL20170216 force re-install a recipe with special options. Maybe I want this?

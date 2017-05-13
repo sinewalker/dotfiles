@@ -8,12 +8,18 @@ is_osx || return 1
 kegs=(caskroom/cask)
 brew_tap_kegs
 
+
+# Install Brew command for updating casks
+# https://github.com/buo/homebrew-cask-upgrade
+brew tap buo/cask-upgrade
+
 # Exit if, for some reason, cask is not installed.
 brew cask list > /dev/null 2>&1 ||  (e_error "Brew-cask failed to install." && return 1)
 
 # Homebrew casks
 casks=(
     # apps
+    aerial
     anaconda
     android-file-transfer
     atom
@@ -39,6 +45,7 @@ casks=(
     # Quick Look plugins
     suspicious-package
     webpquicklook
+#    wireshark-chmodbpf
 
     #TODO: MJL20170131 - All of these I have installed manually or Work has, and
     #      they do not appear in `brew cask list`, which means they will be
@@ -65,7 +72,7 @@ casks=(
 
     # ### MJL20170131 - Installed by Work
     # google-chrome
-    # firefox
+    firefox
     # the-unarchiver
 
     # ### MJL20170131 - deprecated and/or missing (I'm thinking to replace some

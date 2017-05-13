@@ -2,6 +2,9 @@
 /caches/
 /backups/
 
+#More junk
+probes.json
+
 # Top secret stuff!
 /link/.ssh/authorized_keys
 /link/.ssh/id_*

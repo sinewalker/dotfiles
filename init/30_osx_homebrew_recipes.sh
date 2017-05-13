@@ -32,6 +32,7 @@ recipes=(
   bash-git-prompt
   colordiff
   coreutils
+  exiftool
   ffmpeg
   flac
   gawk
@@ -40,7 +41,7 @@ recipes=(
   goaccess
   graphviz
   guile
-  homebrew/emacs/tern
+  httpie
   httrack
   imagemagick
   ipcalc
@@ -50,7 +51,6 @@ recipes=(
   librsvg
   libvorbis
   midnight-commander
-  mu
   opencore-amr
   openssl
   pcre
@@ -65,6 +65,7 @@ recipes=(
   tidy-html5
   tinyproxy
   tmux
+  tokyo-cabinet
   watch
   wget
   wireshark
@@ -80,6 +81,10 @@ brew_install_recipes
 #MJL20170216 SOX will support libvorbis, but not by default in Homebrew
 # which is a shame since it's my go-to codec
 brew_install_special_recipe sox --with-libvorbis --with-flac --with-lame --with-opencore-amr
+
+brew_install_special_recipe mu --with-emacs
+
+brew_reinstall_special_recipe   homebrew/emacs/tern
 
 # Misc cleanup!
 
