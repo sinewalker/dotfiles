@@ -333,11 +333,13 @@ if [[ ! "$(type -P gcc)" ]] && is_osx; then
   exit 1
 fi
 
-# If Git is not installed, install it (Ubuntu only, since Git comes standard
-# with recent XCode or CLT)
+# If Git is not installed, install it (Linux only - git comes with Xcode for
+# Mac. Handle different ways to install in different Linux distributions).
+# TODO: look into using Chocolatey for Windows)
 if [[ ! "$(type -P git)" ]]; then
   e_header "Installing Git"
-  is_ubuntu || is_raspbian && sudo apt-get -qq install git-core
+  is_ubuntu && sudo apt-get -qq install git-core
+  is_raspbian && sudo apt-get -qq install git-core
   is_suse && sudo zypper install -y git-core
   is_redhat6 && sudo yum -y install git-core
   is_redhat7 && sudo dnf -y install git-core
@@ -355,6 +357,7 @@ if [[ ! -d $DOTFILES ]]; then
   new_dotfiles_install=1
   prompt_delay=15
   e_header "Downloading dotfiles"
+  # MJL20170207 - NOTE: github user defaults to 'sinewalker', others may need to change
   git clone --recursive git://github.com/${github_user:-sinewalker}/dotfiles.git $DOTFILES
   cd $DOTFILES
 elif [[ "$1" != "restart" ]]; then
