@@ -16,10 +16,10 @@ function install_ssh_keys() {
 }
 export -f install_ssh_keys
 
-#TODO this kinda-sorta works, but only for the first TAB
 export KEYDIR=${HOME}/key
 alias keys='ls ${KEYDIR}'
 
+#TODO this doesn't quite work and causes more trouble than it saves if enabled
 _ssh-add () {
     COMPREPLY=()
     local cur keys
@@ -29,9 +29,10 @@ _ssh-add () {
     COMPREPLY=( ${KEYDIR}/$(compgen -W "${keys}" -- ${cur}) )
     return 0
 }
-complete -F _ssh-add ssh-add
+#complete -F _ssh-add ssh-add
 
 function ssh() {
+    local FUNCDESC="Connect to a Secure SHell, disabling any Control Master if needed by 'Dynamic', 'Local', or 'Remote' options."
 	  local args=()
 	  local disable_control_path=0
 	  local port_forward_option_re="^-[DLR]"
