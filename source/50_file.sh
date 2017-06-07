@@ -72,6 +72,8 @@ function md() {
   mkdir -p "$@" && cd "$@"
 }
 
+alias wrap="fold -sw ${1:-$COLUMNS}"
+
 # Bashmarks directory bookmarks
 source ${DOTFILES}/vendor/bashmarks/bashmarks.sh
 
