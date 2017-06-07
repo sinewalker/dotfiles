@@ -65,6 +65,7 @@ ssh-reset() {
 
 #show SSH control-master files
 alias ssh-master='ls -so ~/.ssh/*master*'
+alias ssh-ls=ssh-master
 
 #search for a host in SSH config
 function ssh-find() {
