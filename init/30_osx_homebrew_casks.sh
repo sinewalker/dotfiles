@@ -26,6 +26,7 @@ casks=(
     cathode
     clementine
     enpass
+    etcher
     flux
     gpgtools
     hammerspoon
