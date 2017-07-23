@@ -30,6 +30,7 @@ recipes=(
   apm-bash-completion
   bash-completion
   bash-git-prompt
+  clamav
   colordiff
   coreutils
   exiftool
