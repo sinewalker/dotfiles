@@ -4,6 +4,7 @@
 	name = Mike Lockhart
 	email = mlockhart@squiz.com.au
 [push]
+	#MJL20170723 this causes issue on Raspbian with Git < 2.0. Maybe use 'upstream'?
 	default = simple
 [alias]
 	glog = log --graph --all --decorate
