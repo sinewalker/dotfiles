@@ -16,11 +16,15 @@ is_exe mcedit && EDITOR=mcedit
 ## WIMP text editors
 if [[ ! "$SSH_TTY" ]]; then
 
-    #My third-favorite editor is Kate for KDE. Use that if we have it.
-    is_exe kate && EDITOR=kate
-
     #Or, if we're on a 21st century computer, let's default to using Atom
     is_exe atom && EDITOR=atom
+
+    #Or, if we have MS VS-code (and it's on the PATH), then that's better than atom
+    is_exe code && EDITOR=code
+
+    #My third-favorite editor is Kate for KDE. Use that over the others, if we have it.
+    is_exe kate && EDITOR=kate
+
 fi
 
 #editing shortcuts

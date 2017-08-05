@@ -35,9 +35,11 @@ casks=(
     keepassx
     netbeans
     netbeans-java-se
+    sourcetree
     spotify
     vagrant
     virtualbox
+    visual-studio-code
     vlc
     xquartz
     # ## TODO: MJL20170131 - Maybe install these?
