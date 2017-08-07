@@ -24,6 +24,7 @@ casks=(
     android-file-transfer
     atom
     cathode
+    clamxav
     clementine
     enpass
     etcher
