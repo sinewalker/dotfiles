@@ -34,15 +34,3 @@
 [submodule "bashmarks"]
 	path = vendor/bashmarks
 	url = https://github.com/Bilalh/shellmarks.git
-[submodule "link/.vim/bundle/puppet"]
-	path = link/.vim/bundle/puppet
-	url = https://github.com/rodjek/vim-puppet.git
-[submodule "link/.vim/bundle/linters"]
-	path = link/.vim/bundle/linters
-	url = https://bitbucket.org/tim_heap/linters.vim
-[submodule "link/.vim/bundle/vim-coffee-script"]
-	path = link/.vim/bundle/vim-coffee-script
-	url = https://github.com/kchmck/vim-coffee-script.git
-[submodule "link/.vim/bundle/closetag"]
-	path = link/.vim/bundle/closetag
-	url = https://github.com/docunext/closetag.vim.git
