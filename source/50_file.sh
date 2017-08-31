@@ -121,3 +121,19 @@ function du-no-traverse() {
         mountpoint -q -- ${X} || du -shx ${X}
     done
 }
+
+function cpmod {
+    FUNCDESC="Set a file's access mode to that of another"
+
+    [[ -z ${2} ]] && \
+        error "Must specify a template and a target" \
+        && usage "${FUNCNAME} $<template> <target>" \
+                 "Where <template> is a file with mode bits to copy and apply to <target>."\
+                 ${FUNCDESC} && return 1
+
+    local statcmd=stat; is_osx && statcmd=gstat
+    local src_mode=$(exec ${statcmd} -c "%a" ${1})
+
+    chmod ${src_mode} ${2}
+}
+
