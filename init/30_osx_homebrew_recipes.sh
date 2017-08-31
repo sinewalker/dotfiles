@@ -51,6 +51,7 @@ recipes=(
   lame
   librsvg
   libvorbis
+  markdown
   midnight-commander
   opencore-amr
   openssl
@@ -62,6 +63,7 @@ recipes=(
   qcachegrind
   rdesktop
   socat
+  sslscan
   stunnel
   tidy-html5
   tinyproxy
