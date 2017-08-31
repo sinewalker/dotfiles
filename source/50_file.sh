@@ -137,3 +137,38 @@ function cpmod {
     chmod ${src_mode} ${2}
 }
 
+function backup {
+    FUNCDESC="Backup and change mode of files before editing (as required by NBR change process). The backup will be named with -dateTtime.bak and have mode changed +w -x to prevent accidental execution."
+
+    [[ -z ${1} ]] && error "No file specified" \
+        && usage "${FUNCNAME} <filename> [<filename> ...]" "where <filename> is the file(s) to back up." \
+                 ${FUNCDESC} && return 1
+
+	  local THEDATE=$(date +"%Y%m%d")
+    local THETIME=$(date +"%H%M%S")
+    for n ; do
+        NEWNAME="${n}-${THEDATE}T${THETIME}.bak"
+        mv ${n} ${NEWNAME}
+        cp -p ${NEWNAME} ${n}
+        [[ -x ${NEWNAME} ]] && chmod -x ${NEWNAME}
+        [[ -w ${NEWNAME} ]] || chmod +w ${NEWNAME}
+    done
+}
+
+function backout {
+    FUNCDESC="Reverses a backup by putting the backup back to the original name. CAUTION: the mode is NOT reset to what it was before backup, rather the mode of the restored file is set to that of the file it's replacing.  The new file will be renamed '<filename>.keep'"
+
+    local ret=0
+
+    [[ -z ${1} ]] && ret=1 && error "${FUNCNAME}: no file specified"
+    [[ -f ${1} ]] || ret=2 && error "${FUNCNAME}: not found: ${1}"
+
+    [[ ${ret} -gt 0 ]] && usage "${FUNCNAME} <filename>" ${FUNCDESC} \
+        && return ${ret}
+
+    mv ${1} ${1}.keep
+    mv ${1}-*T*.bak ${1}
+
+    cpmod ${1}.keep ${1}
+    [[ -x ${1}.keep ]] && chmod -x ${1}.keep
+}
