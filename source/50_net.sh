@@ -45,5 +45,5 @@ function check-tls() {
         && usage "${FUNCNAME} <domainname>" ${FUNCDESC} \
         && return 1
 
-    echo | openssl s_client -connect ${1}:443 -servername monash.edu  | openssl x509 -noout -subject -dates
+    echo | openssl s_client -connect ${1}:443 -servername ${1} | openssl x509 -noout -subject -dates
 }
