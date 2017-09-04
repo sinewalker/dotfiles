@@ -38,3 +38,12 @@ function analyse-web() {
     kill $LOGGER
     [[ -z ${3} ]] || (rm ${LOCAL}; echo "${LOCAL} removed")
 }
+
+function check-tls() {
+    local FUNCDESC="Connect to a web server and report TLS details."
+    [[ -z ${1} ]] && error "${FUNCNAME}: must supply a DNS name to connect to." \
+        && usage "${FUNCNAME} <domainname>" ${FUNCDESC} \
+        && return 1
+
+    echo | openssl s_client -connect ${1}:443 -servername monash.edu  | openssl x509 -noout -subject -dates
+}
