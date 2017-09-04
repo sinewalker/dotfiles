@@ -42,8 +42,11 @@ function analyse-web() {
 function check-tls() {
     local FUNCDESC="Connect to a web server and report TLS details."
     [[ -z ${1} ]] && error "${FUNCNAME}: must supply a DNS name to connect to." \
-        && usage "${FUNCNAME} <domainname>" ${FUNCDESC} \
+        && usage "${FUNCNAME} <domainname> [<servername>]" ${FUNCDESC} \
         && return 1
+    local domain=${1}
+    local server=${2}
+    [[ -z ${2} ]] && server=${1}
 
-    echo | openssl s_client -connect ${1}:443 -servername ${1} | openssl x509 -noout -subject -dates
+    echo | openssl s_client -connect ${domain}:443 -servername ${server} | openssl x509 -noout -subject -dates
 }
