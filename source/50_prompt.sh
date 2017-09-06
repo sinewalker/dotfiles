@@ -226,7 +226,7 @@ function prompt_command() {
   else
       #MJL20170207 Cowboy's Awesome prompt is the fall-through case
       # http://twitter.com/cowboy/status/150254030654939137
-      PS1="\n"
+      PS1=""
       #MJL20170204 titlebar: [dir] - user@host:/full/working/dir
       PS1="$PS1$(prompt_titlebar "[${HOSTNAME%%.*}:$(basename $PWD)] - $USER@${HOSTNAME%%.*}:$PWD")"
       # svn: [repo:lastchanged]
