@@ -36,6 +36,7 @@ recipes=(
   exiftool
   ffmpeg
   flac
+  fortune
   gawk
   gnu-sed
   gnuplot
