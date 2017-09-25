@@ -61,7 +61,7 @@ if is_exe emacsclient; then
     alias ebatch='emacs --batch -e '
     alias elisp='emacs --script'
 
-    alias pokemacs='pkill -SIGUSR2 emacs'
+    alias pokemacs='pkill -SIGUSR2 -i emacs'
 
     function ediff() {
         local FUNCDESC="Compare two or three files with Emacs Diff"
