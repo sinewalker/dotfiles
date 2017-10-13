@@ -9,3 +9,8 @@ is_osx && BC=/usr/local/etc/bash_completion
 is_osx && XDG_CONFIG_HOME=${HOME}/.config
 BC=${XDG_CONFIG_HOME}/bash_completion
 [[ -f ${BC} ]] && source ${BC}
+
+# SSH auto-completion based on entries in known_hosts.
+if [[ -e ~/.ssh/known_hosts ]]; then
+    complete -o default -W "$(cat ~/.ssh/known_hosts | sed 's/[, ].*//' | sort | uniq | grep -v '[0-9]')" ssh scp sftp
+fi
