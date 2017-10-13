@@ -23,7 +23,6 @@ casks=(
     anaconda
     android-file-transfer
     atom
-    cathode
     clementine
     enpass
     etcher
