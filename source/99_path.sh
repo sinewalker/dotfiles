@@ -21,17 +21,6 @@ function dedupe_path() {
     fi
 }
 
-path_add() {
-    #adds to path ONLY if dir exists AND not already in $PATH
-    #if $2 is specifed, PREPEND rather than Append
-    if [ -d "$1" ] && [[ ":$PATH:" != *":$1:"* ]]; then
-        if [ -z $2 ]; then
-            PATH="${PATH:+"$PATH:"}$1"
-        else
-            PATH="${1}:${PATH}"
-        fi
-    fi
-}
 
 
 #path_add ~/lib/anaconda/bin 1
