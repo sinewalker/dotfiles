@@ -22,8 +22,6 @@ function dedupe_path() {
 }
 
 
-
-#path_add ~/lib/anaconda/bin 1
 path_add ~/bin PREPEND
 path_add ~/Work/bin
 path_add .
