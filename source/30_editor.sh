@@ -70,8 +70,8 @@ if is_exe emacsclient; then
         elif [[ $# = 3 ]]; then
             emacsclient -n -e -a $(which emacs) '(ediff-files3 "'${1}'" "'${2}'" "'${3}'")' > /dev/null
         else
-            error "$FUNCNAME: Must specify 2 or 3 files to compare."
-            usage "$FUNCNAME <fileA> <fileB> [<fileC>]" $FUNCDESC
+            error "${FUNCNAME}: Must specify 2 or 3 files to compare."
+            usage "${FUNCNAME} <fileA> <fileB> [<fileC>]" ${FUNCDESC}
             return 1
         fi
     }
@@ -81,8 +81,8 @@ if is_exe emacsclient; then
         if [[ $# = 3 ]]; then
             emacsclient -n -e -a $(which emacs) '(emerge-files nil "'${1}'" "'${2}'" "'${3}'")' > /dev/null
         else
-            error "$FUNCNAME: wrong number of arguments."
-            usage "$FUNCNAME: <fileA> <fileB> <merge-output>" $FUNCDESC
+            error "${FUNCNAME}: wrong number of arguments."
+            usage "${FUNCNAME}: <fileA> <fileB> <merge-output>" ${FUNCDESC}
             return 1
         fi
     }

@@ -9,4 +9,4 @@ if [[ ! -d "$('xcode-select' -print-path 2>/dev/null)" ]]; then
 fi
 
 #MJL20170217 link personal tmp directory
-[[ $TMPDIR =~ ^/var ]] && echo 'Linking $TMPDIR to $HOME/tmp' && ln -sf $TMPDIR ${HOME}/tmp
+[[ ${TMPDIR} =~ ^/var ]] && echo 'Linking ${TMPDIR} to ${HOME}/tmp' && ln -sf ${TMPDIR} ${HOME}/tmp

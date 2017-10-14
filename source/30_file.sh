@@ -96,26 +96,26 @@ source ${DOTFILES}/vendor/z/z.sh
 #I should be able to quickly move around now.
 export CDPATH=.:~:~/Projects:~/Documents:~/net:~/Grid:~/Uploads:~/Downloads:~/dev:~/tmp
 
-[[ -d ~/Work ]] && CDPATH=~/Work:$CDPATH
-[[ -d ~/Work/svn ]] && CDPATH=$CDPATH:~/Work/svn
-[[ -d ~/Work/lab ]] && CDPATH=$CDPATH:~/Work/lab
-[[ -d ~/Work/Projects ]] && CDPATH=~/Work/Projects:$CDPATH
-[[ -d ~/Work/Documents ]] && CDPATH=~/Work/Documents:$CDPATH
+[[ -d ~/Work ]] && CDPATH=~/Work:${CDPATH}
+[[ -d ~/Work/svn ]] && CDPATH=${CDPATH}:~/Work/svn
+[[ -d ~/Work/lab ]] && CDPATH=${CDPATH}:~/Work/lab
+[[ -d ~/Work/Projects ]] && CDPATH=~/Work/Projects:${CDPATH}
+[[ -d ~/Work/Documents ]] && CDPATH=~/Work/Documents:${CDPATH}
 
 alias rd=rmdir
 alias rrm='rm -r'
 
 function rmrf() {
-    echo "Recursively REMOVE $@ and ALL CHILD iNODES"; echo
-    [[ "$(type -P tree)" ]] && tree -d -L 3 $@
+    echo "Recursively REMOVE ${@} and ALL CHILD iNODES"; echo
+    [[ "$(type -P tree)" ]] && tree -d -L 3 ${@}
     echo -n "ARE YOU CERTAIN (y/N)? "
     read DOIT
-    [[ $DOIT =~ y ]] && rm -rf $@ || echo "Aborted."
+    [[ ${DOIT} =~ y ]] && rm -rf ${@} || echo "Aborted."
 }
 
 function du-no-traverse() {
-    $FUNCDESC="show disk space usage, do not traverse filesystems, works with wildcard"
-    [[ -z ${1} ]] && error "Must specify a path" && usage $FUNCNAME $FUNCDESC && return
+    local FUNCDESC="show disk space usage, do not traverse filesystems, works with wildcard"
+    [[ -z ${1} ]] && error "Must specify a path" && usage ${FUNCNAME} ${FUNCDESC} && return
 
     for X in ${1}; do
         mountpoint -q -- ${X} || du -shx ${X}
@@ -123,7 +123,7 @@ function du-no-traverse() {
 }
 
 function cpmod {
-    FUNCDESC="Set a file's access mode to that of another"
+    local FUNCDESC="Set a file's access mode to that of another"
 
     [[ -z ${2} ]] && \
         error "Must specify a template and a target" \
@@ -131,14 +131,14 @@ function cpmod {
                  "Where <template> is a file with mode bits to copy and apply to <target>."\
                  ${FUNCDESC} && return 1
 
-    local statcmd=stat; is_osx && statcmd=gstat
-    local src_mode=$(exec ${statcmd} -c "%a" ${1})
+    local STATCMD=stat; is_osx && STATCMD=gstat
+    local SRC_MODE=$(exec ${STATCMD} -c "%a" ${1})
 
-    chmod ${src_mode} ${2}
+    chmod ${SRC_MODE} ${2}
 }
 
 function backup {
-    FUNCDESC="Backup and change mode of files before editing (as required by NBR change process). The backup will be named with -dateTtime.bak and have mode changed +w -x to prevent accidental execution."
+    local FUNCDESC="Backup and change mode of files before editing (as required by NBR change process). The backup will be named with -dateTtime.bak and have mode changed +w -x to prevent accidental execution."
 
     [[ -z ${1} ]] && error "No file specified" \
         && usage "${FUNCNAME} <filename> [<filename> ...]" "where <filename> is the file(s) to back up." \
@@ -146,29 +146,43 @@ function backup {
 
 	  local THEDATE=$(date +"%Y%m%d")
     local THETIME=$(date +"%H%M%S")
-    for n ; do
-        NEWNAME="${n}-${THEDATE}T${THETIME}.bak"
-        mv ${n} ${NEWNAME}
-        cp -p ${NEWNAME} ${n}
+    for N ; do
+        NEWNAME="${N}-${THEDATE}T${THETIME}.bak"
+        mv ${N} ${NEWNAME}
+        cp -p ${NEWNAME} ${N}
         [[ -x ${NEWNAME} ]] && chmod -x ${NEWNAME}
         [[ -w ${NEWNAME} ]] || chmod +w ${NEWNAME}
     done
 }
 
 function backout {
-    FUNCDESC="Reverses a backup by putting the backup back to the original name. CAUTION: the mode is NOT reset to what it was before backup, rather the mode of the restored file is set to that of the file it's replacing.  The new file will be renamed '<filename>.keep'"
+    local FUNCDESC="Reverses a backup by putting the backup back to the original name. CAUTION: the mode is NOT reset to what it was before backup, rather the mode of the restored file is set to that of the file it's replacing.  The new file will be renamed '<filename>.keep'"
 
-    local ret=0
+    local RET=0
 
-    [[ -z ${1} ]] && ret=1 && error "${FUNCNAME}: no file specified"
-    [[ -f ${1} ]] || ret=2 && error "${FUNCNAME}: not found: ${1}"
+    [[ -z ${1} ]] && RET=1 && error "${FUNCNAME}: no file specified"
+    [[ -f ${1} ]] || RET=2 && error "${FUNCNAME}: not found: ${1}"
 
-    [[ ${ret} -gt 0 ]] && usage "${FUNCNAME} <filename>" ${FUNCDESC} \
-        && return ${ret}
+    [[ ${RET} -gt 0 ]] && usage "${FUNCNAME} <filename>" ${FUNCDESC} \
+        && return ${RET}
 
     mv ${1} ${1}.keep
     mv ${1}-*T*.bak ${1}
 
     cpmod ${1}.keep ${1}
     [[ -x ${1}.keep ]] && chmod -x ${1}.keep
+}
+
+function fsync {
+    local FUNCDESC="rsync <source> to <dest> so that <dest> is just like <source>, no extra files."
+    local SRC="{$1}"; shift
+    local DST="{$1}"; shift
+
+    local RET=0
+    [[ -z ${SRC} ]] && ret=1 && error "${FUNCNAME}: must specify a sync source"
+    [[ -z ${DST} ]] && ret=1 && error "${FUNCNAME}: must specify a sync destination"
+    [[ ${RET} -gt 0 ]] && usage "${FUNCNAME} <source> <dest>" ${FUNCDESC} \
+        && return ${RET}
+
+    rsync --partial --verbose --archive --delete ${SRC}/ ${DST}/
 }

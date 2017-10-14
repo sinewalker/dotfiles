@@ -5,7 +5,7 @@ is_osx || return 1
 [[ ! "$(type -P brew)" ]] && e_error "Brew casks need Homebrew to install." && return 1
 
 # Ensure the cask keg and recipe are installed.
-kegs=(caskroom/cask)
+KEGS=(caskroom/cask)
 brew_tap_kegs
 
 
@@ -17,7 +17,7 @@ brew tap buo/cask-upgrade
 brew cask list > /dev/null 2>&1 ||  (e_error "Brew-cask failed to install." && return 1)
 
 # Homebrew casks
-casks=(
+CASKS=(
     # apps
     aerial
     anaconda
@@ -86,11 +86,11 @@ casks=(
 )
 
 # Install Homebrew casks.
-casks=($(setdiff "${casks[*]}" "$(brew cask list 2>/dev/null)"))
-if (( ${#casks[@]} > 0 )); then
-  e_header "Installing Homebrew casks: ${casks[*]}"
-  for cask in "${casks[@]}"; do
-    brew cask install $cask
+CASKS=($(setdiff "${CASKS[*]}" "$(brew cask list 2>/dev/null)"))
+if (( ${#CASKS[@]} > 0 )); then
+  e_header "Installing Homebrew casks: ${CASKS[*]}"
+  for CASK in "${CASKS[@]}"; do
+    brew cask install ${CASK}
   done
   brew cask cleanup
 fi

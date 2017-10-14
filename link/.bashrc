@@ -5,23 +5,23 @@ export DOTFILES=~/.dotfiles
 PATH=${DOTFILES}/bin:${PATH}
 export PATH
 
-# Source all files in "source"
 function src() {
-  local file
-  if [[ "$1" ]]; then
+  local FUNCDESC="Source all files in 'source', or a specified file"
+  local FILE
+  if [[ "${1}" ]]; then
     source "${DOTFILES}/source/${1}.sh"
   else
-    for file in ${DOTFILES}/source/*.sh; do
-      source "$file"
+    for FILE in ${DOTFILES}/source/*.sh; do
+      source "${FILE}"
     done
   fi
 }
 
 alias lssrc='\ls ${DOTFILES}/source/|egrep "\.sh$"|sed "s/\.sh//g"'
 
-# Run dotfiles script, then source.
 function dotfiles() {
-  ${DOTFILES}/bin/dotfiles "$@" && src
+  local FUNCDESC="Run dotfiles script, then source. This causes the Copy, Link and Init step to be run."
+  ${DOTFILES}/bin/dotfiles "${@}" && src
 }
 
 src
@@ -30,12 +30,12 @@ src
 _src() {
   local cur sources
   COMPREPLY=()
-  cur="${COMP_WORDS[COMP_CWORD]}"
+  local CUR="${COMP_WORDS[COMP_CWORD]}"
   pushd ${DOTFILES}/source > /dev/null
-  sources="$(\ls *.sh|sed 's/\.sh$//g')"
+  local SOURCES="$(\ls *.sh|sed 's/\.sh$//g')"
   popd > /dev/null
 
-  COMPREPLY=( $(compgen -W "${sources}" -- ${cur}) )
+  COMPREPLY=( $(compgen -W "${SOURCES}" -- ${CUR}) )
   return 0
 }
 complete -F _src src

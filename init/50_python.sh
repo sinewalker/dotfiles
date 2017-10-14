@@ -1,5 +1,5 @@
 # Load python and virualenv-related functions.
-source $DOTFILES/source/50_python.sh
+source ${DOTFILES}/source/50_python.sh
 
 # Install latest stable virtualenv, install global python modules
 # see http://hackercodex.com/guide/python-development-environment-on-mac-osx/
