@@ -39,14 +39,14 @@ function e_arrow()    { echo -e " \033[1;34m➜\033[0m  $@"; }
 
 # MJL20170222 utility functions.
 
-error() {
+function error() {
     local FUNCDESC="Echo arguments to STDERR"
-    [[ -z ${1} ]] && usage "$FUCNAME <message> [<more messages>]" $FUNCDESC \
+    [[ -z ${1} ]] && usage "${FUCNAME} <message> [<more messages>]" ${FUNCDESC} \
         && return 1
-    >&2 echo $@
+    >&2 echo ${@}
 }
 
-usage() {
+function usage() {
     local FUNCDESC
     read -d '' FUNCDESC <<EOV
 
@@ -62,11 +62,11 @@ to usage().
 EOV
     USAGE=${1}; shift
     [[ -z ${1} ]] && \
-        usage "$FUNCNAME <instruction> [<strings>] <description>" \
-              $FUNCDESC && return 1
-    MESSAGE=$@
+        usage "${FUNCNAME} <instruction> [<strings>] <description>" \
+              ${FUNCDESC} && return 1
+    MESSAGE=${@}
     error Usage: ${USAGE}
-    echo ${MESSAGE} | fold -s -w $COLUMNS
+    echo ${MESSAGE} | fold -s -w ${COLUMNS}
 }
 
 # For testing.
@@ -80,51 +80,58 @@ function assert() {
 
 # MJL20170214 source mechanics
 
-# test if all arguments are runnable command
 function is_exe() {
-  type -p $@ > /dev/null
+    local FUNCDESC="Test if all arguments are runnable commands"
+    type -p "${@}" > /dev/null
 }
 
 # OS detection
 function is_osx() {
-  [[ "$OSTYPE" =~ ^darwin ]] || return 1
+    local FUNCDESC="Return 0 if operating system is macOS, else return 1"
+    [[ "${OSTYPE}" =~ ^darwin ]] || return 1
 }
 function is_ubuntu() {
+    local FUNCDESC="Return 0 if operating system is an Ubuntu variant, else return 1"
     [[ $(lsb_release -i 2> /dev/null) =~ buntu ]] || return 1
 }
 function is_suse() {
+    local FUNCDESC="Return 0 if operating system is SUSE, else return 1"
     [[ $(lsb_release -i 2> /dev/null) =~ SUSE ]] || return 1
 }
 function is_raspbian() {
+    local FUNCDESC="Return 0 if operating system is Raspbian, else return 1"
     #lsb_release is not installed by default in Raspbian
     [[ "$(cat /etc/os-release 2> /dev/null)" =~ Raspbian ]] || return 1
     return 1
 }
 function is_redhat6() {
+    local FUNCDESC="Return 0 if operating system is a RedHat 6 variant, else return 1"
     [[ $(lsb_release -r 2> /dev/null|awk '{print $2}') =~ ^6\. ]] || return 1
     local DIST=$(lsb_release -i 2> /dev/null)
-    [[ $DIST =~ Scientific ]] || [[ $DIST =~ CentOS  ]] \
-        || [[ $DIST =~ Red ]] || return 1
+    [[ ${DIST} =~ Scientific ]] || [[ ${DIST} =~ CentOS  ]] \
+        || [[ ${DIST} =~ Red ]] || return 1
 }
 function is_redhat7() {
+    local FUNCDESC="Return 0 if operating system is a RedHat 7 variant, else return 1"
     local DIST=$(lsb_release -i 2> /dev/null)
-    [[ $DIST =~ Fedora ]] && return 0
+    [[ ${DIST} =~ Fedora ]] && return 0
     [[ $(lsb_release -r 2> /dev/null|awk '{print $2}') =~ ^7\. ]] || return 1
-    [[ $DIST =~ CentOS ]] || [[ $DIST =~ Red  ]] || return 1
+    [[ ${DIST} =~ CentOS ]] || [[ ${DIST} =~ Red  ]] || return 1
 }
 function get_os() {
-  for os in osx ubuntu suse raspbian redhat6 redhat7; do
-    is_$os; [[ $? == ${1:-0} ]] && echo $os
-  done
+    local FUNCDESC="Report operating system. If unknown, prints nothing."
+    for OS in osx ubuntu suse raspbian redhat6 redhat7; do
+        is_${OS}; [[ ${?} == ${1:-0} ]] && echo ${OS}
+    done
 }
 
 
 function path_add() {
-    #adds to path ONLY if dir exists AND not already in $PATH
-    #if $2 is specifed, PREPEND rather than Append
-    if [ -d "$1" ] && [[ ":$PATH:" != *":$1:"* ]]; then
-        if [ -z $2 ]; then
-            PATH="${PATH:+"$PATH:"}$1"
+    local FUNCDESC="Add an entry to PATH, but ONLY if dir exists AND not already in PATH. \
+    If second parameter is specified, PREPEND rather than Append."
+    if [ -d "$1" ] && [[ ":${PATH}:" != *":${1}:"* ]]; then
+        if [ -z ${2} ]; then
+            PATH="${PATH:+"${PATH}:"}${1}"
         else
             PATH="${1}:${PATH}"
         fi
@@ -133,36 +140,44 @@ function path_add() {
 
 # Remove an entry from $PATH
 # Based on http://stackoverflow.com/a/2108540/142339
-function path_remove() {
-  local arg path
+# MJL20171015 This is an actual function of it's argument. Use
+#             path_remove for interactive use with side-effect
+function __path_remove() {
+
+  local ARG path
   path=":$PATH:"
-  for arg in "$@"; do path="${path//:$arg:/:}"; done
+  for ARG in "${@}"; do path="${path//:${ARG}:/:}"; done
   path="${path%:}"
   path="${path#:}"
   echo "$path"
 }
 
+function path_remove() {
+    local FUNCDESC="Remove an entry from PATH"
+    PATH=$(__path_remove "${1}")
+}
+
 # Display a fancy multi-select menu.
 # Inspired by http://serverfault.com/a/298312
-function prompt_menu() {
+function __dotfiles_menu() {
   local exitcode prompt choices nums i n
   exitcode=0
   if [[ "$2" ]]; then
-    _prompt_menu_draws "$1"
+    __menu_draws "$1"
     read -t $2 -n 1 -sp "To edit this list, press any key within $2 seconds. "
     exitcode=$?
     echo ""
   fi 1>&2
   if [[ "$exitcode" == 0 ]]; then
     prompt="Toggle options (Separate options with spaces, ENTER when done): "
-    while _prompt_menu_draws "$1" 1 && read -rp "$prompt" nums && [[ "$nums" ]]; do
-      _prompt_menu_adds $nums
+    while __menu_draws "$1" 1 && read -rp "$prompt" nums && [[ "$nums" ]]; do
+      __menu_adds $nums
     done
   fi 1>&2
-  _prompt_menu_adds
+  __menu_adds
 }
 
-function _prompt_menu_iter() {
+function __menu_iter() {
   local i sel state
   local fn=$1; shift
   for i in "${!menu_options[@]}"; do
@@ -174,12 +189,12 @@ function _prompt_menu_iter() {
   done
 }
 
-function _prompt_menu_draws() {
+function __menu_draws() {
   e_header "$1"
-  _prompt_menu_iter _prompt_menu_draw "$2"
+  __menu_iter __menu_draw "$2"
 }
 
-function _prompt_menu_draw() {
+function __menu_draw() {
   local modes=(error success)
   if [[ "$3" ]]; then
     e_${modes[$1]} "$(printf "%2d) %s\n" $(($2+1)) "${menu_options[$2]}")"
@@ -188,13 +203,13 @@ function _prompt_menu_draw() {
   fi
 }
 
-function _prompt_menu_adds() {
-  _prompt_menu_result=()
-  _prompt_menu_iter _prompt_menu_add "$@"
-  menu_selects=("${_prompt_menu_result[@]}")
+function __menu_adds() {
+  __menu_result=()
+  __menu_iter __menu_add "$@"
+  menu_selects=("${__menu_result[@]}")
 }
 
-function _prompt_menu_add() {
+function __menu_add() {
   local state i n keep match
   state=$1; shift
   i=$1; shift
@@ -204,7 +219,7 @@ function _prompt_menu_add() {
     fi
   done
   [[ ! "$match" && "$state" == 1 || "$keep" ]] || return
-  _prompt_menu_result=("${_prompt_menu_result[@]}" "${menu_options[i]}")
+  __menu_result=("${__menu_result[@]}" "${menu_options[i]}")
 }
 
 # Given strings containing space-delimited words A and B, "setdiff A B" will
@@ -212,24 +227,27 @@ function _prompt_menu_add() {
 # (and not in a good way).
 # From http://stackoverflow.com/a/1617303/142339
 function setdiff() {
-  local debug skip a b
-  if [[ "$1" == 1 ]]; then debug=1; shift; fi
-  if [[ "$1" ]]; then
-    local setdiffA setdiffB setdiffC
-    setdiffA=($1); setdiffB=($2)
-  fi
-  setdiffC=()
-  for a in "${setdiffA[@]}"; do
-    skip=
-    for b in "${setdiffB[@]}"; do
-      [[ "$a" == "$b" ]] && skip=1 && break
+    local FUNCDESC="Given strings containing space-delimited words \
+A and B, 'setdiff A B' will return all words in A that do not exist \
+in B."
+    local DEBUG SKIP A B
+    if [[ "${1}" == 1 ]]; then DEBUG=1; shift; fi
+    if [[ "${1}" ]]; then
+        local setdiffA setdiffB setdiffC
+        setdiffA=(${1}); setdiffB=(${2})
+    fi
+    setdiffC=()
+    for A in "${setdiffA[@]}"; do
+        SKIP=
+        for B in "${setdiffB[@]}"; do
+            [[ "${A}" == "${B}" ]] && SKIP=1 && break
+        done
+        [[ "${SKIP}" ]] || setdiffC=("${setdiffC[@]}" "${a}")
     done
-    [[ "$skip" ]] || setdiffC=("${setdiffC[@]}" "$a")
-  done
-  [[ "$debug" ]] && for a in setdiffA setdiffB setdiffC; do
-    echo "$a ($(eval echo "\${#$a[*]}")) $(eval echo "\${$a[*]}")" 1>&2
-  done
-  [[ "$1" ]] && echo "${setdiffC[@]}"
+    [[ "${DEBUG}" ]] && for A in setdiffA setdiffB setdiffC; do
+        echo "${A} ($(eval echo "\${#$A[*]}")) $(eval echo "\${$A[*]}")" 1>&2
+    done
+    [[ "${1}" ]] && echo "${setdiffC[@]}"
 }
 
 # If this file was being sourced, exit now.
@@ -262,7 +280,7 @@ function init_files() {
       [[ "$remove" ]] || menu_selects=("${menu_selects[@]}" "$opt")
     done
   fi
-  prompt_menu "Run the following init scripts?" $prompt_delay
+  __dotfiles_menu "Run the following init scripts?" $prompt_delay
   # Write out cache file for future reading.
   rm "$init_file" 2>/dev/null
   for i in "${!menu_selects[@]}"; do

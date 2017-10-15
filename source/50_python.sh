@@ -117,7 +117,7 @@ sucuri() {
     FUNCDESC='activate or deactivate Anaconda by inspecting and changing $PATH'
     if [[ $PATH =~ anaconda ]]; then
         [[ $CONDA_DEFAULT_ENV ]] && source deactivate
-        export PATH=$(path_remove ${VIRTUALENV_BASE}/anaconda/bin)
+        path_remove ${VIRTUALENV_BASE}/anaconda/bin
         is_exe deactivate && unalias deactivate
         echo "Anaconda: deactivated"
     else
