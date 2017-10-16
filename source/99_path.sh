@@ -3,24 +3,25 @@
 
 
 function dedupe_path() {
-    #removes duplicates from $PATH variable
+    local FUNCDESC='Removes duplicates from $PATH variable.
+Call for side-effects, no parameters taken.'
     # see http://unix.stackexchange.com/questions/40749/remove-duplicate-path-entries-with-awk-command
 
-    if [ -n "$PATH" ]; then
-        old_PATH=${PATH}:; PATH=
-        while [ -n "$old_PATH" ]; do
-            x=${old_PATH%%:*}       # the first remaining entry
-            case $PATH: in
-                *:"$x":*) ;;         # already there
-                *) PATH=${PATH}:${x} ;;    # not there yet
+    local oldPATH X
+    if [ -n "${PATH}" ]; then
+        old_PATH="${PATH}:"; PATH=
+        while [ -n "${old_PATH}" ]; do
+            X=${old_PATH%%:*}       # the first remaining entry
+            case ${PATH}: in
+                *:"${X}":*) ;;         # already there
+                *) PATH=${PATH}:${X} ;;    # not there yet
             esac
             old_PATH=${old_PATH#*:}
         done
         PATH=${PATH#:}
-        unset old_PATH x
     fi
 }
-
+alias path_dedupe=dedupe_path
 
 path_add ~/bin PREPEND
 path_add ~/Work/bin
