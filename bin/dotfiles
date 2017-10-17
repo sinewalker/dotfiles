@@ -47,24 +47,20 @@ function error() {
 }
 
 function usage() {
-    local FUNCDESC
-    read -d '' FUNCDESC <<EOV
-
-Show instructions for using a function, supplied as arguments. The first
-argument is a string describing how to use a function. There can be multiple
-usage string arguments. All will be strung together and folded at the terminal
-width.
+    local FUNCDESC='Show instructions for using a function, supplied as arguments.
+The first argument is a string describing how to use a function. There can be
+multiple usage string arguments. All will be strung together and folded at the
+terminal width.
 
 The LAST argument is taken to be a string describing what the function does. It
 is useful to keep this in a $FUNCDESC variable and pass it as the last argument
 to usage().
-
-EOV
-    USAGE=${1}; shift
-    [[ -z ${1} ]] && \
+'
+    USAGE="${1}"; shift
+    [[ -z "${1}" ]] && \
         usage "${FUNCNAME} <instruction> [<strings>] <description>" \
               ${FUNCDESC} && return 1
-    MESSAGE=${@}
+    MESSAGE="${@}"
     error Usage: ${USAGE}
     echo ${MESSAGE} | fold -s -w ${COLUMNS}
 }
@@ -118,16 +114,21 @@ function is_redhat7() {
     [[ ${DIST} =~ CentOS ]] || [[ ${DIST} =~ Red  ]] || return 1
 }
 function get_os() {
-    local FUNCDESC="Report operating system. If unknown, prints nothing."
+    local FUNCDESC="Report operating system. If unknown, prints nothing and returns 1"
+    local RET=1
     for OS in osx ubuntu suse raspbian redhat6 redhat7; do
-        is_${OS}; [[ ${?} == ${1:-0} ]] && echo ${OS}
+        is_${OS}; [[ ${?} == ${1:-0} ]] && echo ${OS} && RET=0
     done
+    return ${RET}
 }
 
 
 function path_add() {
-    local FUNCDESC="Add an entry to PATH, but ONLY if dir exists AND not already in PATH. \
-    If second parameter is specified, PREPEND rather than Append."
+    local FUNCDESC='Add an entry to $PATH, but ONLY if dir exists AND not already in $PATH.
+If second parameter is specified (and value), PREPEND (to front of $PATH) rather than Append.'
+    [[ -z "${1}" ]] && \
+        usage "${FUNCNAME} directory [prepend]" ${FUNCDESC} \
+        && return 1
     if [ -d "$1" ] && [[ ":${PATH}:" != *":${1}:"* ]]; then
         if [ -z ${2} ]; then
             PATH="${PATH:+"${PATH}:"}${1}"
@@ -152,7 +153,11 @@ function __path_remove() {
 }
 
 function path_remove() {
-    local FUNCDESC="Remove an entry from PATH"
+    local FUNCDESC='Remove an entry from $PATH.
+All occurrences of the entry will be removed immediately.'
+    [[ -z "${1}" ]] && \
+        usage "${FUNCNAME} directory" ${FUNCDESC} &&\
+        return 1
     PATH=$(__path_remove "${1}")
 }
 
@@ -226,9 +231,14 @@ function __menu_add() {
 # (and not in a good way).
 # From http://stackoverflow.com/a/1617303/142339
 function setdiff() {
-    local FUNCDESC="Given strings containing space-delimited words \
-A and B, 'setdiff A B' will return all words in A that do not exist \
-in B."
+    local FUNCDESC='Return all words in A that do not exist in B.
+
+Given strings containing space-delimited words A and B, "setdiff A B" will
+return all words in A that do not exist in B.
+
+If the first argument is a "1" then debug the function.'
+    [[ -z "${@}" ]] && \
+        usage "${FUNCNAME} [1] A B [C]" ${FUNCDESC}
     local DEBUG SKIP A B
     if [[ "${1}" == 1 ]]; then DEBUG=1; shift; fi
     if [[ "${1}" ]]; then
