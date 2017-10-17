@@ -66,48 +66,46 @@ activate() {
 If Anaconda is active (conda command is in the PATH) then source the 'anaconda'
 script instead, per conda practice. Bail after sourcing."
 
-    local RET=0
-    local DOCONDA=0
     if is_exe conda; then
-        DOCONDA=1
-        source $(conda info|awk '/root env/{print $4}')/bin/activate "${@}"
-        RET=${?}
-        [[ ${RET} -eq 0 ]] || echo
+        doconda=1
+        source $(conda info|awk '/root env/{print $4}')/bin/activate $@
+        ret=$?
+        [[ $ret -eq 0 ]] || echo
         #make Anaconda's deactivate less clunky
-        [[ ${RET} -eq 0 ]] && \
+        [[ $ret -eq 0 ]] && \
             alias deactivate='unalias deactivate; source deactivate'
     fi
-    if [[ ${DOCONDA} -eq 0 ]]; then
-        [ -z "${1}" ] && usage "${FUNCNAME} <venv>" ${FUNCDESC} && return 1
-        VENV="${VIRTUALENV_BASE}/${1}"
+    if [[ $doconda -eq 0 ]]; then
+        [ -z ${1} ] && usage "$FUNCNAME <venv>" $FUNCDESC && return 1
+        VENV=${VIRTUALENV_BASE}/${1}
         if [ -f ${VENV}/bin/activate ]; then
             is_exe deactivate && deactivate
             source ${VENV}/bin/activate
-            RET=${?}
+            ret=$?
         else
-            RET=2
+            ret=2
         fi
     fi
-    if [[ ${RET} -gt 0 ]]; then
-        error "${FUNCNAME}: Error activating Venv: ${1}"
+    if [[ $ret -gt 0 ]]; then
+        error "$FUNCNAME: Error activating Venv: ${1}"
         echo
-        if [[ ${DOCONDA} -eq 0 ]]; then
+        if [[ $doconda -eq 0 ]]; then
             echo "Available Python Venvs are:"
         else
             echo "Available Conda envs are:"
         fi
         lsvenv
     fi
-    return ${RET}
+    return $ret
 }
 alias workon=activate
 
 _activate() {
     COMPREPLY=()
-    local CUR VENVS
-    CUR="${COMP_WORDS[COMP_CWORD]}"
-    VENVS="$(lsvenv)"
-    COMPREPLY=( $(compgen -W "${VENVS}" -- ${CUR}) )
+    local cur venvs
+    cur="${COMP_WORDS[COMP_CWORD]}"
+    venvs="$(lsvenv)"
+    COMPREPLY=( $(compgen -W "${venvs}" -- ${cur}) )
     return 0
 }
 complete -F _activate activate
@@ -116,20 +114,18 @@ complete -F _activate activate
 
 sucuri() {
     FUNCDESC='Activate or deactivate Anaconda by inspecting and changing $PATH'
-    if [[ ${PATH} =~ anaconda ]]; then
-        [[ ${CONDA_DEFAULT_ENV} ]] && source deactivate
         path_remove ${VIRTUALENV_BASE}/anaconda/bin
         is_exe deactivate && unalias deactivate
         echo "Anaconda: deactivated"
     else
-        local SNAKE WARN; SNAKE='(S)'; WARN='[!]'
-        is_osx && [[ -z ${SSH_TTY} ]] && [[ -z ${WINDOW} ]] && \
-            SNAKE="🐍";  WARN="⚠"
+        local snake warn; snake='(S)'; warn='[!]'
+        is_osx && [[ -z $SSH_TTY ]] && [[ -z $WINDOW ]] && \
+            snake="🐍";  warn="⚠"
         path_add ${VIRTUALENV_BASE}/anaconda/bin PREPEND
-        if [[ ${PATH} =~ anaconda ]]; then
-            echo "Anaconda: ACTIVATED ${SNAKE}"
+        if [[ $PATH =~ anaconda ]]; then
+            echo "Anaconda: ACTIVATED $snake"
         else
-            echo "Anaconda: NOT FOUND ${WARN}"
+            echo "Anaconda: NOT FOUND $warn"
             return 1
         fi
     fi
