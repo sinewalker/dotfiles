@@ -6,7 +6,7 @@ local SUDOERS_OLD="/etc/sudoers.d/sudoers-cowboy"; [[ -e "${SUDOERS_OLD}" ]] && 
 
 # Installing this sudoers file makes life easier.
 local SUDOERS_FILE="sudoers-dotfiles"
-local SUDOERS_SRC=${DOTFILES}/conf/ubuntu/${SUDOERS_FILE}
+local SUDOERS_SRC=${DOTFILES}/misc/ubuntu/${SUDOERS_FILE}
 local SUDOERS_DEST="/etc/sudoers.d/${SUDOERS_FILE}"
 if [[ ! -e "${SUDOERS_DEST}" || "${SUDOERS_DEST}" -ot "${SUDOERS_SRC}" ]]; then
   cat <<EOM

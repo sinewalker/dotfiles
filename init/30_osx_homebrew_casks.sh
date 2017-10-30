@@ -32,6 +32,7 @@ CASKS=(
     iterm2
     karabiner
     keepassx
+    keybase
     netbeans
     netbeans-java-se
     sourcetree

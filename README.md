@@ -35,7 +35,7 @@ On subsequent runs, step 1 is skipped, step 2 just updates the already-existing 
 * The `backups/` directory gets created when necessary. Any files in `~/` that would have been overwritten by files in `copy/` or `link/` get backed up here.
 * The `bin/` directory contains executable shell scripts (including the [dotfiles][dotfiles] script) and symlinks to executable shell scripts. This directory is added to the `$PATH`.
 * The `caches/` directory contains cached files, used by some scripts or functions.
-* The `conf/` directory just exists. If a config file doesn't **need** to go in `~/`, reference it from the `conf/` directory.
+* The `misc/` directory just exists. If a config file doesn't **need** to go in `~/`, reference it from the `misc/` directory.
 * The `source/` directory contains files that are `source`d whenever a new shell is opened (in alphanumeric order, hence the funky names).
 * The `test/` directory contains unit tests for especially complicated bash functions.
 * The `vendor/` directory contains third-party libraries.
