@@ -242,27 +242,31 @@ function setdiff() {
 Given strings containing space-delimited words A and B, "setdiff A B" will
 return all words in A that do not exist in B.
 
-If the first argument is a "1" then debug the function.'
-    [[ -z "${@}" ]] && \
-        usage "${FUNCNAME} [1] A B [C]" ${FUNCDESC}
-    local DEBUG SKIP A B
-    if [[ "${1}" == 1 ]]; then DEBUG=1; shift; fi
-    if [[ "${1}" ]]; then
+If the first argument is a "1" then debug the function.
+
+If A and B are not specified, then uses global variables $setdiffA and
+$setdiffB, returns the difference in $setdiffC'
+    local debug skip a b
+    if [[ "$1" == 1 ]]; then debug=1; shift; fi
+    if [[ "$1" ]]; then
         local setdiffA setdiffB setdiffC
-        setdiffA=(${1}); setdiffB=(${2})
+        setdiffA=($1); setdiffB=($2)
+    else
+        [[ -z ${setdiffA} ]] || [[ -z ${setdiffB} ]] && \
+            usage "${FUNCNAME} [1] A B [C]" ${FUNCDESC}
     fi
     setdiffC=()
-    for A in "${setdiffA[@]}"; do
-        SKIP=
-        for B in "${setdiffB[@]}"; do
-            [[ "${A}" == "${B}" ]] && SKIP=1 && break
+    for a in "${setdiffA[@]}"; do
+        skip=
+        for b in "${setdiffB[@]}"; do
+            [[ "$a" == "$b" ]] && skip=1 && break
         done
-        [[ "${SKIP}" ]] || setdiffC=("${setdiffC[@]}" "${a}")
+        [[ "$skip" ]] || setdiffC=("${setdiffC[@]}" "$a")
     done
-    [[ "${DEBUG}" ]] && for A in setdiffA setdiffB setdiffC; do
-        echo "${A} ($(eval echo "\${#$A[*]}")) $(eval echo "\${$A[*]}")" 1>&2
+    [[ "$debug" ]] && for a in setdiffA setdiffB setdiffC; do
+        echo "$a ($(eval echo "\${#$a[*]}")) $(eval echo "\${$a[*]}")" 1>&2
     done
-    [[ "${1}" ]] && echo "${setdiffC[@]}"
+    [[ "$1" ]] && echo "${setdiffC[@]}"
 }
 
 # If this file was being sourced, exit now.
