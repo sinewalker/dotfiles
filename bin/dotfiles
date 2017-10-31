@@ -346,7 +346,7 @@ function config_test() {
 }
 function config_do() {
   local configdir=${XDG_CONFIG_HOME-$HOME/config}
-  e_success "Linking $configdir/${1}."
+  e_success "Linking ${configdir}/${1}."
   ln -sf ${DOTFILES}/${2} ${configdir}
 }
 
