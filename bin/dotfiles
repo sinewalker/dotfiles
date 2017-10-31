@@ -339,14 +339,15 @@ function link_do() {
 # Link config files.
 function config_header() { e_header "Linking files into ~/.config directory"; }
 function config_dest() {
-  echo "$HOME/.config/$base"
+  echo "${XDG_CONFIG_HOME-$HOME/.config}/$base"
 }
 function config_test() {
   [[ "$1" -ef "$2" ]] && echo "same file"
 }
 function config_do() {
-  e_success "Linking ~/.config/$1."
-  ln -sf ../${2#$HOME/} ~/.config/
+  local configdir=${XDG_CONFIG_HOME-$HOME/config}
+  e_success "Linking $configdir/${1}."
+  ln -sf ${DOTFILES}/${2} ${configdir}
 }
 
 
