@@ -8,7 +8,10 @@ BANNER
 
 if [[ "$1" == "-h" || "$1" == "--help" ]]; then cat <<HELP
 
-Usage: $(basename "$0")
+Usage: $(basename "$0") [source] [verbose]
+
+If argument is "source" then just source the functions, don't refresh
+If argument is "verbose" then print more error banners
 
 See the README for documentation.
 https://github.com/sinewalker/dotfiles
@@ -272,6 +275,8 @@ $setdiffB, returns the difference in $setdiffC'
 # If this file was being sourced, exit now.
 [[ "$1" == "source" ]] && return
 
+[[ "$1" =~ "v" ]] && __VERBOSE=1
+
 
 ###########################################
 # INTERNAL DOTFILES "INIT" VARS / FUNCTIONS
@@ -308,12 +313,12 @@ function init_files() {
   done
 }
 function init_do() {
-  e_header "Sourcing $(basename "$2")"
+  e_header "Running $(basename "$2")"
   source "$2"
 }
 
 # Copy files.
-function copy_header() { e_header "Copying files into home directory"; }
+function copy_header() { e_header "Copying dotfiles into home directory"; }
 function copy_test() {
   if [[ -e "$2" && ! "$(cmp "$1" "$2" 2> /dev/null)" ]]; then
     echo "same file"
@@ -327,7 +332,7 @@ function copy_do() {
 }
 
 # Link files.
-function link_header() { e_header "Linking files into home directory"; }
+function link_header() { e_header "Linking dotfiles into home directory"; }
 function link_test() {
   [[ "$1" -ef "$2" ]] && echo "same file"
 }
@@ -337,7 +342,7 @@ function link_do() {
 }
 
 # Link config files.
-function config_header() { e_header "Linking files into ~/.config directory"; }
+function config_header() { e_header "Linking dotfiles into config directory"; }
 function config_dest() {
   echo "${XDG_CONFIG_HOME-$HOME/.config}/$base"
 }
@@ -345,9 +350,9 @@ function config_test() {
   [[ "$1" -ef "$2" ]] && echo "same file"
 }
 function config_do() {
-  local configdir=${XDG_CONFIG_HOME-$HOME/config}
+  local configdir=${XDG_CONFIG_HOME-$HOME/.config}
   e_success "Linking ${configdir}/${1}."
-  ln -sf ${DOTFILES}/${2} ${configdir}
+  ln -sf ${2} ${configdir}
 }
 
 
@@ -374,7 +379,7 @@ function do_stuff() {
       # If _test function returns a string, skip file and print that message.
       skip="$("$1_test" "$file" "$dest")"
       if [[ "$skip" ]]; then
-        e_error "Skipping ~/$base, $skip."
+        [[ -n ${__VERBOSE} ]] && e_error "Skipping $dest, $skip."
         continue
       fi
       # Destination file already exists in ~/. Back it up!
