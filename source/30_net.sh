@@ -17,6 +17,12 @@ alias vsoc='vso -H "Cache-Control: no-cache"'
 alias webtime="curl -so /dev/null -L -w 'DNS Lookup:\t%{time_namelookup}\nConnect:\t%{time_connect}\nApp Connect:\t%{time_appconnect}\nPre Transfer:\t%{time_pretransfer}\nStart Transfer:\t%{time_starttransfer}\n\nTOTAL Time:\t%{time_total}\nHTTP Response:\t%{http_code}\nDownload bytes:\t%{size_download}\n'"
 # the 'c' again means 'bust cache'
 alias webtimec='webtime -H "Cache-Control: no-cache" ${@}'
+#always show the name server details when digging
+alias dig='\dig ns'
+#show only the IPs for the domain
+alias digip='\dig +short'
+#show the full name server trace from root
+alias digtrace='\dig +trace'
 
 function analyse-web() {
     #runs a real-time analysis on a web server's access logs
