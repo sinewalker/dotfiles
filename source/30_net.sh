@@ -18,7 +18,7 @@ alias webtime="curl -so /dev/null -L -w 'DNS Lookup:\t%{time_namelookup}\nConnec
 # the 'c' again means 'bust cache'
 alias webtimec='webtime -H "Cache-Control: no-cache" ${@}'
 #always show the name server details when digging
-alias dig='\dig ns'
+alias digns='\dig ns'
 #show only the IPs for the domain
 alias digip='\dig +short'
 #show the full name server trace from root
