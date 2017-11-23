@@ -73,3 +73,7 @@ function tunnel-port() {
 alias tunnel-https='tunnel-port 443'
 alias tunnel-http='tunnel-port 80'
 alias tunnel-db='tunnel-port 5432'
+
+#youtube downloads
+alias tubevorbis='youtube-dl --extract-audio --audio-format vorbis -i -o "%(title)s.%(ext)s"'
+alias tubeopus='youtube-dl --extract-audio --audio-format opus -i -o "%(title)s.%(ext)s"'
