@@ -56,3 +56,20 @@ function check-tls() {
 
     echo | openssl s_client -connect ${domain}:443 -servername ${server} | openssl x509 -noout -subject -dates
 }
+
+function tunnel-port() {
+    local FUNCDESC="Tunnel a port locally via a jump box."
+    [[ ${#} -lt 3 ]] && error "${FUNCNAME}: must supply port, jump-host and a target." \
+        && usage "${FUNCNAME} <port> <jump-host> <target>" ${FUNCDESC} \
+        && return 1
+    local port="${1}"
+    local jumpbox="${2}"
+    local target="${3}"
+
+    sudo ssh -v -F ${HOME}/.ssh/config -L ${port}:${target}:${port} ${jumpbox}
+}
+
+#common tunnels
+alias tunnel-https='tunnel-port 443'
+alias tunnel-http='tunnel-port 80'
+alias tunnel-db='tunnel-port 5432'
