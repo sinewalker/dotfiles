@@ -73,3 +73,28 @@ function ssh-find() {
         grep -i ${PATTERN} ~/.ssh/config || echo "${PATTERN}: not in config"
     done
 }
+export SSHFS_MOUNT_POINT=~/mnt
+
+function ssh-mount() {
+    local FUNCDESC="Mount a server with SSHFS"
+    local server mntdir
+    server="${1}"
+    mntdir="${2}"
+    [[ -d ${SSHFS_MOUNT_POINT}/${server} ]] || \
+      mkdir -p ${SSHFS_MOUNT_POINT}/${server}
+    [[ -z $mntdir ]] && mntdir=/
+    mount|grep ${server} || \
+      sshfs ${server}:${mntdir} ${SSHFS_MOUNT_POINT}/${server}
+}
+
+function ssh-umount(){
+    FUNCDESC="Unmount an SSHFS server mount, clean up the mount point"
+    local server="${1}"
+    ls ${SSHFS_MOUNT_POINT}|grep ${server} || \
+      echo "$FUNCNAME: ${server}: not mounted" && return 1
+    mount|grep ${server} && \
+      umount ${SSHFS_MOUNT_POINT}/${server}/ && \
+      rmdir ${SSHFS_MOUNT_POINT}/${server}
+}
+
+alias lsmnt='ls ${SSHFS_MOUNT_POINT}'
