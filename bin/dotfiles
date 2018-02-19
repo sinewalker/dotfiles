@@ -16,7 +16,7 @@ If argument is "verbose" then print more error banners
 See the README for documentation.
 https://github.com/sinewalker/dotfiles
 
-Portions Copyright © 2017 Mike Lockhart
+Portions Copyright © 2017, 2018 Mike Lockhart
 Creative Commons CC-by-4.0
 https://creativecommons.org/licenses/by/4.0/
 
@@ -41,7 +41,6 @@ function e_error()    { echo -e " \033[1;31m✖\033[0m  $@"; }
 function e_arrow()    { echo -e " \033[1;34m➜\033[0m  $@"; }
 
 # MJL20170222 utility functions.
-
 function error() {
     local FUNCDESC="Echo arguments to STDERR"
     [[ -z ${1} ]] && usage "${FUCNAME} <message> [<more messages>]" ${FUNCDESC} \
@@ -50,7 +49,8 @@ function error() {
 }
 
 function usage() {
-    local FUNCDESC='Show instructions for using a function, supplied as arguments.
+    local FUNCDESC='Show instructions for using a function.
+
 The first argument is a string describing how to use a function. There can be
 multiple usage string arguments. All will be strung together and folded at the
 terminal width.
