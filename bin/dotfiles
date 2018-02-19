@@ -69,9 +69,38 @@ to usage().
 }
 
 function describe() {
-    local FUNCDESC='Describe a function.
-Prints the first line of the $FUNCDESC declaration from the function definition.'
-    type -a "${1}" | awk -F = '/FUNCDESC/{print $2;exit}' | fold -s -w ${COLUMNS}
+    local FUNCDESC='Describe a function and show where it is defined.
+
+Prints information about the specified function including the first line of the
+$FUNCDESC declaration from the function definition, and where the function is
+defined.
+
+This function requires shopt -s extdebug to show file and line details.'
+
+    [[ -z "${1}" ]] && usage "${FUNCNAME} <function>" ${FUNCDESC} \
+                    && error "Must supply a function to describe." && return 1
+
+    local toggled=0
+    shopt extdebug > /dev/null || shopt -s extdebug && toggled=1
+
+    declare -F "${1}" | awk '{print "Fn: " $1 " in " $3 " line " $2}'
+    type -a "${1}" | awk -F = '/FUNCDESC/{print "    "$2;exit}' | fold -s -w ${COLUMNS}
+
+    [[ $toggled == 1 ]] && shopt -u extdebug
+}
+_describe() {
+    COMPREPLY=()
+    local cur words
+    cur="${COMP_WORDS[COMP_CWORD]}"
+    words="$(functions --all)"
+    COMPREPLY=($(compgen -W "${words}" -- ${cur}))
+    return 0
+}
+complete -F _describe describe
+
+alias debugon='shopt -s extdebug'
+alias debugoff='shopt -u extdebug'
+
 }
 function functions() {
     local FUNDCESC='Prints the names of all defined shell functions.
