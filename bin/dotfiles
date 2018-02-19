@@ -73,6 +73,20 @@ function describe() {
 Prints the first line of the $FUNCDESC declaration from the function definition.'
     type -a "${1}" | awk -F = '/FUNCDESC/{print $2;exit}' | fold -s -w ${COLUMNS}
 }
+function functions() {
+    local FUNDCESC='Prints the names of all defined shell functions.
+
+By default this will list all "interactive" functions designed to be called from
+a shell prompt. If the optional argument -a or --all is supplied then functions
+starting with an underscore are also printed.'
+
+    if [[ "${1}" == "-a" ]] || [[ "${1}" == "--all" ]]; then
+        declare -F|awk '{print $3}'
+    else
+        declare -F|awk '!/declare -f _/{print $3}'
+    fi
+}
+alias fns=functions
 
 # For testing.
 function assert() {
