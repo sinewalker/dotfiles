@@ -101,7 +101,26 @@ complete -F _describe describe
 alias debugon='shopt -s extdebug'
 alias debugoff='shopt -u extdebug'
 
+function list() {
+  local FUNDCESC='Print a listing of a function definition.
+
+The specified function is described and then listed.'
+
+  [[ -z "${1}" ]] && usage "${FUNCNAME} <function>" ${FUNCDESC} \
+      && error "Must supply a function to list." && return 1
+
+  describe ${1}; type -a ${1}|tail +2
 }
+_list() {
+    COMPREPLY=()
+    local cur words
+    cur="${COMP_WORDS[COMP_CWORD]}"
+    words="$(functions --all)"
+    COMPREPLY=($(compgen -W "${words}" -- ${cur}))
+    return 0
+}
+complete -F _list list
+
 function functions() {
     local FUNDCESC='Prints the names of all defined shell functions.
 
