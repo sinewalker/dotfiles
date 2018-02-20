@@ -24,7 +24,8 @@ function dotfiles() {
   ${DOTFILES}/bin/dotfiles "${@}" && src
 }
 
-src
+#only source if in Bash-mode
+kill -l|grep SIG > /dev/null && src
 
 # Completion for src function (requires bash_rompletion)
 _src() {
