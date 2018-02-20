@@ -73,6 +73,8 @@ function ssh-find() {
         grep -i ${PATTERN} ~/.ssh/config || echo "${PATTERN}: not in config"
     done
 }
+#SSH without a ControlMaster
+alias ssh-free="ssh -S none"
 export SSHFS_MOUNT_POINT=~/mnt
 
 function ssh-mount() {
