@@ -74,8 +74,18 @@ function ssh-find() {
         grep -i ${PATTERN} ~/.ssh/config || echo "${PATTERN}: not in config"
     done
 }
+
 #SSH without a ControlMaster
 alias ssh-free="ssh -S none"
+
+function ssh-proxy() {
+    local FUNCDESC="TODO: THIS DOESN'T WORK. Connect to a host via a proxy"
+    local proxy target
+    proxy="${1}"; echo proxy: ${proxy}
+    target="${2}"; echo target: ${target}
+    ssh -S none -o 'ProxyCommand ssh ${proxy} nc %h %p' ${target}
+}
+
 export SSHFS_MOUNT_POINT=~/mnt
 
 function ssh-mount() {
