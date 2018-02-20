@@ -57,14 +57,42 @@ function ssh() {
 export -f ssh
 
 ssh-reset() {
-    #interactively remove the SSH control-master for specified/matching hosts
-    [[ -z ${1} ]] && echo "Specify a host to reset, or ALL for all hosts" && return 1
-    [[ ${1} =~ ALL ]] && rm -fvi ~/.ssh/*master* && return 0
-    rm -fvi ~/.ssh/*master*${1}*
-}
+    FUNCDESC="interactively remove the SSH control-master for specified/matching hosts"
 
-#show SSH control-master files
-alias ssh-master='ls -so ~/.ssh/*master*'
+    if [[ -z ${1} ]]; then
+        error "${FUNCNAME}: must specify a host to reset, or ALL for all hosts"
+        usage "${FUNCNAME} <hostname>|ALL" ${FUNCDESC}
+        return 1
+    fi
+
+    if [[ ${1} =~ ALL ]]; then
+        #rm -fvi ~/.ssh/*master*
+        local master
+        for master in $(ssh-master); do
+            echo -n "${master}: "
+            ssh -O exit ${master}
+            done
+        return  0
+    else
+        # rm -fvi ~/.ssh/*master*${1}*
+        echo -n "${1}: "
+        ssh -O exit ${1}
+    fi
+}
+_ssh-reset() {
+    COMPREPLY=()
+    local cur
+    cur="${COMP_WORDS[COMP_CWORD]}"
+    COMPREPLY=($(compgen -W "$(ssh-master)" -- ${cur}))
+    return 0
+}
+complete -F _ssh-reset ssh-reset
+
+function ssh-master() {
+    local FUNCDESC="Show SSH control-masters."
+
+    ls ~/.ssh/*master* |  awk -F @ '{gsub(/:22/, "", $2); print $2 }'
+}
 alias ssh-ls=ssh-master
 
 function ssh-find() {
