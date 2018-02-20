@@ -25,24 +25,46 @@ alias digip='\dig +short'
 alias digtrace='\dig +trace'
 
 function analyse-web() {
-    #runs a real-time analysis on a web server's access logs
-    #requires goaccess -  http://goaccess.io/
-    #
-    #Params:  $1:  server name (you must be able to read the web logs on this server)
-    #         $2:  path to the access log on the server (default /var/log/openresty/access.log)
-    #         $3:  (optional) if set, remove the local log copy after quitting
-    [[ -z ${1} ]] && return 1
+    local FUNCDESC="Run a real-time analysis on a web server's access logs.
+
+Requires goaccess -  http://goaccess.io/
+
+Params:  <server_name>:  server name (you must be able to read the web logs on this server)
+         <path>:  path to the access log on the server (default /var/log/openresty/access.log)
+         <remove>:  (optional) if set, remove the local log copy after quitting"
+
+    if [[ -z ${1} ]]; then
+        error "${FUNCNAME}: must supply at least a server_name to connect to."
+        usage "${FUNCNAME} <server_name> [<path/to/log>] [<keep-after-quit>]" ${FUNCDESC}
+        return 1
+    fi
+
     SERVER=${1}
     LOG=${2}
     [[ -z ${LOG} ]] && LOG=/var/log/openresty/access.log
-    LOCAL=$(mktemp -t "analysis-XXX")
-    echo "Tailing to ${LOCAL}..."
-    ssh ${SERVER} "tail -f ${LOG}" > ${LOCAL} &
-    LOGGER=$!
-    sleep 3
-    [[ -s ${LOCAL} ]] && goaccess -f ${LOCAL} -a
-    kill $LOGGER
-    [[ -z ${3} ]] || (rm ${LOCAL}; echo "${LOCAL} removed")
+    LOCAL=$(mktemp -t "${FUNCNAME}")
+    ssh -S none ${SERVER} "tail -f ${LOG}" > ${LOCAL} &
+    echo "Pre-loading  ${SERVER}:${LOG}"
+    echo "to ${LOCAL} ..."
+    until [[ -s ${LOCAL} ]]; do
+        echo -n "."
+        sleep 1
+    done
+
+    #get the SSH PID here.  Using $! after the ssh fork doesn't work
+    LOGGER=$(ps|grep "[s]sh -S none ${SERVER}"|awk '{print $1}')
+
+    goaccess -f ${LOCAL} -a
+
+    kill -9 $LOGGER
+    fg
+
+    if [[ -z ${3} ]]; then
+        rm ${LOCAL}
+        echo "${LOCAL} removed"
+    else
+        echo "${LOCAL} kept"
+    fi
 }
 
 function check-tls() {
