@@ -67,8 +67,9 @@ ssh-reset() {
 alias ssh-master='ls -so ~/.ssh/*master*'
 alias ssh-ls=ssh-master
 
-#search for a host in SSH config
 function ssh-find() {
+    local FUNCDESC="search for a host in SSH config"
+
     for PATTERN in $*; do
         grep -i ${PATTERN} ~/.ssh/config || echo "${PATTERN}: not in config"
     done
