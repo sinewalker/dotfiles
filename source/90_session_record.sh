@@ -1,7 +1,7 @@
 #session recording
 SESSION_DIRECTORY=~/hax/sessions
 
-function _set_sdir() {
+function __set_sdir() {
     # function helper (DRY).  It checks for $SESSION_DIRECTORY
     # and uses that if set, or ~/hax/sessions if not.
 
@@ -9,7 +9,7 @@ function _set_sdir() {
         SDIR=${HOME}/hax/sessions || SDIR=${SESSION_DIRECTORY}
 }
 
-function _list_avail_sessions() {
+function __list_avail_sessions() {
     # function helper (DRY). lists all the session files
     # in $SDIR. TODO: include the date/time in output
 
@@ -20,14 +20,18 @@ function _list_avail_sessions() {
 }
 
 function session() {
-    #runs script, saving transcript and timing files to the specified
-    #file pair.  e.g. session zen12345 will create a zen12345.trans
-    #and zen12345.time in the ${SESSION_DIRECTORY} directory.
-    #
-    # can be played back with
-    # scriptreplay -t zen12345.time zen12345.trans
+    local FUNCDESC="Save a shell session transcript with timing files to the specified file pair.
+
+uses script utility.
+
+e.g. session zen12345 will create a zen12345.trans
+and zen12345.time in the SESSION_DIRECTORY directory.
+
+can be played back with
+    scriptreplay -t zen12345.time zen12345.trans"
+
     [[ -z ${1} ]] && echo "specify a session name" && return
-    _set_sdir
+    __set_sdir
 
     SESSION=${1}; shift
     [[ -e ${SDIR} ]] || mkdir -p ${SDIR}
@@ -36,13 +40,14 @@ function session() {
 }
 
 function replay() {
-    #Replays a session recorded with the session function
-    #Just a nice convinience. You can use scriptreplay directly
-    #
-    # Optional 2nd+ params are more arguments to scriptreplay,
-    # such as the playback divisor
-    #
-    _set_sdir
+    local FUNCDESC="Replay a shell session recorded with the session function.
+
+Just a nice convinience. You can use scriptreplay directly
+
+Optional 2nd+ params are more arguments to scriptreplay,
+such as the playback divisor"
+
+    __set_sdir
     [[ -z ${1} ]] && _list_avail_sessions && return
 
     SESSION=${1}; shift
@@ -57,9 +62,11 @@ function replay() {
 }
 
 function pack() {
-    #Prepairs a session for attaching to a ticket. Requires a player
-    #script, assumes it's there and called "player"
-    _set_sdir
+    local FUNCDESC="Prepairs a session for attaching to a ticket or email.
+
+Requires a player script, assumes it's there and called 'player'"
+
+    __set_sdir
     [[ -z ${1} ]] && _list_avail_sessions && return
 
     SESSION=${1}
@@ -70,10 +77,10 @@ function pack() {
 }
 
 function cleanup() {
-    #remove session transcript/timing/dimensions files
+    local FUNCDESC="remove session transcript/timing/dimensions files"
 
-    _set_sdir
-    [[ -z ${1} ]] && _list_avail_sessions && return
+    __set_sdir
+    [[ -z ${1} ]] && __list_avail_sessions && return
 
     rm -f ${SDIR}/${1}.!(tar.gz)
 }
