@@ -109,7 +109,7 @@ The specified function is described and then listed.'
   [[ -z "${1}" ]] && usage "${FUNCNAME} <function>" ${FUNCDESC} \
       && error "Must supply a function to list." && return 1
 
-  describe ${1}; type -a ${1}|tail +2
+  describe ${1}; type -a ${1}|tail -n +2
 }
 _list() {
     COMPREPLY=()
