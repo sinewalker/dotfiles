@@ -19,6 +19,22 @@ function __list_avail_sessions() {
     done
 }
 
+
+function __session_completion(){
+    # function helper (DRY) for session name completion
+    # used by replay/cleanup/pack functions
+
+    COMPREPLY=()
+
+    __set_sdir
+    local cur sessions
+    cur="${COMP_WORDS[COMP_CWORD]}"
+    sessions="$(find ${SDIR}/*.trans|xargs basename|set 's/.trans//')"
+
+    COMPREPLY=( $(compgen -W "${sessions}" -- ${cur}) )
+    return 0
+}
+
 alias dims="echo ${COLUMNS} ${LINES}"
 
 function session() {
@@ -50,7 +66,7 @@ Optional 2nd+ params are more arguments to scriptreplay,
 such as the playback divisor"
 
     __set_sdir
-    [[ -z ${1} ]] && _list_avail_sessions && return
+    [[ -z ${1} ]] && __list_avail_sessions && return
 
     SESSION=${1}; shift
     DIMSTR=; [[ -e ${SDIR}/${SESSION}.dims ]] &&
@@ -62,6 +78,7 @@ such as the playback divisor"
     echo
     echo "***** FINISHED SESSION REPLAY *****"
 }
+complete -F __session_completion replay
 
 function pack() {
     local FUNCDESC="Prepairs a session for attaching to a ticket or email.
@@ -69,7 +86,7 @@ function pack() {
 Requires a player script, assumes it's there and called 'player'"
 
     __set_sdir
-    [[ -z ${1} ]] && _list_avail_sessions && return
+    [[ -z ${1} ]] && __list_avail_sessions && return
 
     SESSION=${1}
     pushd ${SDIR} > /dev/null
@@ -77,6 +94,7 @@ Requires a player script, assumes it's there and called 'player'"
         echo "packed session '${SESSION}' to ${SDIR}/${SESSION}.tar.gz"
     popd > /dev/null
 }
+complete -F __session_completion pack
 
 function cleanup() {
     local FUNCDESC="remove session transcript/timing/dimensions files"
@@ -86,3 +104,4 @@ function cleanup() {
 
     rm -f ${SDIR}/${1}.!(tar.gz)
 }
+ complete -F __session_completion cleanup
