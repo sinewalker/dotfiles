@@ -19,6 +19,8 @@ function __list_avail_sessions() {
     done
 }
 
+alias dims="echo ${COLUMNS} ${LINES}"
+
 function session() {
     local FUNCDESC="Save a shell session transcript with timing files to the specified file pair.
 
@@ -35,7 +37,7 @@ can be played back with
 
     SESSION=${1}; shift
     [[ -e ${SDIR} ]] || mkdir -p ${SDIR}
-    echo ${COLUMNS} ${LINES} > ${SDIR}/${SESSION}.dims
+    dims > ${SDIR}/${SESSION}.dims
     script -a --timing=${SDIR}/${SESSION}.time ${SDIR}/${SESSION}.trans ${@}
 }
 
