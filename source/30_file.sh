@@ -74,6 +74,15 @@ function md() {
 
 alias wrap='fold -sw ${1:-$COLUMNS}'
 
+function page() {
+    local FUNCDESC="View specified file through the system pager, word-wrapped to the console width."
+    if  [[ -z ${1} ]]; then
+        cat - |fold -s -w ${COLUMNS}|${PAGER}
+    else
+        cat "${1}"|fold -s -w ${COLUMNS}|${PAGER}
+    fi
+}
+
 # Bashmarks directory bookmarks
 source ${DOTFILES}/vendor/bashmarks/bashmarks.sh
 
