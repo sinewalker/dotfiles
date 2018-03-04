@@ -35,7 +35,7 @@ CASKS=(
     keybase
     netbeans
     netbeans-java-se
-    sourcetree
+#    sourcetree
     spotify
     vagrant
     virtualbox
@@ -75,7 +75,7 @@ CASKS=(
 
     # ### MJL20170131 - Installed by Work
     # google-chrome
-    firefox
+#    firefox
     # the-unarchiver
 
     # ### MJL20170131 - deprecated and/or missing (I'm thinking to replace some
@@ -96,5 +96,3 @@ if (( ${#CASKS[@]} > 0 )); then
   brew cask cleanup
 fi
 
-#MJL20170301 Emacs with more options
-brew_install_special_cask emacs --with-imagemagick --with-librsvg --with-cocoa
