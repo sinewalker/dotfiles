@@ -1,6 +1,10 @@
 # Load python and virualenv-related functions.
 source ${DOTFILES}/source/50_python.sh
 
+# Make sure there is a virtualenv base scrdirectory
+[[ -d ${VIRTUALENV_BASE} ]] || mkdir -p ${VIRTUALENV_BASE}
+
+
 # Install latest stable virtualenv, install global python modules
 # see http://hackercodex.com/guide/python-development-environment-on-mac-osx/
 # (which ideas are more widely applicable than just macOS)

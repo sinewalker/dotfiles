@@ -413,6 +413,7 @@ function config_test() {
 }
 function config_do() {
   local configdir=${XDG_CONFIG_HOME-$HOME/.config}
+  [[ -d ${configdir} ]] || mkdir -p ${configdir}
   e_success "Linking ${configdir}/${1}."
   ln -sf ${2} ${configdir}
 }
