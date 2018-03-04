@@ -1,5 +1,20 @@
 # see http://hackercodex.com/guide/python-development-environment-on-mac-osx/
 
+## This Python tool-chain is designed to be sourced by bash when it starts, from
+## my dotfiles. It cannot yet be sourced without dotfiles. It relies on the following
+## being available
+##
+## virtualenv and pip installed globally
+## (optional) anaconda installed normally
+##
+## dotfiles bash shell functions:
+##   usage
+##   error
+##   is_exe
+##   path_add
+##   path_remove
+
+
 # pip should only run if there is a virtualenv currently activated
 export PIP_REQUIRE_VIRTUALENV=true
 
