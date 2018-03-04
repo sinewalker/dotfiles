@@ -5,7 +5,7 @@ is_osx || return 1
 [[ ! "$(type -P brew)" ]] && e_error "Brew recipes need Homebrew to install." && return 1
 
 # Ensure taps for recipes are installed.
-KEGS=(homebrew/emacs)
+KEGS=(d12frosted/emacs-plus)
 brew_tap_kegs
 
 # Homebrew recipes
@@ -28,13 +28,15 @@ RECIPES=(
   tree
   #MJL20170131 more by me
   apm-bash-completion
+  aria2
   bash-completion
   bash-git-prompt
   clamav
+  clisp
+  clojure
   colordiff
   coreutils
   exiftool
-  ffmpeg
   flac
   fortune
   gawk
@@ -50,6 +52,8 @@ RECIPES=(
   ispell
   jq
   lame
+  libidn2
+  libmikmod
   librsvg
   libvorbis
   markdown
@@ -60,10 +64,11 @@ RECIPES=(
   proctools
   pwgen
   python
-  python3
   qcachegrind
   rdesktop
   socat
+  sqlite
+  sshfs
   sslscan
   stunnel
   tidy-html5
@@ -80,13 +85,19 @@ RECIPES=(
 
 brew_install_recipes
 
+
 #MJL20170216 Special recipes
 
-#MJL20170216 SOX will support libvorbis, but not by default in Homebrew
-# which is a shame since it's my go-to codec
+brew_install_special_recipe ffmpeg --with-libvorbis
+brew_install_special_recipe curl --with-openssl
 brew_install_special_recipe sox --with-libvorbis --with-flac --with-lame --with-opencore-amr
 
-brew_reinstall_special_recipe   homebrew/emacs/tern
+#MJL20180304 Emacs-plus (the latest preferred way to install emacs on macOS for spacemacs)
+#            This is from the d12frosted tap, see above before call to brew_tap_kegs
+brew_install_special_recipe emacs-plus --with-natural-titlebar --with-24bit-color
+#brew linkapps emacs-plus #linkapps is deprecated, no replacement
+
+#brew_reinstall_special_recipe   homebrew/emacs/tern
 
 # Misc cleanup!
 
