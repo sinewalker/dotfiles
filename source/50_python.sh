@@ -24,6 +24,10 @@ gpip() {
 	PIP_REQUIRE_VIRTUALENV="" sudo -H pip "$@"
 }
 
+# hack in my 'hax' environment.
+# This assumes a python venv called 'hax' with ipython, as well as ~/hax
+alias hax='activate hax; cd ~/hax; ipython'
+
 #### virtualenv-wrapper work-alike
 
 #this is where Python Virtual Environments belong
