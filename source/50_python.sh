@@ -34,31 +34,13 @@ alias hax='activate hax; cd ~/hax; ipython'
 export VIRTUALENV_BASE=${HOME}/lib
 
 mkvenv() {
-    FUNCDESC="Makes a Python Virtual env in ${VIRTUALENV_BASE}."
-    [ -z ${1} ] && usage "$FUNCNAME <venv> [virtualenv options]" $FUNCDESC \
+    local FUNCDESC="Makes a Python Virtual env in ${VIRTUALENV_BASE}."
+    [ -z ${1} ] && usage "$FUNCNAME <venv> [virtualenv options]" ${FUNCDESC} \
         && return 1
     VENV=${VIRTUALENV_BASE}/${1}
     [ -d ${VENV} ] && error "$FUNCNAME: Directory exists: ${VENV}" && return 1
     shift
     virtualenv $@ ${VENV}
-}
-
-rmvenv() {
-    FUNCDESC="Interactively remove a Python Virtual env from ${VIRTUALENV_BASE}"
-    [ -z ${1} ] && usage "$FUNCNAME <venv>" $FUNCDESC && return 1
-    VENV=${VIRTUALENV_BASE}/${1}
-    if [ -f ${VENV}/bin/activate ]; then
-        read -r -p "Remove Venv: ${1}? [y/N] " REMOVE
-        REMOVE=${REMOVE,,} #to-lower
-        if [[ ${REMOVE} =~ ^(yes|y)$ ]]; then
-            rm -rf ${VENV}
-        else
-            echo "$FUNCNAME: aborted"
-        fi
-    else
-        error "$FUNCNAME: No such Venv: ${1}"
-        return 1
-    fi
 }
 
 lsvenv() {
@@ -76,6 +58,34 @@ installed to ${VIRTUALENV_BASE}"
         done
     fi
 }
+
+_venvs() {
+    COMPREPLY=()
+    local CUR VENVS
+    CUR="${COMP_WORDS[COMP_CWORD]}"
+    VENVS="$(lsvenv)"
+    COMPREPLY=( $(compgen -W "${VENVS}" -- ${CUR}) )
+    return 0
+}
+
+rmvenv() {
+    local FUNCDESC="Interactively remove a Python Virtual env from ${VIRTUALENV_BASE}"
+    [ -z ${1} ] && usage "$FUNCNAME <venv>" $FUNCDESC && return 1
+    VENV=${VIRTUALENV_BASE}/${1}
+    if [ -f ${VENV}/bin/activate ]; then
+        read -r -p "Remove Venv: ${1}? [y/N] " REMOVE
+        REMOVE=${REMOVE,,} #to-lower
+        if [[ ${REMOVE} =~ ^(yes|y)$ ]]; then
+            rm -rf ${VENV}
+        else
+            echo "$FUNCNAME: aborted"
+        fi
+    else
+        error "$FUNCNAME: No such Venv: ${1}"
+        return 1
+    fi
+}
+complete -F _venvs rmvenv
 
 activate() {
     local FUNCDESC="Activte a Python Virtual env that's in ${VIRTUALENV_BASE}
@@ -119,17 +129,9 @@ script instead, per conda practice. Bail after sourcing."
     fi
     return ${RET}
 }
+complete -F _venvs activate
 alias workon=activate
 
-_activate() {
-    COMPREPLY=()
-    local CUR VENVS
-    CUR="${COMP_WORDS[COMP_CWORD]}"
-    VENVS="$(lsvenv)"
-    COMPREPLY=( $(compgen -W "${VENVS}" -- ${CUR}) )
-    return 0
-}
-complete -F _activate activate
 
 #### Anaconda
 
