@@ -75,6 +75,7 @@ RECIPES=(
   tinyproxy
   tmux
   tokyo-cabinet
+  vorbis-tools
   watch
   wget
   wireshark
