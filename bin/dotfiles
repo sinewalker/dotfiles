@@ -33,6 +33,10 @@ exit; fi
 
 # Where the magic happens.
 export DOTFILES=~/.dotfiles
+# Where the configs live.
+export CONFIG=${XDG_CONFIG_HOME-$HOME/.config}
+# Where to put libraries
+export LIB=~/lib
 
 # Logging stuff.
 function e_header()   { echo -e "\n\033[1m$@\033[0m"; }
@@ -405,12 +409,26 @@ function config_test() {
   [[ "$1" -ef "$2" ]] && echo "same file"
 }
 function config_do() {
-  local configdir=${XDG_CONFIG_HOME-$HOME/.config}
+  local configdir=${LIBS}
   [[ -d ${configdir} ]] || mkdir -p ${configdir}
   e_success "Linking ${configdir}/${1}."
   ln -sf ${2} ${configdir}
 }
 
+# Link library files
+function lib_header() { e_header "Linking dotfiles into lib directory"; }
+function lib_dest() {
+    echo "${LIB}/$base"
+}
+function lib_test() {
+    [[ "$1" -ef "$2" ]] && echo "same file"
+}
+function lib_do() {
+    local libdir=${LIB}
+    [[ -d ${libdir} ]] || mkdir -p ${libdir}
+    e_success "Linking ${libdir}/${1}."
+    ln -sf ${2} ${libdir}
+}
 
 # Copy, link, init, etc.
 function do_stuff() {
@@ -523,6 +541,7 @@ backup=
 do_stuff "copy"
 do_stuff "link"
 do_stuff "config"
+do_stuff "lib"
 do_stuff "init"
 
 # Alert if backups were made.

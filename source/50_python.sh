@@ -13,7 +13,9 @@
 ##   is_exe
 ##   path_add
 ##   path_remove
-
+##
+## dotfiles environment variables:
+##   $LIB - location for library files.  Defaults to ~/lib
 
 # pip should only run if there is a virtualenv currently activated
 export PIP_REQUIRE_VIRTUALENV=true
@@ -21,8 +23,10 @@ export PIP_REQUIRE_VIRTUALENV=true
 #except when it shouldn't (e.g. to install virtualenv)
 #so here's gpip (global pip)
 gpip() {
-	PIP_REQUIRE_VIRTUALENV="" sudo -H pip "$@"
+    local FUNCDESC="Install python packages globally"
+	  PIP_REQUIRE_VIRTUALENV="" sudo -H pip "${@}"
 }
+
 
 # hack in my 'hax' environment.
 # This assumes a python venv called 'hax' with ipython, as well as ~/hax
@@ -31,9 +35,12 @@ alias hax='activate hax; cd ~/hax; ipython'
 #### virtualenv-wrapper work-alike
 
 #this is where Python Virtual Environments belong
-export VIRTUALENV_BASE=${HOME}/lib
+
+export VIRTUALENV_BASE=${LIB-$HOME/lib}/python
+
 
 mkvenv() {
+    #TODO wrap conda creation
     local FUNCDESC="Makes a Python Virtual env in ${VIRTUALENV_BASE}."
     [ -z ${1} ] && usage "$FUNCNAME <venv> [virtualenv options]" ${FUNCDESC} \
         && return 1
@@ -139,14 +146,14 @@ sucuri() {
     FUNCDESC='Activate or deactivate Anaconda by inspecting and changing $PATH'
     if [[ ${PATH} =~ anaconda ]]; then
         [[ ${CONDA_DEFAULT_ENV} ]] && source deactivate
-        path_remove ${VIRTUALENV_BASE}/anaconda/bin
+        path_remove ${LIB-$HOME/lib}/anaconda/bin
         is_exe deactivate && unalias deactivate
         echo "Anaconda: deactivated"
     else
         local SNAKE WARN; SNAKE='(S)'; WARN='[!]'
         is_osx && [[ -z ${SSH_TTY} ]] && [[ -z ${WINDOW} ]] && \
             SNAKE="🐍";  WARN="⚠"
-        path_add ${VIRTUALENV_BASE}/anaconda/bin PREPEND
+        path_add ${LIB-$HOME/lib}/anaconda/bin PREPEND
         if [[ ${PATH} =~ anaconda ]]; then
             echo "Anaconda: ACTIVATED ${SNAKE}"
         else

@@ -14,7 +14,10 @@ cat <<EOM
 You may need to enter a password for root access (either your own or
 the system root password) depending on the system's sudo configuration.
 
+If you don't know the root password, just press Enter to skip these.
+
 EOM
 gpip install --upgrade pip setuptools wheel virtualenv
-gpip install --upgrade Mercurial hg-git
+is_exe hg || gpip install Mercurial
+gpip install --upgrade hg-git
 gpip install --upgrade isort ipython
