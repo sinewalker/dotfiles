@@ -38,13 +38,7 @@ export CONFIG=${XDG_CONFIG_HOME-$HOME/.config}
 # Where to put libraries
 export LIB=~/lib
 
-# Logging stuff.
-function e_header()   { echo -e "\n\033[1m$@\033[0m"; }
-function e_success()  { echo -e " \033[1;32m✔\033[0m  $@"; }
-function e_error()    { echo -e " \033[1;31m✖\033[0m  $@"; }
-function e_arrow()    { echo -e " \033[1;34m➜\033[0m  $@"; }
-
-# MJL20170222 utility functions.
+### MJL20170222 utility functions.
 function error() {
     local FUNCDESC="Echo arguments to STDERR"
     [[ -z ${1} ]] && usage "${FUCNAME} <message> [<more messages>]" ${FUNCDESC} \
@@ -72,26 +66,10 @@ to usage().
     echo ${MESSAGE} | fold -s -w ${COLUMNS}
 }
 
-function describe() {
-    local FUNCDESC='Describe a function and show where it is defined.
 
-Prints information about the specified function including the first line of the
-$FUNCDESC declaration from the function definition, and where the function is
-defined.
 
-This function requires shopt -s extdebug to show file and line details.'
+### MJL20180314 Function introspection
 
-    [[ -z "${1}" ]] && usage "${FUNCNAME} <function>" ${FUNCDESC} \
-                    && error "Must supply a function to describe." && return 1
-
-    local toggled=0
-    shopt extdebug > /dev/null || shopt -s extdebug && toggled=1
-
-    declare -F "${1}" | awk '{print "Fn: " $1 " in " $3 " line " $2}'
-    type -a "${1}" | awk -F = '/FUNCDESC/{print "    "$2;exit}' | fold -s -w ${COLUMNS}
-
-    [[ $toggled == 1 ]] && shopt -u extdebug
-}
 alias debugon='shopt -s extdebug'
 alias debugoff='shopt -u extdebug'
 
@@ -109,7 +87,7 @@ starting with an underscore are also printed.'
     fi
 }
 alias fns=functions
-
+# MJL20180314 Bash completion for meta-functions
 _fns() {
     COMPREPLY=()
     local cur words
@@ -119,6 +97,26 @@ _fns() {
     return 0
 }
 
+function describe() {
+    local FUNCDESC='Describe a function and show where it is defined.
+
+Prints information about the specified function including the first line of the
+$FUNCDESC declaration from the function definition, and where the function is
+defined.
+
+This function requires shopt -s extdebug to show file and line details.'
+
+    [[ -z "${1}" ]] && usage "${FUNCNAME} <function>" ${FUNCDESC} \
+        && error "Must supply a function to describe." && return 1
+
+    local toggled=0
+    shopt extdebug > /dev/null || shopt -s extdebug && toggled=1
+
+    declare -F "${1}" | awk '{print "Fn: " $1 " in " $3 " line " $2}'
+    type -a "${1}" | awk -F = '/FUNCDESC/{print "    "$2;exit}' | fold -s -w ${COLUMNS}
+
+    [[ $toggled == 1 ]] && shopt -u extdebug
+}
 complete -F _fns describe
 
 function list() {
@@ -142,7 +140,7 @@ function assert() {
   ${modes[success]} "\"$actual\" ${equals[success]} \"$expected\""
 }
 
-# MJL20170214 source mechanics
+### MJL20170214 source mechanics
 
 function is_exe() {
     local FUNCDESC="Test if all arguments are runnable commands"
@@ -191,6 +189,8 @@ function get_os() {
 }
 
 
+## MJL20180314 PATH manipulation
+
 function path_add() {
     local FUNCDESC='Add an entry to $PATH, but ONLY if dir exists AND not already in $PATH.
 If second parameter is specified (and value), PREPEND (to front of $PATH) rather than Append.'
@@ -228,6 +228,68 @@ All occurrences of the entry will be removed immediately.'
         return 1
     PATH=$(__path_remove "${1}")
 }
+
+# Given strings containing space-delimited words A and B, "setdiff A B" will
+# return all words in A that do not exist in B. Arrays in bash are insane
+# (and not in a good way).
+# From http://stackoverflow.com/a/1617303/142339
+function setdiff() {
+    local FUNCDESC='Return all words in A that do not exist in B.
+
+Given strings containing space-delimited words A and B, "setdiff A B" will
+return all words in A that do not exist in B.
+
+If the first argument is a "1" then debug the function.
+
+If A and B are not specified, then uses global variables $setdiffA and
+$setdiffB, returns the difference in $setdiffC'
+    local debug skip a b
+    if [[ "$1" == 1 ]]; then debug=1; shift; fi
+    if [[ "$1" ]]; then
+        local setdiffA setdiffB setdiffC
+        setdiffA=($1); setdiffB=($2)
+    else
+        [[ -z ${setdiffA} ]] || [[ -z ${setdiffB} ]] && \
+            usage "${FUNCNAME} [1] A B [C]" ${FUNCDESC}
+    fi
+    setdiffC=()
+    for a in "${setdiffA[@]}"; do
+        skip=
+        for b in "${setdiffB[@]}"; do
+            [[ "$a" == "$b" ]] && skip=1 && break
+        done
+        [[ "$skip" ]] || setdiffC=("${setdiffC[@]}" "$a")
+    done
+    [[ "$debug" ]] && for a in setdiffA setdiffB setdiffC; do
+        echo "$a ($(eval echo "\${#$a[*]}")) $(eval echo "\${$a[*]}")" 1>&2
+    done
+    [[ "$1" ]] && echo "${setdiffC[@]}"
+}
+
+
+# If this file was being sourced, exit now.
+[[ "$1" == "source" ]] && return
+
+###############  SOURCE / PUBLIC FUNCTIONS END HERE  #########################
+
+
+###########################################
+# INTERNAL DOTFILES "INIT" VARS / FUNCTIONS
+###########################################
+
+
+[[ "$1" =~ "v" ]] && __VERBOSE=1
+
+
+# Logging stuff.
+
+function e_header()   { echo -e "\n\033[1m$@\033[0m"; }
+function e_success()  { echo -e " \033[1;32m✔\033[0m  $@"; }
+function e_error()    { echo -e " \033[1;31m✖\033[0m  $@"; }
+function e_arrow()    { echo -e " \033[1;34m➜\033[0m  $@"; }
+
+# Menu functions
+
 
 # Display a fancy multi-select menu.
 # Inspired by http://serverfault.com/a/298312
@@ -293,53 +355,6 @@ function __menu_add() {
   [[ ! "$match" && "$state" == 1 || "$keep" ]] || return
   __menu_result=("${__menu_result[@]}" "${menu_options[i]}")
 }
-
-# Given strings containing space-delimited words A and B, "setdiff A B" will
-# return all words in A that do not exist in B. Arrays in bash are insane
-# (and not in a good way).
-# From http://stackoverflow.com/a/1617303/142339
-function setdiff() {
-    local FUNCDESC='Return all words in A that do not exist in B.
-
-Given strings containing space-delimited words A and B, "setdiff A B" will
-return all words in A that do not exist in B.
-
-If the first argument is a "1" then debug the function.
-
-If A and B are not specified, then uses global variables $setdiffA and
-$setdiffB, returns the difference in $setdiffC'
-    local debug skip a b
-    if [[ "$1" == 1 ]]; then debug=1; shift; fi
-    if [[ "$1" ]]; then
-        local setdiffA setdiffB setdiffC
-        setdiffA=($1); setdiffB=($2)
-    else
-        [[ -z ${setdiffA} ]] || [[ -z ${setdiffB} ]] && \
-            usage "${FUNCNAME} [1] A B [C]" ${FUNCDESC}
-    fi
-    setdiffC=()
-    for a in "${setdiffA[@]}"; do
-        skip=
-        for b in "${setdiffB[@]}"; do
-            [[ "$a" == "$b" ]] && skip=1 && break
-        done
-        [[ "$skip" ]] || setdiffC=("${setdiffC[@]}" "$a")
-    done
-    [[ "$debug" ]] && for a in setdiffA setdiffB setdiffC; do
-        echo "$a ($(eval echo "\${#$a[*]}")) $(eval echo "\${$a[*]}")" 1>&2
-    done
-    [[ "$1" ]] && echo "${setdiffC[@]}"
-}
-
-# If this file was being sourced, exit now.
-[[ "$1" == "source" ]] && return
-
-[[ "$1" =~ "v" ]] && __VERBOSE=1
-
-
-###########################################
-# INTERNAL DOTFILES "INIT" VARS / FUNCTIONS
-###########################################
 
 # Initialize.
 init_file=$DOTFILES/caches/init/selected
