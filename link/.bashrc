@@ -17,25 +17,20 @@ function src() {
   fi
 }
 
-alias lssrc='\ls ${DOTFILES}/source/|egrep "\.sh$"|sed "s/\.sh//g"'
-
-function dotfiles() {
-  local FUNCDESC="Run dotfiles script, then source. This causes the Copy, Link and Init step to be run."
-  ${DOTFILES}/bin/dotfiles "${@}" && src
+function lssrc(){
+    local FUNCDESC='List the Dotfiles source modules available for the src function.
+The .sh suffix is stripped.'
+    \ls ${DOTFILES}/source|awk '/.sh$/ { gsub(/\.sh/, ""); print }'
 }
 
 #only source if in Bash-mode
 kill -l|grep SIG > /dev/null && src
 
-# Completion for src function (requires bash_rompletion)
+# Completion for src function (requires bash_completion)
 _src() {
-  local cur sources
-  COMPREPLY=()
+  local COMPREPLY=()
   local CUR="${COMP_WORDS[COMP_CWORD]}"
-  pushd ${DOTFILES}/source > /dev/null
-  local SOURCES="$(\ls *.sh|sed 's/\.sh$//g')"
-  popd > /dev/null
-
+  local SOURCES="$(lssrc)"
   COMPREPLY=( $(compgen -W "${SOURCES}" -- ${CUR}) )
   return 0
 }
