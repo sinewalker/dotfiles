@@ -1,0 +1,148 @@
+# Functions of functions
+
+### MJL20170222 utility functions.
+function error() {
+    local FUNCDESC='Echo arguments to STDERR'
+    if [[ -z ${1} ]]; then
+        usage "${FUCNAME} <message> [<more messages>]" ${FUNCDESC}
+        return 1
+    fi
+    >&2 echo ${@}
+}
+
+function usage() {
+    local FUNCDESC='Show instructions for using a function.
+
+The first argument is a string describing how to use a function. There can be
+multiple usage string arguments. All will be strung together and folded at the
+terminal width.
+
+The LAST argument is taken to be a string describing what the function does. It
+is useful to keep this in a $FUNCDESC variable and pass it as the last argument
+to usage().'
+
+    USAGE="${1}"; shift
+    if [[ -z "${1}" ]]; then
+        usage "${FUNCNAME} <instruction> [<strings>] <description>" ${FUNCDESC}
+        return 1
+    fi
+    MESSAGE="${@}"
+    error Usage: ${USAGE}
+    echo ${MESSAGE} | fold -s -w ${COLUMNS}
+}
+
+
+
+### MJL20180314 Function introspection
+
+alias debugon='shopt -s extdebug'
+alias debugoff='shopt -u extdebug'
+
+function functions() {
+    local FUNDCESC='Prints the names of all defined shell functions.
+
+By default this will list all "interactive" functions designed to be called from
+a shell prompt. If the optional argument -a or --all is supplied then functions
+starting with an underscore are also printed.'
+
+    if [[ "${1}" == "-a" ]] || [[ "${1}" == "--all" ]]; then
+        declare -F|awk '{print $3}'
+    else
+        declare -F|awk '!/declare -f _/{print $3}'
+    fi
+}
+alias fns=functions
+# MJL20180314 Bash completion for meta-functions
+_fns() {
+    COMPREPLY=()
+    local cur words
+    cur="${COMP_WORDS[COMP_CWORD]}"
+    words="$(functions --all)"
+    COMPREPLY=($(compgen -W "${words}" -- ${cur}))
+    return 0
+}
+
+function describe() {
+    local FUNCDESC='Describe a function and show where it is defined.
+
+Prints information about the specified function including the first line of the
+$FUNCDESC declaration from the function definition, and where the function is
+defined.
+
+This function requires shopt -s extdebug to show file and line details.'
+
+    if [[ -z "${1}" ]]; then
+        usage "${FUNCNAME} <function>" ${FUNCDESC}
+        error "Must supply a function to describe."
+        return 1
+    fi
+    local toggled=0
+    shopt extdebug > /dev/null || shopt -s extdebug && toggled=1
+
+    declare -F "${1}" | awk '{print "Fn: " $1 " in " $3 " line " $2}'
+    type -a "${1}" | awk -F = '/FUNCDESC/{print "    "$2;exit}' \
+        | fold -s -w ${COLUMNS}
+
+    [[ $toggled == 1 ]] && shopt -u extdebug
+}
+complete -F _fns describe
+
+function list() {
+  local FUNDCESC='Print a listing of a function definition.
+
+The specified function is described and then listed.'
+
+  if [[ -z "${1}" ]]; then
+      usage "${FUNCNAME} <function>" ${FUNCDESC}
+      error "Must supply a function to list."
+      return 1
+  fi
+  describe ${1}
+  type -a ${1}|tail -n +2
+}
+complete -F _fns list
+
+
+## MJL20180314 PATH manipulation
+
+function path_add() {
+    local FUNCDESC='Add an entry to $PATH, but ONLY if dir exists AND not already in $PATH.
+
+If second parameter is specified (and value), PREPEND (to front of $PATH) rather
+than Append.'
+    if [[ -z "${1}" ]]; then
+        usage "${FUNCNAME} directory [prepend]" ${FUNCDESC}
+        return 1
+    fi
+    if [ -d "$1" ] && [[ ":${PATH}:" != *":${1}:"* ]]; then
+        if [ -z ${2} ]; then
+            PATH="${PATH:+"${PATH}:"}${1}"
+        else
+            PATH="${1}:${PATH}"
+        fi
+    fi
+}
+
+# Remove an entry from $PATH
+# Based on http://stackoverflow.com/a/2108540/142339
+# MJL20171015 This is an actual function of it's argument. Use
+#             path_remove for interactive use with side-effect
+function __path_remove() {
+
+  local ARG path
+  path=":$PATH:"
+  for ARG in "${@}"; do path="${path//:${ARG}:/:}"; done
+  path="${path%:}"
+  path="${path#:}"
+  echo "$path"
+}
+
+function path_remove() {
+    local FUNCDESC='Remove an entry from $PATH.
+All occurrences of the entry will be removed immediately.'
+    if [[ -z "${1}" ]]; then
+        usage "${FUNCNAME} directory" ${FUNCDESC}
+        return 1
+    fi
+    PATH=$(__path_remove "${1}")
+}

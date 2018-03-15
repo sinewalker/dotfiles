@@ -38,107 +38,6 @@ export CONFIG=${XDG_CONFIG_HOME-$HOME/.config}
 # Where to put libraries
 export LIB=~/lib
 
-### MJL20170222 utility functions.
-function error() {
-    local FUNCDESC="Echo arguments to STDERR"
-    [[ -z ${1} ]] && usage "${FUCNAME} <message> [<more messages>]" ${FUNCDESC} \
-        && return 1
-    >&2 echo ${@}
-}
-
-function usage() {
-    local FUNCDESC='Show instructions for using a function.
-
-The first argument is a string describing how to use a function. There can be
-multiple usage string arguments. All will be strung together and folded at the
-terminal width.
-
-The LAST argument is taken to be a string describing what the function does. It
-is useful to keep this in a $FUNCDESC variable and pass it as the last argument
-to usage().
-'
-    USAGE="${1}"; shift
-    [[ -z "${1}" ]] && \
-        usage "${FUNCNAME} <instruction> [<strings>] <description>" \
-              ${FUNCDESC} && return 1
-    MESSAGE="${@}"
-    error Usage: ${USAGE}
-    echo ${MESSAGE} | fold -s -w ${COLUMNS}
-}
-
-
-
-### MJL20180314 Function introspection
-
-alias debugon='shopt -s extdebug'
-alias debugoff='shopt -u extdebug'
-
-function functions() {
-    local FUNDCESC='Prints the names of all defined shell functions.
-
-By default this will list all "interactive" functions designed to be called from
-a shell prompt. If the optional argument -a or --all is supplied then functions
-starting with an underscore are also printed.'
-
-    if [[ "${1}" == "-a" ]] || [[ "${1}" == "--all" ]]; then
-        declare -F|awk '{print $3}'
-    else
-        declare -F|awk '!/declare -f _/{print $3}'
-    fi
-}
-alias fns=functions
-# MJL20180314 Bash completion for meta-functions
-_fns() {
-    COMPREPLY=()
-    local cur words
-    cur="${COMP_WORDS[COMP_CWORD]}"
-    words="$(functions --all)"
-    COMPREPLY=($(compgen -W "${words}" -- ${cur}))
-    return 0
-}
-
-function describe() {
-    local FUNCDESC='Describe a function and show where it is defined.
-
-Prints information about the specified function including the first line of the
-$FUNCDESC declaration from the function definition, and where the function is
-defined.
-
-This function requires shopt -s extdebug to show file and line details.'
-
-    [[ -z "${1}" ]] && usage "${FUNCNAME} <function>" ${FUNCDESC} \
-        && error "Must supply a function to describe." && return 1
-
-    local toggled=0
-    shopt extdebug > /dev/null || shopt -s extdebug && toggled=1
-
-    declare -F "${1}" | awk '{print "Fn: " $1 " in " $3 " line " $2}'
-    type -a "${1}" | awk -F = '/FUNCDESC/{print "    "$2;exit}' | fold -s -w ${COLUMNS}
-
-    [[ $toggled == 1 ]] && shopt -u extdebug
-}
-complete -F _fns describe
-
-function list() {
-  local FUNDCESC='Print a listing of a function definition.
-
-The specified function is described and then listed.'
-
-  [[ -z "${1}" ]] && usage "${FUNCNAME} <function>" ${FUNCDESC} \
-      && error "Must supply a function to list." && return 1
-
-  describe ${1}; type -a ${1}|tail -n +2
-}
-complete -F _fns list
-
-# For testing.
-function assert() {
-  local success modes equals actual expected
-  modes=(e_error e_success); equals=("!=" "=="); expected="$1"; shift
-  actual="$("$@")"
-  [[ "$actual" == "$expected" ]] && success=1 || success=0
-  ${modes[success]} "\"$actual\" ${equals[success]} \"$expected\""
-}
 
 ### MJL20170214 source mechanics
 
@@ -189,45 +88,6 @@ function get_os() {
 }
 
 
-## MJL20180314 PATH manipulation
-
-function path_add() {
-    local FUNCDESC='Add an entry to $PATH, but ONLY if dir exists AND not already in $PATH.
-If second parameter is specified (and value), PREPEND (to front of $PATH) rather than Append.'
-    [[ -z "${1}" ]] && \
-        usage "${FUNCNAME} directory [prepend]" ${FUNCDESC} \
-        && return 1
-    if [ -d "$1" ] && [[ ":${PATH}:" != *":${1}:"* ]]; then
-        if [ -z ${2} ]; then
-            PATH="${PATH:+"${PATH}:"}${1}"
-        else
-            PATH="${1}:${PATH}"
-        fi
-    fi
-}
-
-# Remove an entry from $PATH
-# Based on http://stackoverflow.com/a/2108540/142339
-# MJL20171015 This is an actual function of it's argument. Use
-#             path_remove for interactive use with side-effect
-function __path_remove() {
-
-  local ARG path
-  path=":$PATH:"
-  for ARG in "${@}"; do path="${path//:${ARG}:/:}"; done
-  path="${path%:}"
-  path="${path#:}"
-  echo "$path"
-}
-
-function path_remove() {
-    local FUNCDESC='Remove an entry from $PATH.
-All occurrences of the entry will be removed immediately.'
-    [[ -z "${1}" ]] && \
-        usage "${FUNCNAME} directory" ${FUNCDESC} &&\
-        return 1
-    PATH=$(__path_remove "${1}")
-}
 
 # Given strings containing space-delimited words A and B, "setdiff A B" will
 # return all words in A that do not exist in B. Arrays in bash are insane
@@ -287,6 +147,15 @@ function e_header()   { echo -e "\n\033[1m$@\033[0m"; }
 function e_success()  { echo -e " \033[1;32m✔\033[0m  $@"; }
 function e_error()    { echo -e " \033[1;31m✖\033[0m  $@"; }
 function e_arrow()    { echo -e " \033[1;34m➜\033[0m  $@"; }
+
+# For testing.
+function assert() {
+    local success modes equals actual expected
+    modes=(e_error e_success); equals=("!=" "=="); expected="$1"; shift
+    actual="$("$@")"
+    [[ "$actual" == "$expected" ]] && success=1 || success=0
+    ${modes[success]} "\"$actual\" ${equals[success]} \"$expected\""
+}
 
 # Menu functions
 
@@ -487,6 +356,8 @@ function do_stuff() {
     "$1_do" "$base" "$file"
   done
 }
+
+#########################  Dotfiles Copy/Link/Init Setup  ###################
 
 # Enough with the functions, let's do stuff.
 
