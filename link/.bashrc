@@ -24,7 +24,7 @@ The .sh suffix is stripped.'
 
 # Completion for src function (requires bash_completion)
 _src() {
-  local COMPREPLY=()
+  COMPREPLY=()
   local CUR="${COMP_WORDS[COMP_CWORD]}"
   local SOURCES="$(lssrc)"
   COMPREPLY=( $(compgen -W "${SOURCES}" -- ${CUR}) )
