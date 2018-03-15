@@ -1,12 +1,11 @@
 # Where the magic happens.
 export DOTFILES=~/.dotfiles
 
-# Add binaries into the path
 PATH=${DOTFILES}/bin:${PATH}
 export PATH
 
 function src() {
-  local FUNCDESC="Source all files in 'source', or a specified file"
+  local FUNCDESC='Source all files in ${DOTFILES}/source/, or a specified file'
   local FILE
   if [[ "${1}" ]]; then
     source "${DOTFILES}/source/${1}.sh"
@@ -23,9 +22,6 @@ The .sh suffix is stripped.'
     \ls ${DOTFILES}/source|awk '/.sh$/ { gsub(/\.sh/, ""); print }'
 }
 
-#only source if in Bash-mode
-kill -l|grep SIG > /dev/null && src
-
 # Completion for src function (requires bash_completion)
 _src() {
   local COMPREPLY=()
@@ -37,3 +33,12 @@ _src() {
 complete -F _src src
 
 function dotfiles() {
+    local FUNCDESC='Run dotfiles refresh script, then reload.
+This causes the Copy, Link and Init step to be run.'
+    ${DOTFILES}/bin/dotfiles "${@}" && src
+}
+
+#Load the rest of Dotfiles bash modules, unless in POSIX mode
+if kill -l|grep SIG > /dev/null; then
+    src
+fi
