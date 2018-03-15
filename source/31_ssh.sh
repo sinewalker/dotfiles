@@ -1,3 +1,7 @@
+# fix SSH connections
+bind '"\e[1;5D": backward-word'
+bind '"\e[1;5C": forward-word'
+
 function install_ssh_keys() {
 	  [ -z "$1" ] && {
 		    echo "Need a host to connect to"
