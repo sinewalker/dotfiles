@@ -1,6 +1,6 @@
 # My awesome bash prompt
 #
-# Copyright (c) 2012,2017 "Cowboy" Ben Alman, Michael Lockhart [MJL]
+# Copyright (c) 2012,2017,2018 "Cowboy" Ben Alman, Michael Lockhart [MJL]
 #
 # Licensed under the MIT license.
 # http://benalman.com/about/license/
@@ -153,7 +153,6 @@ function __prompt_conda() {
 
 #MJL20170218 files and size count (from "monster prompt" in my ancient dotfiles)
 function __prompt_sizes() {
-    #TODO: formatting/colouring and testing.
     is_osx && alias __llssi='gls --si -sl' || alias __llssi='ls --si -sl'
     __llssi|awk '/total/{TOTAL=$2} /(.*) (-.*)/{FILES=FILES+1} END{print FILES " files, " TOTAL}'
     unalias __lsssi
@@ -161,10 +160,7 @@ function __prompt_sizes() {
 
 #MJL20170218 CPU load and uptime (from monster prompt -- DAFT)
 function __prompt_cpu() {
-    #TODO: these are for Linux only
     $(cat /proc/loadavg)
-    #TODO: and surely this date manipulation can be done by an existing tool,
-    #      rather than this hand-crufted mess?
     $(temp=$(cat /proc/uptime) && upSec=${temp%%.*} ; let secs=$((${upSec}%60)) ; let mins=$((${upSec}/60%60)) ; let hours=$((${upSec}/3600%24)) ; let days=$((${upSec}/86400)) ; if [ ${days} -ne 0 ]; then echo -n ${days}d; fi ; echo -n ${hours}h${mins}m)
 
 }
