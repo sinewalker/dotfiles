@@ -2,12 +2,12 @@
 
 ## This Python tool-chain is designed to be sourced by bash when it starts, from
 ## my dotfiles. It cannot yet be sourced without dotfiles. It relies on the following
-## being available
+## being available:
 ##
 ## virtualenv and pip installed globally
 ## (optional) anaconda installed normally
 ##
-## dotfiles bash shell functions:
+## dotfiles bash shell meta-functions:
 ##   usage
 ##   error
 ##   is_exe
@@ -40,12 +40,23 @@ export VIRTUALENV_BASE=${LIB-$HOME/lib}/python
 
 
 mkvenv() {
-    #TODO wrap conda creation
     local FUNCDESC="Makes a Python Virtual env in ${VIRTUALENV_BASE}."
-    [ -z ${1} ] && usage "$FUNCNAME <venv> [virtualenv options]" ${FUNCDESC} \
-        && return 1
+    if is_exe conda; then
+        error "${FUNCNAME}: Anaconda is active."
+        error "Use 'conda create -n ${1}' instead. Aborting."
+        return 3
+    fi
+    if test -z ${1}; then
+        usage "${FUNCNAME} <venv> [virtualenv options]" ${FUNCDESC}
+        return 1
+    fi
+
     VENV=${VIRTUALENV_BASE}/${1}
-    [ -d ${VENV} ] && error "$FUNCNAME: Directory exists: ${VENV}" && return 1
+    if test -d ${VENV}; then
+        error "${FUNCNAME}: Directory exists: ${VENV}"
+        return 2
+    fi
+
     shift
     virtualenv $@ ${VENV}
 }
@@ -77,19 +88,27 @@ _venvs() {
 
 rmvenv() {
     local FUNCDESC="Interactively remove a Python Virtual env from ${VIRTUALENV_BASE}"
-    [ -z ${1} ] && usage "$FUNCNAME <venv>" $FUNCDESC && return 1
+    if test -z ${1}; then
+        usage "${FUNCNAME} <venv>" ${FUNCDESC}
+        return 1
+    fi
+    if is_exe conda; then
+        error "${FUNCNAME}: Acaconda is active."
+        error "Use 'conda remove -all -n ${1}' instead. Aborting."
+        return 3
+    fi
     VENV=${VIRTUALENV_BASE}/${1}
-    if [ -f ${VENV}/bin/activate ]; then
+    if test -f ${VENV}/bin/activate; then
         read -r -p "Remove Venv: ${1}? [y/N] " REMOVE
         REMOVE=${REMOVE,,} #to-lower
         if [[ ${REMOVE} =~ ^(yes|y)$ ]]; then
             rm -rf ${VENV}
         else
-            echo "$FUNCNAME: aborted"
+            echo "${FUNCNAME}: aborted"
         fi
     else
-        error "$FUNCNAME: No such Venv: ${1}"
-        return 1
+        error "${FUNCNAME}: No such Venv: ${1}"
+        return 2
     fi
 }
 complete -F _venvs rmvenv
@@ -106,17 +125,21 @@ script instead, per conda practice. Bail after sourcing."
     local DOCONDA=0
     if is_exe conda; then
         DOCONDA=1
-        source $(conda info|awk '/root env/{print $4}')/bin/activate "${@}"
-        RET=${?}
-        [[ ${RET} -eq 0 ]] || echo
-        #make Anaconda's deactivate less clunky
-        [[ ${RET} -eq 0 ]] && \
+        if source $(conda info|awk '/root env/{print $4}')/bin/activate "${@}"; then
+            #make Anaconda's deactivate less clunky
             alias deactivate='unalias deactivate; source deactivate'
+        else
+            RET=1
+            echo
+        fi
     fi
     if [[ ${DOCONDA} -eq 0 ]]; then
-        [ -z "${1}" ] && usage "${FUNCNAME} <venv>" ${FUNCDESC} && return 1
+        if test -z "${1}"; then
+            usage "${FUNCNAME} <venv>" ${FUNCDESC}
+            return 1
+        fi
         VENV="${VIRTUALENV_BASE}/${1}"
-        if [ -f ${VENV}/bin/activate ]; then
+        if test -f ${VENV}/bin/activate; then
             is_exe deactivate && deactivate
             source ${VENV}/bin/activate
             RET=${?}
