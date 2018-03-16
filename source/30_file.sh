@@ -184,8 +184,8 @@ function backout {
 
 function fsync {
     local FUNCDESC="rsync <source> to <dest> so that <dest> is just like <source>, no extra files."
-    local SRC="{$1}"; shift
-    local DST="{$1}"; shift
+    local SRC="${1}"; shift
+    local DST="${1}"; shift
 
     local RET=0
     if [[ -z ${SRC} ]]; then
@@ -201,6 +201,6 @@ function fsync {
         return ${RET}
     fi
 
-    rsync --hard-links --partial --progres --verbose --archive --delete ${SRC}/ ${DST}/
+    rsync --hard-links --partial --progress --verbose --archive --delete ${SRC}/ ${DST}/
 }
 alias pirate=fsync
