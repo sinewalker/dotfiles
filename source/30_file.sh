@@ -188,10 +188,19 @@ function fsync {
     local DST="{$1}"; shift
 
     local RET=0
-    [[ -z ${SRC} ]] && ret=1 && error "${FUNCNAME}: must specify a sync source"
-    [[ -z ${DST} ]] && ret=1 && error "${FUNCNAME}: must specify a sync destination"
-    [[ ${RET} -gt 0 ]] && usage "${FUNCNAME} <source> <dest>" ${FUNCDESC} \
-        && return ${RET}
+    if [[ -z ${SRC} ]]; then
+        ret=1
+        error "${FUNCNAME}: must specify a sync source"
+    fi
+    if [[ -z ${DST} ]]; then
+        ret=1
+        error "${FUNCNAME}: must specify a sync destination"
+    fi
+    if [[ ${RET} -gt 0 ]]; then
+        usage "${FUNCNAME} <source> <dest>" ${FUNCDESC}
+        return ${RET}
+    fi
 
-    rsync --partial --verbose --archive --delete ${SRC}/ ${DST}/
+    rsync --hard-links --partial --progres --verbose --archive --delete ${SRC}/ ${DST}/
 }
+alias pirate=fsync
