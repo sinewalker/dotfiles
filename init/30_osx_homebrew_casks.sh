@@ -35,55 +35,18 @@ CASKS=(
     keybase
     netbeans
     netbeans-java-se
-#    sourcetree
     spotify
     vagrant
     virtualbox
     visual-studio-code
     vlc
     xquartz
-    # ## TODO: MJL20170131 - Maybe install these?
-    #chromium
-    #todoist
+    todoist
     # Quick Look plugins
     suspicious-package
     webpquicklook
 #    wireshark-chmodbpf
 
-    #TODO: MJL20170131 - All of these I have installed manually or Work has, and
-    #      they do not appear in `brew cask list`, which means they will be
-    #      downloaded *each time*, and then skipped, and then cleaned up... So I
-    #      probably need to uninstall them manually, and then uncomment and
-    #      install from Cask.
-
-    # ## Applications
-    # ### Free
-    # dropbox
-
-    # ### MJL20170131 Purchased on my own account
-    # steam
-
-    # ## Quick Look plugins
-    # betterzipql
-    # qlcolorcode
-    # qlmarkdown
-    # qlprettypatch
-    # qlstephen
-    # quicklook-csv
-    # quicklook-json
-    # quicknfo
-
-    # ### MJL20170131 - Installed by Work
-    # google-chrome
-#    firefox
-    # the-unarchiver
-
-    # ### MJL20170131 - deprecated and/or missing (I'm thinking to replace some
-    #                   of these with Hammerspoon codes)
-    # bettersnaptool (not in the main Caskroom?)
-    # copyclip (not in the Caskroom?)
-    # systempal (not in Cask )
-    # MEGA NZ (not in Cask)
 )
 
 # Install Homebrew casks.

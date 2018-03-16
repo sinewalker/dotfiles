@@ -371,7 +371,6 @@ fi
 
 # If Git is not installed, install it (Linux only - git comes with Xcode for
 # Mac. Handle different ways to install in different Linux distributions).
-# TODO: look into using Chocolatey for Windows)
 if [[ ! "$(type -P git)" ]]; then
   e_header "Installing Git"
   is_ubuntu && sudo apt-get -qq install git-core
