@@ -183,24 +183,25 @@ function backout {
 }
 
 function fsync {
-    local FUNCDESC="rsync <source> to <dest> so that <dest> is just like <source>, no extra files."
+    local FUNCDESC="rsync <source> directory to <dest> so that <dest> is just like <source>, no extra files."
     local SRC="${1}"; shift
     local DST="${1}"; shift
 
     local RET=0
-    if [[ -z ${SRC} ]]; then
-        ret=1
-        error "${FUNCNAME}: must specify a sync source"
+    if [[ -z ${SRC} ]] || [[ -z ${DST} ]]; then
+        RET=1
+        error "${FUNCNAME}: must specify a sync source and destination."
     fi
-    if [[ -z ${DST} ]]; then
-        ret=1
-        error "${FUNCNAME}: must specify a sync destination"
+    if [[ ! -d ${SRC} ]] || [[ ! -d ${DST} ]]; then
+        RET=1
+        error "${FUNCNAME}: source and destination must be directories."
     fi
+
     if [[ ${RET} -gt 0 ]]; then
         usage "${FUNCNAME} <source> <dest>" ${FUNCDESC}
         return ${RET}
+    else
+        rsync --hard-links --partial --progress --verbose --archive --delete ${SRC}/ ${DST}/
     fi
-
-    rsync --hard-links --partial --progress --verbose --archive --delete ${SRC}/ ${DST}/
 }
 alias pirate=fsync
