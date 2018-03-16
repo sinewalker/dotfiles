@@ -41,7 +41,6 @@ CASKS=(
     visual-studio-code
     vlc
     xquartz
-    todoist
     # Quick Look plugins
     suspicious-package
     webpquicklook
