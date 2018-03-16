@@ -39,7 +39,8 @@ export CONFIG=${XDG_CONFIG_HOME-$HOME/.config}
 export LIB=~/lib
 
 
-### MJL20170214 source mechanics
+### MJL20180317 functions needed by dotfiles bootstrap, before source/* has been
+### cloned or sourced.
 
 function is_exe() {
     local FUNCDESC="Test if all arguments are runnable commands"
