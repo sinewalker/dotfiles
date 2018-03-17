@@ -80,7 +80,10 @@ function is_redhat7() {
     [[ ${DIST} =~ CentOS ]] || [[ ${DIST} =~ Red  ]] || return 1
 }
 function get_os() {
-    local FUNCDESC="Report operating system. If unknown, prints nothing and returns 1"
+    local FUNCDESC="Report operating system. If unknown, prints nothing and returns 1.
+
+If first argument is '1', then list all known OSes that this system is NOT
+running."
     local RET=1
     for OS in osx ubuntu suse raspbian redhat6 redhat7; do
         is_${OS}; [[ ${?} == ${1:-0} ]] && echo ${OS} && RET=0
