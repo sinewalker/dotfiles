@@ -22,9 +22,7 @@ CASKS=(
     aerial
     anaconda
     android-file-transfer
-    atom
     clementine
-    enpass
     etcher
     flux
     gpgtools
