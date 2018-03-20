@@ -33,6 +33,7 @@ CASKS=(
     keybase
     netbeans
     netbeans-java-se
+    osxfuse
     spotify
     vagrant
     virtualbox
