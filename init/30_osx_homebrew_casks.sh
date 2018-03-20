@@ -25,7 +25,7 @@ CASKS=(
     clementine
     etcher
     flux
-    gpgtools
+    gpg-suite
     hammerspoon
     iterm2
     karabiner

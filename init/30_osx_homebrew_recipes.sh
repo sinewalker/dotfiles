@@ -15,7 +15,7 @@ RECIPES=(
   cowsay
   git
   git-extras
-  htop-osx
+  htop
   hub
   id3tool
   lesspipe
