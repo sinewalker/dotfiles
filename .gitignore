@@ -22,6 +22,9 @@ probes.json
 /link/.rbenv/versions/
 /link/.rbenv/version
 
+# Don't commin any vagrant boxes -> should be a symlink to VM storage anyway
+/lib/vagrant/boxes
+
 # Ignore any file with LOCAL in the name (good for per-machine vars/functions)
 *LOCAL*
 
