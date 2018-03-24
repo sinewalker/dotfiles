@@ -143,10 +143,11 @@ git remote -v > remotes.txt
   bash -c "$(curl -fsSL https://goo.gl/PR0ocr)" && source ~/.bashrc
   ```
   
-2. Add my [git remotes][remotes.txt] to the new clone:
+2. Add my [git remotes][remotes.txt] to the new clone, swapping the https origin push for gits:
 
   ```sh
   cd ${DOTFILES}
+  git remote remove origin
   awk '/fetch/{print "git remote add " $1 " " $2}' < remotes.txt | bash
   ```
   
