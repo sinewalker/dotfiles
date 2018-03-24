@@ -1,3 +1,0 @@
-#!/bin/bash                                                    -*- mode:bash -*-
-# see https://www.emacswiki.org/emacs/EmacsClient
-exec emacsclient --alternate-editor="" -c "$@"
