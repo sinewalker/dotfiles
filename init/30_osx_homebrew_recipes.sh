@@ -54,6 +54,7 @@ recipes=(
   midnight-commander
   opencore-amr
   openssl
+  pass
   pcre
   proctools
   pwgen
