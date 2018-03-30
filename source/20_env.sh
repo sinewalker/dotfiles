@@ -20,7 +20,7 @@ alias web=${BROWSER}
 
 
 #doo eet
-alias fuck='sudo $(history -p \!\!)'
+alias gah='sudo $(history -p \!\!)'
 alias sammich='sudo $(history -p \!\!)'
 alias please=sudo
 
@@ -32,6 +32,7 @@ alias kons="konsole --profile $1 2> /dev/null"
 alias kons-show="konsole --list-profiles"
 alias root="konsole --profile 'Root Shell'"
 
+alias x=exit
 
 #MJL20170213 misc bash controls
 # this is to allow incremental forward search on the command line using ^S
