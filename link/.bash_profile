@@ -1,4 +1,5 @@
 test -f ~/.bashrc && source ~/.bashrc
 
-#MJL20170905 iterm2 integration (macOS)
-test -e "${HOME}/.iterm2_shell_integration.bash" && source "${HOME}/.iterm2_shell_integration.bash"
+#MJL20180331 iterm2 integration (macOS)
+iterm2_integration="${HOME}/.iterm2_shell_integration.bash"
+test -e ${iterm2_integration} && source ${iterm2_integration} || true
