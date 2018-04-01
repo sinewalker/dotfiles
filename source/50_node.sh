@@ -1,5 +1,7 @@
+[[ "$1" != init && ! -e ~/.nave ]] && return 1
+
 export PATH
-PATH=~/.nave/installed/default/bin:"$(__path_remove ~/.nave/installed/*/bin)"
+PATH=~/.nave/installed/default/bin:"$(path_remove ~/.nave/installed/*/bin)"
 
 # Set a specific version of node as the "default" for "nave use default"
 function nave_default() {
@@ -24,16 +26,21 @@ function nave_install() {
   [[ "$1" == "stable" ]] && nave_default stable && npm_install
 }
 
+# Use the version of node in the local .nvmrc file
+alias nvmrc='exec nave use $(<.nvmrc)'
+
 # Global npm modules to install.
 npm_globals=(
   babel-cli
-  bower
+  eslint
+  json-lint
+  json2yaml
   grunt-cli
-  grunt-init
-  linken
-  node-inspector
+  gulp-cli
   pushstate-server
-  yo
+  webpack
+  yaml2json
+  yarn
 )
 
 # Because "rm -rf node_modules && npm install" takes WAY too long. Not sure
