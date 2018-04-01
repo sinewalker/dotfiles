@@ -272,6 +272,15 @@ function copy_test() {
 function copy_do() {
   e_success "Copying ~/$1."
   cp "$2" ~/
+  local match replacement
+  if match=$(\egrep -o "XX.*XX" ${2}); then
+      for item in ${match[@]}; do
+          echo -n "Enter replacement on this host for ${item}: "
+          read replacement
+          sed -i "s/${item}/${replacement}/g" ~/${1} \
+              && e_success "Replaced ${item} in ~/${1}"
+      done
+  fi
 }
 
 # Link files.
