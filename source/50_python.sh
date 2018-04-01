@@ -1,21 +1,37 @@
 # see http://hackercodex.com/guide/python-development-environment-on-mac-osx/
 
-## This Python tool-chain is designed to be sourced by bash when it starts, from
-## my dotfiles. It cannot yet be sourced without dotfiles. It relies on the following
-## being available:
+## This Python tool-chain is designed to be sourced by bash when it starts. It
+## relies on the following being available:
 ##
-## virtualenv and pip installed globally
-## (optional) anaconda installed normally
+## * virtualenv and pip installed globally
+## * (optional) anaconda installed normally
 ##
-## dotfiles bash shell meta-functions:
+## These functions also use my bash shell meta-functions, which are in
+## 10_meta.sh. These should be downloaded and kept together with this file, and
+## sourced first. The required functions are:
+##
 ##   usage
 ##   error
 ##   is_exe
 ##   path_add
 ##   path_remove
 ##
-## dotfiles environment variables:
-##   $LIB - location for library files.  Defaults to ~/lib
+## The python tools will optionally use these dotfiles environment variables:
+##   $LIBRARY - location for library files, defaults to ~/lib
+
+#### Check for a required function and abort if not loaded.
+#
+# Be sure you've sourced 10_meta.sh first. We cannot automatically source
+# sibling files reliably. See http://mywiki.wooledge.org/BashFAQ/028
+#
+# The best approach to loading all files successfully is:
+# for X in path/to/bash_source_files; do source $X; done
+
+if ! type -p usage; then
+    echo "ERROR: Missing meta-functions. Aborting." >&2
+    return 1
+fi
+
 
 # pip should only run if there is a virtualenv currently activated
 export PIP_REQUIRE_VIRTUALENV=true
