@@ -32,11 +32,13 @@ exit; fi
 ###########################################
 
 # Where the magic happens.
-export DOTFILES=~/.dotfiles
+export DOTFILES=${HOME}/.dotfiles
+
 # Where the configs live.
 export CONFIG=${XDG_CONFIG_HOME-$HOME/.config}
+
 # Where to put libraries
-export LIBRARY=~/lib
+export LIBRARY=${HOME}/lib
 
 
 ### MJL20180317 functions needed by dotfiles bootstrap, before source/* has been
