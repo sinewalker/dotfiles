@@ -42,11 +42,6 @@ export LIB=~/lib
 ### MJL20180317 functions needed by dotfiles bootstrap, before source/* has been
 ### cloned or sourced.
 
-function is_exe() {
-    local FUNCDESC="Test if all arguments are runnable commands"
-    type -p "${@}" > /dev/null
-}
-
 # OS detection
 function is_osx() {
     local FUNCDESC="Return 0 if operating system is macOS, else return 1"

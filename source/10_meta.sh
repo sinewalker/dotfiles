@@ -31,6 +31,11 @@ to usage().'
     echo ${MESSAGE} | fold -s -w ${COLUMNS}
 }
 
+function is_exe() {
+    local FUNCDESC="Test if all arguments are runnable commands"
+    type -p "${@}" > /dev/null
+}
+
 
 
 ### MJL20180314 Function introspection
