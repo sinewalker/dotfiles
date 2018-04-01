@@ -36,7 +36,7 @@ export DOTFILES=~/.dotfiles
 # Where the configs live.
 export CONFIG=${XDG_CONFIG_HOME-$HOME/.config}
 # Where to put libraries
-export LIB=~/lib
+export LIBRARY=~/lib
 
 
 ### MJL20180317 functions needed by dotfiles bootstrap, before source/* has been
@@ -310,15 +310,15 @@ function config_do() {
 # Link library files
 function lib_header() { e_header "Linking dotfiles into lib directory"; }
 function lib_dest() {
-    echo "${LIB}/$base"
+    echo "${LIBRARY}/$base"
 }
 function lib_test() {
     [[ "$1" -ef "$2" ]] && echo "same file"
 }
 function lib_do() {
-    [[ -d ${LIB} ]] || mkdir -p ${LIB}
-    e_success "Linking ${LIB}/${1}."
-    ln -sf ${2} ${LIB}
+    [[ -d ${LIBRARY} ]] || mkdir -p ${LIBRARY}
+    e_success "Linking ${LIBRARY}/${1}."
+    ln -sf ${2} ${LIBRARY}
 }
 
 # Copy, link, init, etc.

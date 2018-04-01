@@ -35,9 +35,8 @@ alias hax='activate hax; cd ~/hax; ipython'
 #### virtualenv-wrapper work-alike
 
 #this is where Python Virtual Environments belong
-
-export VIRTUALENV_BASE=${LIB-$HOME/lib}/python
-
+export VIRTUALENV_BASE=${LIBRARY-$HOME/lib}/python
+[[ -d ${VIRTUALENV_BASE} ]] || mkdir -p ${VIRTUALENV_BASE}
 
 mkvenv() {
     local FUNCDESC="Makes a Python Virtual env in ${VIRTUALENV_BASE}."
