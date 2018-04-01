@@ -241,8 +241,8 @@ function init_files() {
     for opt in "${menu_options[@]}"; do
       remove=
       for os in "${oses[@]}"; do
-        [[ "$opt" =~ (^|[^a-z])$os($|[^a-z]) ]] && remove=1 && break
-        [[ "$opt" =~ ".sh" ]] || remove=1 && break
+        [[ "$opt" =~ (^|[^a-z])$os($|[^a-z]) ]] && remove=1
+        [[ "$opt" =~ ".sh" ]] || remove=1
       done
       [[ "$remove" ]] || menu_selects=("${menu_selects[@]}" "$opt")
     done
