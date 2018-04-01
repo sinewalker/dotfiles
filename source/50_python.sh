@@ -173,8 +173,8 @@ sucuri() {
         echo "Anaconda: deactivated"
     else
         local SNAKE WARN; SNAKE='(S)'; WARN='[!]'
-        is_osx && [[ -z ${SSH_TTY} ]] && [[ -z ${WINDOW} ]] && \
-            SNAKE="🐍";  WARN="⚠"
+        ! [[ ${TERM} =~ linux ]] && [[ -z ${SSH_TTY} ]] && [[ -z ${WINDOW} ]] && \
+            SNAKE="🐍" && WARN="⚠"
         path_add ${LIB-$HOME/lib}/anaconda/bin PREPEND
         if [[ ${PATH} =~ anaconda ]]; then
             echo "Anaconda: ACTIVATED ${SNAKE}"
