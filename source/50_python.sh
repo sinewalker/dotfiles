@@ -40,14 +40,15 @@ export VIRTUALENV_BASE=${LIBRARY-$HOME/lib}/python
 
 mkvenv() {
     local FUNCDESC="Makes a Python Virtual env in ${VIRTUALENV_BASE}."
-    if is_exe conda; then
-        error "${FUNCNAME}: Anaconda is active."
-        error "Use 'conda create -n ${1}' instead. Aborting."
-        return 3
-    fi
     if test -z ${1}; then
         usage "${FUNCNAME} <venv> [virtualenv options]" ${FUNCDESC}
         return 1
+    fi
+    if is_exe conda; then
+        error "${FUNCNAME}: Warning! Anaconda is active."
+        error "This wrapper will use conda to create ${1}, but it is only very basic."
+        conda create -n "${1}"
+        return ${?}
     fi
 
     VENV=${VIRTUALENV_BASE}/${1}
@@ -92,8 +93,9 @@ rmvenv() {
         return 1
     fi
     if is_exe conda; then
-        error "${FUNCNAME}: Acaconda is active."
-        error "Use 'conda remove -all -n ${1}' instead. Aborting."
+        error "${FUNCNAME}: Warning! Anaconda is active."
+        error "Consider using 'conda remove -all -n ${1}' instead."
+        error "Aborting."
         return 3
     fi
     VENV=${VIRTUALENV_BASE}/${1}
