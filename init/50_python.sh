@@ -18,5 +18,7 @@ If you don't know the root password, just press Enter to skip these.
 
 EOM
 gpip install --upgrade pip setuptools wheel virtualenv
-is_exe hg & gpip install --upgrade hg-git
 gpip install --upgrade isort ipython
+if type -p hg > /dev/null; then
+    gpip install --upgrade hg-git
+fi
