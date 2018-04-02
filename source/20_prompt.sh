@@ -41,7 +41,7 @@ if [[ ! "${PROMPT_COLORS[@]}" ]]; then
     # connected via ssh
       PROMPT_COLORS[0]="32;1"
       PROMPT_COLORS[1]="32"
-  elif [[ "${USER}" == "root" ]]; then
+  elif [[ "${USER}" == "root" ]] || [[ "${UID}" == "0" ]]; then
     # logged in as root
       PROMPT_COLORS[0]="31;1"
       PROMPT_COLORS[1]="31"
@@ -146,7 +146,7 @@ function __prompt_conda() {
     is_exe conda || return
     local SNAKE VENV
     SNAKE="\[\e[0;30;42m\]S"
-    is_osx && [[ -z ${SSH_TTY} ]] && [[ -z ${WINDOW} ]] && SNAKE="🐍 "
+    ! [[ ${TERM} =~ linux ]] && [[ -z ${SSH_TTY} ]] && [[ -z ${WINDOW} ]] && SNAKE="🐍 "
     [[ ${CONDA_DEFAULT_ENV} ]] && VENV="${C3}-${C5}${CONDA_DEFAULT_ENV}"
     echo "${C1}(${C9}${SNAKE}${VENV}${C1})${C9}"
 }
