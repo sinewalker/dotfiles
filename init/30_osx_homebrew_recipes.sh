@@ -58,6 +58,7 @@ RECIPES=(
   libvorbis
   markdown
   midnight-commander
+  node
   opencore-amr
   openssl
   pass
