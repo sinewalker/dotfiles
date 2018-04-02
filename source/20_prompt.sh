@@ -156,11 +156,32 @@ function __prompt_sizes() {
     echo "${C1}(${C9}$(ls --si -al|awk '/total/{TOTAL=$2} END{print NR-1 " files, " TOTAL}')${C1})${C9}"
 }
 
-#MJL20170218 CPU load and uptime (from monster prompt -- DAFT)
+#MJL20170218 CPU load and uptime (from monster prompt)
 function __prompt_cpu() {
     local upt=$(uptime|awk '{gsub(",",""); print $3 }')
     local lda=$(uptime|awk '{gsub(",",""); print $8}')
     echo "${C1}[${C0}Up ${C4}${upt}${C0} Load ${C5}${lda}${C1}]${C9}"
+}
+
+function __prompt_ending(){
+    [[ "${USER}" == "root" ]] || [[ "${UID}" == "0" ]] && __USER=root
+    [[ -z ${SSH_TTY} ]] && [[ -z ${WINDOW} ]] && __TERM=smart
+
+    if [[ ${__TERM} == smart  ]]; then
+       if [[ "${__USER}" == "root" ]]; then
+           __ENDING="Ω"
+       else
+           __ENDING="β"
+       fi
+    else
+        if [[ "${__USER}" == "root" ]]; then
+            __ENDING="#"
+        else
+            __ENDING="$"
+        fi
+    fi
+
+    echo "${C9}${__ENDING} "
 }
 
 #MJL20170205 toggle using a simple prompt
@@ -270,7 +291,7 @@ function __prompt_command() {
       PS1="${PS1}$(__prompt_conda)"
       # exit code: 127
       PS1="${PS1}$(__prompt_exitcode "${EXIT_CODE}")"
-      PS1="${PS1}\$ "
+      PS1="${PS1}$(__prompt_ending)"
   fi
 }
 
