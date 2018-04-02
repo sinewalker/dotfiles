@@ -37,6 +37,10 @@ function is_exe() {
 }
 
 
+function is_linux() {
+    local FUNCDESC="Test if the operating system is a Linux flavour"
+    [[ $(uname) =~ Linux ]] || return 1
+}
 
 ### MJL20180314 Function introspection
 
