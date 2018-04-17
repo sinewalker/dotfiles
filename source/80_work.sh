@@ -146,6 +146,7 @@ export -f wiid
 
 alias squizup='pushd ~/Work/svn; svn update; popd'
 alias squizwords='gpg -d ~/Work/svn/sysadmin/support-passwords.txt.gpg|less'
+alias infrawords='gpg -d ~/Work/svn/sysadmin/cru-infrastructure-passwords.txt.gpg|less'
 alias edpass='pushd ~/Work/svn/sysadmin; svn up; emacsclient support-passwords.txt.gpg; popd'
 
 #bounce to the UK
