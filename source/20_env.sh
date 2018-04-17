@@ -33,6 +33,7 @@ alias kons-show="konsole --list-profiles"
 alias root="konsole --profile 'Root Shell'"
 
 alias x=exit
+alias q=exit
 
 #MJL20170213 misc bash controls
 # this is to allow incremental forward search on the command line using ^S
