@@ -1,4 +1,4 @@
-#/usr/bin/env bash
+#!/usr/bin/env bash
 
 source ${DOTFILES}/source/10_meta.sh
 source ${DOTFILES}/source/50_node.sh
@@ -18,3 +18,5 @@ if ! [[ -f ${NVM_DIR}/nvm.sh ]]; then
     #undo the "install" of NVM that the script performs: This is in source/50_node.sh
     git checkout -- ${DOTFILES}/link/.bashrc
 fi
+
+npm config set prefix ${LIBRARY}/node
