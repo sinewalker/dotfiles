@@ -18,7 +18,7 @@ the system root password) depending on the system's sudo configuration.
 If you don't know the root password, just press Enter to skip these.
 
 EOM
-gpip install --upgrade pip setuptools wheel virtualenv
+gpip install --upgrade pip setuptools wheel virtualenv pipsi
 gpip install --upgrade isort ipython
 if type -p hg > /dev/null; then
     gpip install --upgrade hg-git

@@ -32,7 +32,6 @@ if ! type -p usage; then
     return 1
 fi
 
-
 # pip should only run if there is a virtualenv currently activated
 export PIP_REQUIRE_VIRTUALENV=true
 
@@ -53,6 +52,10 @@ alias hax='activate hax; cd ~/hax; ipython'
 #this is where Python Virtual Environments belong
 export VIRTUALENV_BASE=${LIBRARY-$HOME/lib}/python
 [[ -d ${VIRTUALENV_BASE} ]] || mkdir -p ${VIRTUALENV_BASE}
+
+# pipsi - install script venvs in ~/bin and venvs into $VIRTUALENV_BASE
+export PIPSI_HOME=${VIRTUALENV_BASE}
+export PIPSI_BIN_DIR=${HOME}/bin
 
 mkvenv() {
     local FUNCDESC="Makes a Python Virtual env in ${VIRTUALENV_BASE}."
