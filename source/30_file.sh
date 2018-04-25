@@ -205,3 +205,6 @@ function fsync {
     fi
 }
 alias pirate=fsync
+
+# The PGP Web Of Trust is broken. Just trust your keys, or not.
+alias gpgtrust='gpg --trust-model always'
