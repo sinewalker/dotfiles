@@ -17,13 +17,13 @@ is_exe mcedit && EDITOR=mcedit
 if [[ ! "$SSH_TTY" ]]; then
 
     #Or, if we're on a 21st century computer, let's default to using Atom
-    is_exe atom && EDITOR=atom
+    is_exe atom && EDITOR='atom -w'
 
     #Or, if we have MS VS-code (and it's on the PATH), then that's better than atom
-    is_exe code && EDITOR=code
+    is_exe code && EDITOR='code -w'
 
     #My third-favorite editor is Kate for KDE. Use that over the others, if we have it.
-    is_exe kate && EDITOR=kate
+    is_exe kate && EDITOR='kate -b'
 
 fi
 
