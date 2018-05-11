@@ -13,22 +13,21 @@ is_exe nano && EDITOR=nano
 #Midnight Commander should be installed everywhere with this repo anyway
 is_exe mcedit && EDITOR=mcedit
 
+alias edit=${EDITOR}
+
 ## WIMP text editors
 if [[ ! "$SSH_TTY" ]]; then
 
     #Or, if we're on a 21st century computer, let's default to using Atom
-    is_exe atom && EDITOR='atom -w'
-
+    is_exe atom && EDITOR='atom -w' && alias edit=atom
     #Or, if we have MS VS-code (and it's on the PATH), then that's better than atom
-    is_exe code && EDITOR='code -w'
-
+    is_exe code && EDITOR='code -w' && alias edit=code
     #My third-favorite editor is Kate for KDE. Use that over the others, if we have it.
-    is_exe kate && EDITOR='kate -b'
+    is_exe kate && EDITOR='kate -b' && alias edit=kate
 
 fi
 
 #editing shortcuts
-alias edit=${EDITOR}
 alias ed=edit   #sorry /bin/ed, you're ancient history
 alias e=edit
 
