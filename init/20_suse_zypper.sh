@@ -19,7 +19,8 @@ sudo zypper --quiet refresh
 
 e_header "Installing SUSE Patterns"
 sudo zypper install -y \
-     pattern:console pattern:devel_basis pattern_python
+     pattern:console \
+     pattern:devel_basis pattern:devel_python pattern:devel_python3
 
 # Install RPM packages.
 PACKAGES=(
@@ -33,9 +34,7 @@ PACKAGES=(
     libopenssl-devel
     password-store
     python3-virtualenv
-    python3-virtualenv-doc
     python-devel
-    pychecker
     python3-pip
     git-core
     mercurial
