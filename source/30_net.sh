@@ -102,37 +102,38 @@ alias tunnel-http='tunnel-port 80'
 alias tunnel-db='tunnel-port 5432'
 
 function dl-av() {
-    local FUNCDESC="Download video and/or audio from non-DRM streaming web services.
+    local FUNCDESC="Download audio and/or video from non-DRM streaming web services.
 
 Requires youtube-dl.  Format conversion requires vorbis/opus codecs for ffmpeg."
 
     if [[ -z ${1} ]]; then
         error "${FUNCNAME}: must supply at least one argument."
-        usage "${FUNCNAME} [audio|vorbis|opus|mp3] <URL>"
+        usage "${FUNCNAME} [audio|vorbis|opus|mp3] <URL>..."
+        return 1
     fi
     local format=''
-    local output='--output "%(playlist_index)s%(title)s.%(ext)s"'
+    local output="%(playlist_index)s-%(title)s.%(ext)s"
 
-    #parse $1 into $format
     case ${1} in
          vorbis|opus|mp3)
              format="--extract-audio --audio-format ${1}"
+             shift
              ;;
          audio)
              format="--extract-audio"
+             shift
              ;;
     esac
 
-    shift
-
     if [[ -z ${format} ]]; then
-        youtube-dl --ignore-errors ${output} ${@}
+        youtube-dl --ignore-errors --output ${output} ${@}
     else
-        youtube-dl --extract-audio ${format} --ignore-errors ${output} ${@}
+        youtube-dl ${format} --ignore-errors --output ${output} ${@}
     fi
 }
 
-alias dl-vorbis='youtube-dl --extract-audio --audio-format vorbis --ignore-errors --output "%(playlist_index)s%(title)s.%(ext)s"'
-alias dl-opus='youtube-dl --extract-audio --audio-format opus --ignore-errors --output "%(playlist_index)s%(title)s.%(ext)s"'
-alias dl-audio='youtube-dl --extract-audio --ignore-errors --output "%(playlist_index)s%(title)s.%(ext)s"'
-alias dl-video='youtube-dl --ignore-errors --output "%(playlist_index)s%(title)s.%(ext)s"'
+alias dl-vorbis='dl-av vorbis'
+alias dl-opus='dl-av opus'
+alias dl-mp3='dl-av mp3'
+alias dl-audio='dl-av audio'
+alias dl-video='dl-av'
