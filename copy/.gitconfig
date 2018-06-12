@@ -1,9 +1,9 @@
 [user]
-	name = Mike Lockhart
-	email = XXEMAILXX
+  name = XXyour_nameXX
+  email = XXemailXX
 
 [color]
-	ui = true
+  ui = true
 [color "branch"]
   current = yellow reverse
   local = yellow
@@ -18,13 +18,13 @@
   changed = green
   untracked = cyan
 [push]
-	#MJL20170723 this causes issue on Raspbian with Git < 2.0. Maybe use 'upstream'?
-	default = simple
+  #MJL20170723 this causes issue on Raspbian with Git < 2.0. Maybe use 'upstream'?
+  default = simple
 [alias]
-	glog = log --graph --all --decorate
-	dlog = log --graph --all --decorate --date-order
-	sup = submodule update --init --recursive
-	spull = !echo git pull && git pull && echo git submodule update --init --recursive && git sup
+  glog = log --graph --all --decorate
+  dlog = log --graph --all --decorate --date-order
+  sup = submodule update --init --recursive
+  spull = !echo git pull && git pull && echo git submodule update --init --recursive && git sup
 
   br = branch
   ci = commit
@@ -39,8 +39,8 @@
 #  ksdiff = difftool -y -t Kaleidoscope
 
 [core]
-	autocrlf = input
-	safecrlf = true
+  autocrlf = input
+  safecrlf = true
   whitespace = fix,space-before-tab,tab-in-indent,trailing-space
   excludesfile = ~/.gitignore_global
 [apply]

@@ -20,7 +20,7 @@ Portions Copyright © 2017, 2018 Mike Lockhart
 Creative Commons CC-by-4.0
 https://creativecommons.org/licenses/by/4.0/
 
-Original work Copyright (c) 2014 "Cowboy" Ben Alman
+Original work Copyright © 2014 "Cowboy" Ben Alman
 Licensed under the MIT license.
 http://benalman.com/about/license/
 
@@ -32,20 +32,17 @@ exit; fi
 ###########################################
 
 # Where the magic happens.
-export DOTFILES=~/.dotfiles
+export DOTFILES=${HOME}/.dotfiles
+
 # Where the configs live.
 export CONFIG=${XDG_CONFIG_HOME-$HOME/.config}
+
 # Where to put libraries
-export LIB=~/lib
+export LIBRARY=${HOME}/lib
 
 
 ### MJL20180317 functions needed by dotfiles bootstrap, before source/* has been
 ### cloned or sourced.
-
-function is_exe() {
-    local FUNCDESC="Test if all arguments are runnable commands"
-    type -p "${@}" > /dev/null
-}
 
 # OS detection
 function is_osx() {
@@ -246,8 +243,8 @@ function init_files() {
     for opt in "${menu_options[@]}"; do
       remove=
       for os in "${oses[@]}"; do
-        [[ "$opt" =~ (^|[^a-z])$os($|[^a-z]) ]] && remove=1 && break
-        [[ "$opt" =~ ".sh" ]] || remove=1 && break
+        [[ "$opt" =~ (^|[^a-z])$os($|[^a-z]) ]] && remove=1
+        [[ "$opt" =~ ".sh" ]] || remove=1
       done
       [[ "$remove" ]] || menu_selects=("${menu_selects[@]}" "$opt")
     done
@@ -277,6 +274,15 @@ function copy_test() {
 function copy_do() {
   e_success "Copying ~/$1."
   cp "$2" ~/
+  local match replacement
+  if match=$(\egrep -o "XX.*XX" ${2}); then
+      for item in ${match[@]}; do
+          echo -n "Enter replacement on this host for ${item}: "
+          read replacement
+          sed -i "s/${item}/${replacement}/g" ~/${1} \
+              && e_success "Replaced ${item} in ~/${1}"
+      done
+  fi
 }
 
 # Link files.
@@ -292,31 +298,29 @@ function link_do() {
 # Link config files.
 function config_header() { e_header "Linking dotfiles into config directory"; }
 function config_dest() {
-  echo "${XDG_CONFIG_HOME-$HOME/.config}/$base"
+  echo "${CONFIG}/$base"
 }
 function config_test() {
   [[ "$1" -ef "$2" ]] && echo "same file"
 }
 function config_do() {
-  local configdir=${LIBS}
-  [[ -d ${configdir} ]] || mkdir -p ${configdir}
-  e_success "Linking ${configdir}/${1}."
-  ln -sf ${2} ${configdir}
+  [[ -d ${CONFIG} ]] || mkdir -p ${CONFIG}
+  e_success "Linking ${CONFIG}/${1}."
+  ln -sf ${2} ${CONFIG}
 }
 
 # Link library files
 function lib_header() { e_header "Linking dotfiles into lib directory"; }
 function lib_dest() {
-    echo "${LIB}/$base"
+    echo "${LIBRARY}/$base"
 }
 function lib_test() {
     [[ "$1" -ef "$2" ]] && echo "same file"
 }
 function lib_do() {
-    local libdir=${LIB}
-    [[ -d ${libdir} ]] || mkdir -p ${libdir}
-    e_success "Linking ${libdir}/${1}."
-    ln -sf ${2} ${libdir}
+    [[ -d ${LIBRARY} ]] || mkdir -p ${LIBRARY}
+    e_success "Linking ${LIBRARY}/${1}."
+    ln -sf ${2} ${LIBRARY}
 }
 
 # Copy, link, init, etc.

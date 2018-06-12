@@ -86,16 +86,6 @@ function page() {
 # Bashmarks directory bookmarks
 source ${DOTFILES}/vendor/bashmarks/bashmarks.sh
 
-# Fast directory switching
-
-# Link the manual into the local manpath, if needed and present.
-local zman zmanlink
-zman=${DOTFILES}/vendor/z/z.1
-zmanlink=/usr/local/share/man/man1/
-if [[ ! -L ${zmanlink}/z.1 ]] && [[ -e ${zman} ]]; then
-    ln -fs ${zman} ${zmanlink}
-fi
-
 mkdir -p ${DOTFILES}/caches/z
 #_Z_NO_PROMPT_COMMAND=1
 _Z_DATA=${DOTFILES}/caches/z/z

@@ -1,4 +1,5 @@
 # Load python and virualenv-related functions.
+source ${DOTFILES}/source/10_meta.sh
 source ${DOTFILES}/source/50_python.sh
 
 # Make sure there is a virtualenv base scrdirectory
@@ -17,7 +18,8 @@ the system root password) depending on the system's sudo configuration.
 If you don't know the root password, just press Enter to skip these.
 
 EOM
-gpip install --upgrade pip setuptools wheel virtualenv
-is_exe hg || gpip install Mercurial
-gpip install --upgrade hg-git
+gpip install --upgrade pip setuptools wheel virtualenv pipsi
 gpip install --upgrade isort ipython
+if type -p hg > /dev/null; then
+    gpip install --upgrade hg-git
+fi

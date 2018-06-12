@@ -41,7 +41,7 @@ if [[ ! "${PROMPT_COLORS[@]}" ]]; then
     # connected via ssh
       PROMPT_COLORS[0]="32;1"
       PROMPT_COLORS[1]="32"
-  elif [[ "${USER}" == "root" ]]; then
+  elif [[ "${USER}" == "root" ]] || [[ "${UID}" == "0" ]]; then
     # logged in as root
       PROMPT_COLORS[0]="31;1"
       PROMPT_COLORS[1]="31"
@@ -146,23 +146,42 @@ function __prompt_conda() {
     is_exe conda || return
     local SNAKE VENV
     SNAKE="\[\e[0;30;42m\]S"
-    is_osx && [[ -z ${SSH_TTY} ]] && [[ -z ${WINDOW} ]] && SNAKE="🐍 "
+    ! [[ ${TERM} =~ linux ]] && [[ -z ${SSH_TTY} ]] && [[ -z ${WINDOW} ]] && SNAKE="🐍 "
     [[ ${CONDA_DEFAULT_ENV} ]] && VENV="${C3}-${C5}${CONDA_DEFAULT_ENV}"
     echo "${C1}(${C9}${SNAKE}${VENV}${C1})${C9}"
 }
 
 #MJL20170218 files and size count (from "monster prompt" in my ancient dotfiles)
 function __prompt_sizes() {
-    is_osx && alias __llssi='gls --si -sl' || alias __llssi='ls --si -sl'
-    __llssi|awk '/total/{TOTAL=$2} /(.*) (-.*)/{FILES=FILES+1} END{print FILES " files, " TOTAL}'
-    unalias __lsssi
+    echo "${C1}(${C9}$(ls --si -al|awk '/total/{TOTAL=$2} END{print NR-1 " files, " TOTAL}')${C1})${C9}"
 }
 
-#MJL20170218 CPU load and uptime (from monster prompt -- DAFT)
+#MJL20170218 CPU load and uptime (from monster prompt)
 function __prompt_cpu() {
-    $(cat /proc/loadavg)
-    $(temp=$(cat /proc/uptime) && upSec=${temp%%.*} ; let secs=$((${upSec}%60)) ; let mins=$((${upSec}/60%60)) ; let hours=$((${upSec}/3600%24)) ; let days=$((${upSec}/86400)) ; if [ ${days} -ne 0 ]; then echo -n ${days}d; fi ; echo -n ${hours}h${mins}m)
+    local upt=$(uptime|awk '{gsub(",",""); print $3 }')
+    local lda=$(uptime|awk '{gsub(",",""); print $8}')
+    echo "${C1}[${C0}Up ${C4}${upt}${C0} Load ${C5}${lda}${C1}]${C9}"
+}
 
+function __prompt_ending(){
+    [[ "${USER}" == "root" ]] || [[ "${UID}" == "0" ]] && __USER=root
+    [[ -z ${SSH_TTY} ]] && [[ -z ${WINDOW} ]] && __TERM=smart
+
+    if [[ ${__TERM} == smart  ]]; then
+       if [[ "${__USER}" == "root" ]]; then
+           __ENDING="Ω"
+       else
+           __ENDING="β"
+       fi
+    else
+        if [[ "${__USER}" == "root" ]]; then
+            __ENDING="#"
+        else
+            __ENDING="$"
+        fi
+    fi
+
+    echo "${C9}${__ENDING} "
 }
 
 #MJL20170205 toggle using a simple prompt
@@ -177,7 +196,18 @@ function prompt_simple() {
 }
 alias simple_prompt=prompt_simple
 alias awesome_prompt=prompt_simple
-alias monster_prompt=prompt_simple
+
+#MJL20180402 toggle using monster prompt
+# If an argument is supplied, force it to simple
+function prompt_monster() {
+    local FUNCDESC="Toggle using a monster prompt. If an argument is supplied, force to simple"
+    if [[ -z ${__USE_MONSTER_PROMPT} || -n "${1}" ]]; then
+        export __USE_MONSTER_PROMPT=1
+    else
+        unset __USE_MONSTER_PROMPT
+    fi
+}
+alias monster_prompt=prompt_monster
 
 #MJL20170207 toggle command history trace
 # sometimes this can be useful
@@ -236,8 +266,14 @@ function __prompt_command() {
       PS1="${PS1}$(__prompt_hg)"
       # path: [user@host:path]
       PS1="${PS1}${C1}[${C0}\u${C1}@${C0}\h${C1}:${C0}\w${C1}]${C9}"
+      if [[ -n ${__USE_MONSTER_PROMPT} ]]; then
+          PS1="${PS1}$(__prompt_sizes)"
+      fi
       PS1="${PS1}\n"
 
+      if [[ -n ${__USE_MONSTER_PROMPT} ]]; then
+          PS1="${PS1}$(__prompt_cpu)"
+      fi
       #MJL20170205 screen: #
       PS1="${PS1}$(__prompt_screen)"
       #MJL20170207 turn on the command history trace if wanted
@@ -255,7 +291,7 @@ function __prompt_command() {
       PS1="${PS1}$(__prompt_conda)"
       # exit code: 127
       PS1="${PS1}$(__prompt_exitcode "${EXIT_CODE}")"
-      PS1="${PS1}\$ "
+      PS1="${PS1}$(__prompt_ending)"
   fi
 }
 

@@ -31,7 +31,16 @@ to usage().'
     echo ${MESSAGE} | fold -s -w ${COLUMNS}
 }
 
+function is_exe() {
+    local FUNCDESC="Test if all arguments are runnable commands"
+    type -p "${@}" > /dev/null
+}
 
+
+function is_linux() {
+    local FUNCDESC="Test if the operating system is a Linux flavour"
+    [[ $(uname) =~ Linux ]] || return 1
+}
 
 ### MJL20180314 Function introspection
 

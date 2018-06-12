@@ -1,21 +1,36 @@
 # see http://hackercodex.com/guide/python-development-environment-on-mac-osx/
 
-## This Python tool-chain is designed to be sourced by bash when it starts, from
-## my dotfiles. It cannot yet be sourced without dotfiles. It relies on the following
-## being available:
+## This Python tool-chain is designed to be sourced by bash when it starts. It
+## relies on the following being available:
 ##
-## virtualenv and pip installed globally
-## (optional) anaconda installed normally
+## * virtualenv and pip installed globally
+## * (optional) anaconda installed normally
 ##
-## dotfiles bash shell meta-functions:
+## These functions also use my bash shell meta-functions, which are in
+## 10_meta.sh. These should be downloaded and kept together with this file, and
+## sourced first. The required functions are:
+##
 ##   usage
 ##   error
 ##   is_exe
 ##   path_add
 ##   path_remove
 ##
-## dotfiles environment variables:
-##   $LIB - location for library files.  Defaults to ~/lib
+## The python tools will optionally use these dotfiles environment variables:
+##   $LIBRARY - location for library files, defaults to ~/lib
+
+#### Check for a required function and abort if not loaded.
+#
+# Be sure you've sourced 10_meta.sh first. We cannot automatically source
+# sibling files reliably. See http://mywiki.wooledge.org/BashFAQ/028
+#
+# The best approach to loading all files successfully is:
+# for X in path/to/bash_source_files; do source $X; done
+
+if ! type -p usage; then
+    echo "ERROR: Missing meta-functions. Aborting." >&2
+    return 1
+fi
 
 # pip should only run if there is a virtualenv currently activated
 export PIP_REQUIRE_VIRTUALENV=true
@@ -35,20 +50,24 @@ alias hax='activate hax; cd ~/hax; ipython'
 #### virtualenv-wrapper work-alike
 
 #this is where Python Virtual Environments belong
+export VIRTUALENV_BASE=${LIBRARY-$HOME/lib}/python
+[[ -d ${VIRTUALENV_BASE} ]] || mkdir -p ${VIRTUALENV_BASE}
 
-export VIRTUALENV_BASE=${LIB-$HOME/lib}/python
-
+# pipsi - install script venvs in ~/bin and venvs into $VIRTUALENV_BASE
+export PIPSI_HOME=${VIRTUALENV_BASE}
+export PIPSI_BIN_DIR=${HOME}/bin
 
 mkvenv() {
     local FUNCDESC="Makes a Python Virtual env in ${VIRTUALENV_BASE}."
-    if is_exe conda; then
-        error "${FUNCNAME}: Anaconda is active."
-        error "Use 'conda create -n ${1}' instead. Aborting."
-        return 3
-    fi
     if test -z ${1}; then
         usage "${FUNCNAME} <venv> [virtualenv options]" ${FUNCDESC}
         return 1
+    fi
+    if is_exe conda; then
+        error "${FUNCNAME}: Warning! Anaconda is active."
+        error "This wrapper will use conda to create ${1}, but it is only very basic."
+        conda create -n "${1}"
+        return ${?}
     fi
 
     VENV=${VIRTUALENV_BASE}/${1}
@@ -93,8 +112,9 @@ rmvenv() {
         return 1
     fi
     if is_exe conda; then
-        error "${FUNCNAME}: Acaconda is active."
-        error "Use 'conda remove -all -n ${1}' instead. Aborting."
+        error "${FUNCNAME}: Warning! Anaconda is active."
+        error "Consider using 'conda remove -all -n ${1}' instead."
+        error "Aborting."
         return 3
     fi
     VENV=${VIRTUALENV_BASE}/${1}
@@ -174,8 +194,8 @@ sucuri() {
         echo "Anaconda: deactivated"
     else
         local SNAKE WARN; SNAKE='(S)'; WARN='[!]'
-        is_osx && [[ -z ${SSH_TTY} ]] && [[ -z ${WINDOW} ]] && \
-            SNAKE="🐍";  WARN="⚠"
+        ! [[ ${TERM} =~ linux ]] && [[ -z ${SSH_TTY} ]] && [[ -z ${WINDOW} ]] && \
+            SNAKE="🐍" && WARN="⚠"
         path_add ${LIB-$HOME/lib}/anaconda/bin PREPEND
         if [[ ${PATH} =~ anaconda ]]; then
             echo "Anaconda: ACTIVATED ${SNAKE}"
