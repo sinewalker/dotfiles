@@ -44,14 +44,9 @@ PACKAGES=(
     nodejs-common
 )
 
-PACKAGES=($(setdiff "${PACKAGES[*]}" "$(rpm -qa |awk --field-separator=-[0-9] '{print $1}')"))
-
 if (( ${#PACKAGES[@]} > 0 )); then
   e_header "Installing RPM packages: ${PACKAGES[*]}"
-  for PACKAGE in "${PACKAGES[@]}"; do
-    echo "🡒 ${PACKAGE}"
-    sudo zypper install -y "${PACKAGE}"
-  done
+  sudo zypper install -y ${PACKAGES[*]}
 fi
 
 # Install Git Extras
