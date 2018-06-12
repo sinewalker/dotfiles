@@ -158,7 +158,7 @@ function __prompt_sizes() {
 
 #MJL20170218 CPU load and uptime (from monster prompt)
 function __prompt_cpu() {
-    local upt=$(uptime|awk '{gsub(",",""); printf "%d ",$3/NR}; /day/ {print $4",", $5, $6}')
+    local upt=$(uptime|awk '{gsub(",",""); printf "%d ",$3/NR}; /day/ {print $4",", $5}; /min/ {print $6}')
     local lda=$(uptime|awk --field-separator 'load' '{split($2, lds, " "); print lds[2]}')
     echo "${C1}[${C0}Up ${C4}${upt}${C0} Load ${C5}${lda}${C1}]${C9}"
 }
