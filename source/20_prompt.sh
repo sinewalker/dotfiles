@@ -170,8 +170,11 @@ function __prompt_ending(){
     if [[ ${__TERM} == smart  ]]; then
        if [[ "${__USER}" == "root" ]]; then
            __ENDING="Ω"
-       else
-           __ENDING="β"
+       else if is_raspbian; then
+                __ENDING="π"
+            else
+                __ENDING="β"
+            fi
        fi
     else
         if [[ "${__USER}" == "root" ]]; then
