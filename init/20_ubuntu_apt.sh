@@ -1,5 +1,5 @@
 # Ubuntu-only stuff. Abort if not Ubuntu.
-is_ubuntu || return 1
+is_ubuntu || is_raspbian || return 1
 
 # If the old files isn't removed, the duplicate APT alias will break sudo!
 local SUDOERS_OLD="/etc/sudoers.d/sudoers-cowboy"; [[ -e "${SUDOERS_OLD}" ]] && sudo rm "${SUDOERS_OLD}"
@@ -8,7 +8,7 @@ local SUDOERS_OLD="/etc/sudoers.d/sudoers-cowboy"; [[ -e "${SUDOERS_OLD}" ]] && 
 local SUDOERS_FILE="sudoers-dotfiles"
 local SUDOERS_SRC=${DOTFILES}/misc/ubuntu/${SUDOERS_FILE}
 local SUDOERS_DEST="/etc/sudoers.d/${SUDOERS_FILE}"
-if [[ ! -e "${SUDOERS_DEST}" || "${SUDOERS_DEST}" -ot "${SUDOERS_SRC}" ]]; then
+if is_ubuntu && [[ ! -e "${SUDOERS_DEST}" || "${SUDOERS_DEST}" -ot "${SUDOERS_SRC}" ]]; then
   cat <<EOM
 The sudoers file can be updated to allow "sudo apt-get" to be executed
 without asking for a password. You can verify that this worked correctly by
@@ -19,7 +19,7 @@ THIS SHOULD ONLY BE ATTEMPTED IF YOU ARE LOGGED IN AS ROOT IN ANOTHER SHELL.
 
 This will be skipped if "Y" isn't pressed within the next $prompt_delay seconds.
 EOM
-  read -N 1 -t ${PROMPT_DELAY} -p "Update sudoers file? [y/N] " UPDATE_SUDOERS; echo
+  read -N 1 -t ${prompt_delay} -p "Update sudoers file? [y/N] " UPDATE_SUDOERS; echo
   if [[ "${UPDATE_SUDOERS}" =~ [Yy] ]]; then
     e_header "Updating sudoers"
     visudo -cf "${SUDOERS_SRC}" &&
@@ -35,7 +35,6 @@ fi
 # Update APT.
 e_header "Updating APT"
 sudo apt-get -qq update
-sudo apt-get -qq dist-upgrade
 
 # Install APT packages.
 PACKAGES=(
@@ -44,13 +43,18 @@ PACKAGES=(
   cowsay
   git-core
   htop
-  id3tool
   libssl-dev
   mercurial
+  mc
+  netcat
+  nodejs
   nmap
+  pass
   silversearcher-ag
+  screen
+  screenfetch
   sl
-  telnet
+  tmux
   tree
 )
 
