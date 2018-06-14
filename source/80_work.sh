@@ -155,3 +155,5 @@ alias bounce="ssh bounce.squiz.co.uk -lmlockhart -o ForwardAagent=yes"
 #better rdesktop experience for Squiz (uploads from \\tsclient\upload)
 # (see https://opswiki.squiz.net/Clients/CSU ):
 alias rdp="rdesktop -g 1200x800 -a 15 -z -x b -P -r disk:upload=${HOME}/Uploads -rclipboard:PRIMARYCLIPBOARD"
+
+export PATH=~/Work/svn/ovirt/scripts:${PATH}
