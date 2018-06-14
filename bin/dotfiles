@@ -60,7 +60,7 @@ function is_suse() {
 function is_raspbian() {
     local FUNCDESC="Return 0 if operating system is Raspbian, else return 1"
     #lsb_release is not installed by default in Raspbian
-    [[ "$(cat /etc/os-release 2> /dev/null)" =~ Raspbian ]] || return 1
+    [[ -f /etc/rpi-issue ]] || return 1
 }
 function is_redhat6() {
     local FUNCDESC="Return 0 if operating system is a RedHat 6 variant, else return 1"
