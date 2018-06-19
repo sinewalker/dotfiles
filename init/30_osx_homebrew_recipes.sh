@@ -44,6 +44,7 @@ RECIPES=(
   gnuplot
   goaccess
   graphviz
+  grep
   guile
   httpie
   httrack
