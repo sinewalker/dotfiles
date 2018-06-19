@@ -161,4 +161,11 @@ alias bounce="ssh bounce.squiz.co.uk -lmlockhart -o ForwardAagent=yes"
 # (see https://opswiki.squiz.net/Clients/CSU ):
 alias rdp="rdesktop -g 1200x800 -a 15 -z -x b -P -r disk:upload=${HOME}/Uploads -rclipboard:PRIMARYCLIPBOARD"
 
-export PATH=~/Work/svn/ovirt/scripts:${PATH}
+export PATH=${SQUIZAU_SVN}/ovirt/scripts:${PATH}
+
+#MJL20180618 squiz secrets
+
+export SQUIZ_KEYS=~/key/squiz
+export SQUIZ_SSH=${SQUIZ_KEYS}/mlockhart-hobart.pub
+export SQUIZ_SSH_PRIVATE=${SQUIZ_KEYS}/mlockhart-hobart
+export SQUIZ_NETBOX=${SQUIZ_KEYS}/netbox.token
