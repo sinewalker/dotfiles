@@ -69,6 +69,7 @@ RECIPES=(
   python
   qcachegrind
   rdesktop
+  screenfetch
   socat
   sqlite
   sshfs
