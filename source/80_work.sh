@@ -144,10 +144,15 @@ export -f wiid
 
 #MJL20170216 squizisms from 2014
 
-alias squizup='pushd ~/Work/svn; svn update; popd'
-alias squizwords='gpg -d ~/Work/svn/sysadmin/support-passwords.txt.gpg|less'
-alias infrawords='gpg -d ~/Work/svn/sysadmin/cru-infrastructure-passwords.txt.gpg|less'
-alias edpass='pushd ~/Work/svn/sysadmin; svn up; emacsclient support-passwords.txt.gpg; popd'
+export SQUIZAU_SVN=~/Work/svn
+export SQUIZUK_SVN=~/Work/uksvn
+
+alias squizau='pushd ${SQUIZAU_SVN}; svn update; popd'
+alias squizuk='pushd ${SQUIZUK_SVN}; svn update; popd'
+alias squizup='squizau; squizuk'
+alias squizwords='gpg -d ${SQUIZAU_SVN}/sysadmin/support-passwords.txt.gpg|less'
+alias infrawords='gpg -d ${SQUIZAU_SVN}/sysadmin/cru-infrastructure-passwords.txt.gpg|less'
+alias edpass='pushd ${SQUIZAU_SVN}/sysadmin; svn up; emacsclient support-passwords.txt.gpg; popd'
 
 #bounce to the UK
 alias bounce="ssh bounce.squiz.co.uk -lmlockhart -o ForwardAagent=yes"
