@@ -5,7 +5,7 @@ source ${DOTFILES}/source/50_node.sh
 
 
 ### Check for node/npm and abort if it's not installed
-if ! is_exe node; then
+if ! is_exe node && ! is_exe nodejs; then
     e_error "Aborting: install Node for your operating system first"
     return 1
 fi
