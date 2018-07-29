@@ -78,7 +78,7 @@ function check-tls() {
     local server=${2}
     [[ -z ${2} ]] && server=${1}
 
-    echo | openssl s_client -connect ${domain}:443 -servername ${server} \
+    echo | openssl s_client -connect ${server}:443 -servername ${domain} \
         | openssl x509 -noout -text |egrep 'Subject:|subject=|Before|After|DNS'
 }
 
