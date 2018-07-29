@@ -11,6 +11,7 @@ brew_tap_kegs
 # Homebrew recipes
 RECIPES=(
   ansible
+  asciinema
   bash
   cowsay
   git
