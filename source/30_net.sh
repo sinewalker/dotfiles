@@ -83,6 +83,62 @@ function check-tls() {
         egrep --color=auto 'O=|C=|L=|OU=|ST=|CN=|Before|After|DNS:'
 }
 
+function createconf() {
+        [[ -z $1 ]] && echo "missing domain to generation config for" && return
+        subject=$(echo | openssl s_client -connect ${1}:443 -servername ${1} | openssl x509 -subject -noout)
+        C=$(echo $subject | grep -oP '\/C=.*?\/' | tr -d /)
+        ST=$(echo $subject | grep -oP '\/ST=.*?\/' | tr -d /)
+        OU=$(echo $subject | grep -oP '\/OU=.*?\/' | tr -d /)
+        O=$(echo $subject | grep -oP '\/O=.*?\/' | tr -d /)
+        L=$(echo $subject | grep -oP '\/L=.*?\/' | tr -d /)
+        CN=$(echo $subject | grep -oP '\/CN=.*' | tr -d /)
+
+        outfile=${1}.conf
+        echo "[req]" > $outfile
+        echo "distinguished_name = req_distinguished_name" >> $outfile
+        echo "x509_extensions = v3_req" >> $outfile
+        echo "prompt = no" >> $outfile
+        echo "req_extensions = v3_req" >> $outfile
+        echo " " >> $outfile
+        echo "[req_distinguished_name]" >> $outfile
+        [[ ! -z $C ]] && echo $C >> $outfile
+        [[ ! -z $ST ]] && echo $ST >> $outfile
+        [[ ! -z $L ]] && echo $L >> $outfile
+        [[ ! -z $O ]] && echo $O >> $outfile
+        [[ ! -z $OU ]] && echo $OU >> $outfile
+        [[ ! -z $CN ]] && echo $CN >> $outfile
+        echo " " >> $outfile
+        echo "[v3_req]" >> $outfile
+        echo "keyUsage = keyEncipherment, dataEncipherment" >> $outfile
+        echo "extendedKeyUsage = serverAuth" >> $outfile
+        echo "subjectAltName = @alt_names" >> $outfile
+        echo " " >> $outfile
+        echo "[alt_names]" >>$outfile
+        count=1
+        for name in $(cert $1 names)
+        do
+                echo "DNS.${count}=$name" >> $outfile
+                ((count++))
+        done
+        echo " "
+        echo " "
+
+        echo "$outfile created"
+        echo " "
+        cat $outfile
+
+        read -p "Create CSR? (y/n) " create
+        [[ $create == "y" ]] && createcsr $outfile
+}
+alias gencsr-conf=createconf
+
+function createcsr() {
+        [[ -z $1 ]] && echo 'missing config file name' && return
+        name=$(echo $1 | awk -F'.' '{OFS='FS'} {$NF=""; print $0}')
+        openssl req -new -newkey rsa:2048 -sha256 -nodes -keyout ${name}key -out ${name}csr -config ${1} && echo "${name}key and ${name}csr created"
+}
+alias gencsr=createcsr
+
 function tunnel-port() {
     local FUNCDESC="Tunnel a port locally via a jump box."
     if [[ ${#} -lt 3 ]]; then
