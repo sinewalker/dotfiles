@@ -79,7 +79,8 @@ function check-tls() {
     [[ -z ${2} ]] && server=${1}
 
     echo | openssl s_client -connect ${server}:443 -servername ${domain} \
-        | openssl x509 -noout -text |egrep 'Subject:|subject=|Before|After|DNS'
+        | openssl x509 -noout -text | tr -s " " | tr ',' '\n'| \
+        egrep --color=auto 'O=|C=|L=|OU=|ST=|CN=|Before|After|DNS:'
 }
 
 function tunnel-port() {
