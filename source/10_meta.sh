@@ -122,6 +122,31 @@ The specified function is described and then listed.'
 }
 complete -F _fns list
 
+function defined() {
+    local FUNCDESC="Show environment variable dotfile definition.
+
+This shows where in DOTFILES the variable was declared, and how. This could be
+different to the variable's current definition. If the variable was not
+declared in DOTFILES then there will be no output."
+
+    if [[ -z "${1}" ]]; then
+        usage "${FUNCNAME} <variable>" ${FUNCDESC}
+        error "Must supply a variable to look up."
+        return 1
+    fi
+
+    \grep -Rn "${1}=" $DOTFILES/init/ $DOTFILES/source |\
+      awk -F: '{print "var: " $3 "\tin " $1 "\tline " $2}'
+}
+_vars() {
+    COMPREPLY=()
+    local cur words
+    cur="${COMP_WORDS[COMP_CWORD]}"
+    words="$(env|awk -F= '/\=/{print $1}')"
+    COMPREPLY=($(compgen -W "${words}" -- ${cur}))
+    return 0
+}
+complete -F _vars defined
 
 ## MJL20180314 PATH manipulation
 
