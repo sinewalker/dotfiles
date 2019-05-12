@@ -1,6 +1,6 @@
 # My awesome bash prompt
 #
-# Copyright (c) 2012,2017,2018 "Cowboy" Ben Alman, Michael Lockhart [MJL]
+# Copyright (c) 2012,2017,2018,2019 "Cowboy" Ben Alman, Michael Lockhart [MJL]
 #
 # Licensed under the MIT license.
 # http://benalman.com/about/license/
@@ -25,6 +25,8 @@
 # 31  41  red       35  45  magenta
 # 32  42  green     36  46  cyan
 # 33  43  yellow    37  47  white
+
+# TODO - rename this file to 98_prompt.sh (or somewhere high) - because it needs to be sourced late to work
 
 if [[ ! "${PROMPT_COLORS[@]}" ]]; then
     PROMPT_COLORS=(
@@ -153,9 +155,12 @@ function __prompt_sizes() {
 }
 
 #MJL20170218 CPU load and uptime (from monster prompt)
+# TODO This doesn't handle multiple-day uptimes right
 function __prompt_cpu() {
-    local upt=$(uptime|awk '{gsub(",",""); printf "%d ",$3/NR}; /day/ {print $4",", $5}; /min/ {print $6}')
-    local lda=$(uptime|awk --field-separator 'load' '{split($2, lds, " "); print lds[2]}')
+    local upt=$(uptime|awk '{gsub(",",""); print $3 }')
+    local lda=$(uptime|awk '{gsub(",",""); print $8}')
+    #local upt=$(uptime|awk '{gsub(",",""); printf "%d ",$3/NR}; /day/ {print $4",", $5}; /min/ {print $6}')
+    #local lda=$(uptime|awk --field-separator 'load' '{split($2, lds, " "); print lds[2]}')
     echo "${C1}[${C0}Up ${C4}${upt}${C0} Load ${C5}${lda}${C1}]${C9}"
 }
 
@@ -243,7 +248,7 @@ function __prompt_command() {
 
   # Setup local $c0-$c9 color vars.
    PROMPT_COLORS[9]=;
-   local i; for i in ${!PROMPT_COLORS[@]}; do
+   local i; for i in ${!PROMPT_COLORS[@]}; do 
      local C${i}="\[\e[0;${PROMPT_COLORS[${i}]}m\]"
    done
 
