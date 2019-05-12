@@ -106,8 +106,19 @@ The specified function is described and then listed.'
       error "Must supply a function to list."
       return 1
   fi
+
   describe ${1}
-  type -a ${1}|tail -n +2
+
+  if [[ $(type ${1}) =~ function ]]; then
+        if is_exe pygmentize ; then
+            type -a ${1}|tail -n +2|pygmentize|less -R
+        else
+            type -a ${1}|tail -n +2|less -R
+        fi
+  elif  [[ -f $(which ${1}) ]]; then
+      less -R $(which ${1})
+  fi
+
 }
 complete -F _fns list
 
