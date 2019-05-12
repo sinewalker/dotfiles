@@ -230,6 +230,7 @@ trap '__PROMPT_STACK=("${__PROMPT_STACK[@]}" "${BASH_COMMAND}")' DEBUG
 
 function __prompt_command() {
   local EXIT_CODE=${?}
+  PS1=""
   # If the first command in the stack is prompt_command, no command was run.
   # Set exit_code to 0 and reset the stack.
   [[ "${__PROMPT_STACK[0]}" == "__PROMPT_COMMAND" ]] && EXIT_CODE=0
@@ -244,7 +245,12 @@ function __prompt_command() {
   # While the simple_prompt environment var is set, disable the awesome prompt.
   [[ "$__USE_SIMPLE_PROMPT" ]] && PS1='[\u@\h:\w]\$ ' && return
 
-  __prompt_getcolors
+  # Setup local $c0-$c9 color vars.
+   PROMPT_COLORS[9]=;
+   local i; for i in ${!PROMPT_COLORS[@]}; do
+     local C${i}="\[\e[0;${PROMPT_COLORS[${i}]}m\]"
+   done
+
    if [[ -n ${MC_SID} ]]; then
       #MJL20170205 single-line prompt for Midnight Commander
       PS1="$(__prompt_titlebar "MC - ${USER}@${HOSTNAME%%.*}")"
