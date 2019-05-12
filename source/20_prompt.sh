@@ -48,12 +48,8 @@ if [[ ! "${PROMPT_COLORS[@]}" ]]; then
   fi
 fi
 
-# Inside a prompt function, run this alias to setup local $c0-$c9 color vars.
-alias __prompt_getcolors='PROMPT_COLORS[9]=; local I; for I in ${!PROMPT_COLORS[@]}; do local C${I}="\[\e[0;${PROMPT_COLORS[${I}]}m\]"; done'
-
 # Exit code of previous command.
 function __prompt_exitcode() {
-  __prompt_getcolors
   [[ ${1} != 0 ]] && echo "${C2} ${1} ${C9}"
 }
 
