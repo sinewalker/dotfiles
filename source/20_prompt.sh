@@ -260,15 +260,16 @@ function __prompt_command() {
   else
       #MJL20170207 Cowboy's Awesome prompt is the fall-through case
       # http://twitter.com/cowboy/status/150254030654939137
-      PS1=""
       #MJL20170204 titlebar: [dir] - user@host:/full/working/dir
       PS1="${PS1}$(__prompt_titlebar "[${HOSTNAME%%.*}:$(basename ${PWD})] - ${USER}@${HOSTNAME%%.*}:${PWD}")"
-      # svn: [repo:lastchanged]
-      PS1="${PS1}$(__prompt_svn)"
-      # git: [branch:flags]
-      PS1="${PS1}$(__prompt_git)"
-      # hg:  [branch:flags]
-      PS1="${PS1}$(__prompt_hg)"
+      if [[ ! ${PWD} =~ ${SSHFS_MOUNT_POINT} ]]; then
+        # svn: [repo:lastchanged]
+        PS1="${PS1}$(__prompt_svn)"
+        # git: [branch:flags]
+        PS1="${PS1}$(__prompt_git)"
+        # hg:  [branch:flags]
+        PS1="${PS1}$(__prompt_hg)"
+      fi
       # path: [user@host:path]
       PS1="${PS1}${C1}[${C0}\u${C1}@${C0}\h${C1}:${C0}\w${C1}]${C9}"
       if [[ -n ${__USE_MONSTER_PROMPT} ]]; then
