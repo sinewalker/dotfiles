@@ -166,6 +166,23 @@ export PATH=${SQUIZAU_SVN}/ovirt/scripts:${PATH}
 #MJL20180618 squiz secrets
 
 export SQUIZ_KEYS=~/key/squiz
-export SQUIZ_SSH=${SQUIZ_KEYS}/mlockhart-hobart.pub
-export SQUIZ_SSH_PRIVATE=${SQUIZ_KEYS}/mlockhart-hobart
+export SQUIZ_SSH=${SQUIZ_KEYS}/ssh-mlockhart-hobart.pub
+export SQUIZ_SSH_PRIVATE=${SQUIZ_KEYS}/ssh-mlockhart-hobart
 export SQUIZ_NETBOX=${SQUIZ_KEYS}/netbox.token
+export SQUIZ_GITLAB=~/Work/lab
+export SQUIZ_PUPPET=${SQUIZ_GITLAB}/ops/puppet4
+
+#MJL20190210 squiz hosting API
+
+export SQUIZ_API_AU=https://hosting-api.squiz.net/api/v1/
+export SQUIZ_API_UK=https://hosting-api.squiz.co.uk/api/v1/
+export SQUIZ_API_US=https://hosting-api01.sac1.squiz.systems/api/v1
+
+#MJL20180828 Squiz variables
+# Some infra/hosting scripts use globals with different names to mine.
+# I /could/ rename mine, or just have two names...
+
+export SQUIZAUSVNDIR=${SQUIZAU_SVN}
+export SQUIZUKSVNDIR=${SQUIZUK_SVN}
+export SQUIZNETBOXTOKENFILE=${SQUIZ_NETBOX}
+export SQUIZP4GITDIR=${SQUIZ_PUPPET}
