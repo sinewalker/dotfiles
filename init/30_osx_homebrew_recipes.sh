@@ -37,6 +37,7 @@ RECIPES=(
   clojure
   colordiff
   coreutils
+  cpulimit
   exiftool
   flac
   fortune
@@ -68,6 +69,7 @@ RECIPES=(
   proctools
   pwgen
   python
+  python3
   qcachegrind
   rdesktop
   screenfetch
