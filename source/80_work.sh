@@ -141,6 +141,22 @@ function wiid() {
 }
 export -f wiid
 
+function testmx() {
+          if test -z ${1}; then
+                    error "${FUNCNAME}: must supply the domain of a Matrix to test"
+                    local FUNCDESC="Test a Squiz Matrix with specified test level, defaults to 1"
+                    FUNCDESC=${FUNCDESC}+" With optional 3rd param 's' will use HTTPS."
+                    usage "${FUNCNAME} <matrix.fqdn> [test-level] [s]" ${FUNCDESC}
+                    return 1
+          fi
+          local level=1
+          [[ -z ${2} ]] || level=${2}
+          local scheme="http"
+          [[ -z ${3} ]] || scheme="https"
+          local test_url="${scheme}://${1}/__lib/web/test_message.php?interrogate=${level}"
+          echo Testing ${test_url}
+          time http ${test_url}
+}
 
 #MJL20170216 squizisms from 2014
 
