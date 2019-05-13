@@ -23,6 +23,10 @@ alias c="tr -d '\n' | pbcopy"
 # Start ScreenSaver. This will lock the screen if locking is enabled.
 alias ss="open /System/Library/Frameworks/ScreenSaver.framework/Versions/A/Resources/ScreenSaverEngine.app"
 
+
+#MJL20190210 - squash the CPU-hungry Google Drive File System
+alias gdfs='cpulimit -l 3 -p $(pgrep -f "crash_handler_token=")&'
+
 # Create a new Parallels VM from template, replacing the existing one.
 #function vm_template() {
 #  local name="$@"
