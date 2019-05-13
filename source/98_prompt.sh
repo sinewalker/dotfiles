@@ -26,8 +26,6 @@
 # 32  42  green     36  46  cyan
 # 33  43  yellow    37  47  white
 
-# TODO - rename this file to 98_prompt.sh (or somewhere high) - because it needs to be sourced late to work
-
 if [[ ! "${PROMPT_COLORS[@]}" ]]; then
     PROMPT_COLORS=(
         "36;1" # information color
