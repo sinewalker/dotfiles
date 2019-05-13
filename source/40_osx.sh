@@ -10,6 +10,10 @@ PATH="/usr/local/opt/openssl/bin:${PATH}"
 PATH="/usr/local/opt/grep/libexec/gnubin:${PATH}"
 export PATH
 
+#MJL20190226 Fix osX fork() behaviour to work with Python again
+# see https://github.com/ansible/ansible/issues/31869#issuecomment-337769174
+export OBJC_DISABLE_INITIALIZE_FORK_SAFETY=YES
+
 # Trim new lines and copy to clipboard
 alias c="tr -d '\n' | pbcopy"
 
