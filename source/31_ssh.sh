@@ -20,20 +20,51 @@ function install_ssh_keys() {
 }
 export -f install_ssh_keys
 
-export KEYDIR=${HOME}/key
-alias keys='ls ${KEYDIR}'
+export SSH_KEYDIR=${HOME}/key/ssh
+alias ssh-keys='find -L ${SSH_KEYDIR} -type f'
 
-#TODO this doesn't quite work and causes more trouble than it saves if enabled
-_ssh-add () {
+function ssh-pass() {
+    local FUNCDESC="Add specified SSH keys to the SSH Agent, using the matching passphrase from pass(1).
+
+Each key's passphrase is retrieved from the Unix password store (pass), and
+given to ssh-add(1) via the SSH_ASKPASS mechanism. This relies upon the keys
+having the same path names in both your key directory (${KEY_DIR}), and your
+password store."
+
+    if test -z ${1}; then
+        error "${FUNCNAME}: no SSH key specified."
+        usage "${FUNCNAME} <key> [...]" ${FUNCDESC}
+    return 1;
+    fi
+
+    test -z ${DISPLAY} && export DISPLAY=dummy
+
+    pushd ${SSH_KEYDIR} > /dev/null
+
+    local KEY
+    for KEY in ${@}; do
+        export SSH_ASKPASS=$(mktemp -t ssh-askpass)
+        cat > ${SSH_ASKPASS} << EOF
+#!/bin/sh
+pass ${KEY}|head -1
+EOF
+        chmod +x ${SSH_ASKPASS}
+        ssh-add ${SSH_KEYDIR}/${KEY} < /dev/null
+        rm ${SSH_ASKPASS}
+    done
+    unset SSH_ASKPASS
+
+    popd > /dev/null
+}
+function _ssh-pass() {
     COMPREPLY=()
     local CUR KEYS
     CUR="${COMP_WORDS[COMP_CWORD]}"
-    KEYS="$(keys|egrep -v '\.pub$')"
-
-    COMPREPLY=( ${KEYDIR}/$(compgen -W "${KEYS}" -- ${CUR}) )
+    KEYS="$(find -L ${SSH_KEYDIR} -type f|awk -F ${SSH_KEYDIR}/ '{print $2}')"
+    COMPREPLY=( $(compgen -W "${KEYS}" -- ${CUR}) )
     return 0
 }
-#complete -F _ssh-add ssh-add
+complete -F _ssh-pass ssh-pass
 
 function ssh() {
     local FUNCDESC="Connect to a Secure SHell, disabling any Control Master if needed by 'Dynamic', 'Local', or 'Remote' options."
