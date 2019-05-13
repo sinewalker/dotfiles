@@ -149,28 +149,92 @@ function ssh-proxy() {
     ssh -S none -o 'ProxyCommand ssh ${proxy} nc %h %p' ${target}
 }
 
-export SSHFS_MOUNT_POINT=~/mnt
+# SSHFS
+
+export SSHFS_MOUNT_POINT=~/mnt/sshfs
+if [ ! -d ${SSHFS_MOUNT_POINT} ] ; then
+    mkdir -p ${SSHFS_MOUNT_POINT}
+fi
+CDPATH=${SSHFS_MOUNT_POINT}:${CDPATH}
+
+#TODO This relies on Host User mapping in your SSH config. There SHOULD be a way
+#     to specify the connecting user
 
 function ssh-mount() {
-    local FUNCDESC="Mount a server with SSHFS"
-    local server mntdir
+    local FUNCDESC="Mount a remote server directory with SSHFS.
+
+The files within the <directory> on the <server> will be accessible locally at
+${SSHFS_MOUNT_POINT}/<server>, via SSHFS.  If no <directory> is specified, the
+root directory is assumed. If <sudo user> is specified, then files will be
+accessed using that user's credentials (provided your user is on the sudoers
+list)."
+
+    if test -z ${1}; then
+        error "${FUNCNAME}: Must specify a server to mount."
+        usage "${FUNCNAME} <server> [<directory>] [<sudo user>]" ${FUNCDESC}
+        return 1
+    fi
+    local server mntdir sudoer
     server="${1}"
     mntdir="${2}"
-    [[ -d ${SSHFS_MOUNT_POINT}/${server} ]] || \
+    test -z $mntdir && mntdir=/
+    sudoer="${3}"
+
+    if [ ! -d ${SSHFS_MOUNT_POINT}/${server} ]; then
       mkdir -p ${SSHFS_MOUNT_POINT}/${server}
-    [[ -z $mntdir ]] && mntdir=/
-    mount|grep ${server} || \
-      sshfs ${server}:${mntdir} ${SSHFS_MOUNT_POINT}/${server}
+    fi
+
+    if mount|grep ${SSHFS_MOUNT_POINT}/${server} > /dev/null; then
+        error ${FUNCNAME}: ${server}: already mounted on ${SSHFS_MOUNT_POINT}/${server}
+        return 1
+    fi
+
+    if test -z ${sudoer}; then
+        sshfs ${server}:${mntdir} ${SSHFS_MOUNT_POINT}/${server}
+    else
+        sshfs -o sftp_server="sudo -u ${sudoer} /usr/libexec/openssh/sftp-server" \
+            ${server}:${mntdir} ${SSHFS_MOUNT_POINT}/${server}
+    fi
 }
 
-function ssh-umount(){
-    FUNCDESC="Unmount an SSHFS server mount, clean up the mount point"
-    local server="${1}"
-    ls ${SSHFS_MOUNT_POINT}|grep ${server} || \
-      echo "$FUNCNAME: ${server}: not mounted" && return 1
-    mount|grep ${server} && \
-      umount ${SSHFS_MOUNT_POINT}/${server}/ && \
-      rmdir ${SSHFS_MOUNT_POINT}/${server}
+_sshmnts() {
+    COMPREPLY=()
+    local CUR SSHMNTS
+    CUR="${COMP_WORDS[COMP_CWORD]}"
+    SSHMNTS="$(ls ${SSHFS_MOUNT_POINT})"
+    COMPREPLY=( $(compgen -W "${SSHMNTS}" -- ${CUR}) )
+    return 0
 }
+function ssh-umount(){
+    FUNCDESC="Unmount an SSHFS server, clean up the mount point.
+
+Specify the server to unmount, this function will determine the mount point
+and release the SSH mount if possible.  If umount fails, it will search for
+open files to help you close them."
+
+    if test -z ${1}; then
+        error "${FUNCNAME}: no server specified."
+        usage "${FUNCNAME} <server> [...]" ${FUNCDESC}
+        return 1
+    fi
+
+    local server
+    for server in ${@}; do
+        if ! mount|grep ${SSHFS_MOUNT_POINT}/${server} > /dev/null; then
+            error ${FUNCNAME}: ${server}: not mounted
+        return 1
+        fi
+
+        if umount ${SSHFS_MOUNT_POINT}/${server}; then
+            rmdir ${SSHFS_MOUNT_POINT}/${server}
+        else
+            error "${FUNCNAME}: Could not unmount ${server}.  Searching for open files..."
+            lsof | grep ${SSHFS_MOUNT_POINT} >&2
+        return 2
+        fi
+    done
+}
+complete -F _sshmnts ssh-umount
 
 alias lsmnt='ls ${SSHFS_MOUNT_POINT}'
+alias lsofmnt='lsof |grep ${SSHFS_MOUNT_POINT}'
