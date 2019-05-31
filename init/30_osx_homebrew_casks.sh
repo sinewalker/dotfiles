@@ -21,6 +21,7 @@ CASKS=(
     aerial
     anaconda
     android-file-transfer
+    puppetlabs/puppet/pdk
     clementine
     etcher
     flux
