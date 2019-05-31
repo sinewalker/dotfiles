@@ -14,4 +14,4 @@ hs.hotkey.bind(hyper, "f9", function() hs.application.launchOrFocus("KeePassX") 
 hs.hotkey.bind(hyper, "f9", function() hs.application.launchOrFocus("Linphone") end)
 
 hs.hotkey.bind(hyper, "f6", function() hs.application.launchOrFocus("Clementine") end) -- or "Spotify"
-hs.hotkey.bind(hyper, "f5", function() hs.application.launchOrFocus("Google Chrome") end)
+hs.hotkey.bind(hyper, "f5", function() hs.application.launchOrFocus("Firefox") end)
