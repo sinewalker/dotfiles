@@ -9,8 +9,9 @@ hs.hotkey.bind(hyper, "f12", function() hs.application.launchOrFocus("iTerm") en
 hs.hotkey.bind(hyper, "f11", function() hs.application.launchOrFocus("Emacs") end)
 hs.hotkey.bind(hyper, "f10", function() hs.application.launchOrFocus("HipChat 2") end)
 hs.hotkey.bind(hyper, "f9", function() hs.application.launchOrFocus("KeePassX") end)  -- or "Enpass"
+--hs.hotkey.bind(hyper, "f9", function() hs.application.launchOrFocus("KeePassX") end)  -- or "Enpass"
 
-hs.hotkey.bind(hyper, "f8", function() hs.application.launchOrFocus("Linphone") end)
+hs.hotkey.bind(hyper, "f9", function() hs.application.launchOrFocus("Linphone") end)
 
 hs.hotkey.bind(hyper, "f6", function() hs.application.launchOrFocus("Clementine") end) -- or "Spotify"
 hs.hotkey.bind(hyper, "f5", function() hs.application.launchOrFocus("Google Chrome") end)
