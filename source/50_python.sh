@@ -3,7 +3,7 @@
 ## This Python tool-chain is designed to be sourced by bash when it starts. It
 ## relies on the following being available:
 ##
-## * virtualenv and pip installed globally
+## * virtualenv and pip installed globally, or with pipsi
 ## * (optional) anaconda installed normally
 ##
 ## These functions also use my bash shell meta-functions, which are in
@@ -25,7 +25,7 @@
 # sibling files reliably. See http://mywiki.wooledge.org/BashFAQ/028
 #
 # The best approach to loading all files successfully is:
-# for X in path/to/bash_source_files; do source $X; done
+# for X in path/to/bash_source_files; do source ${X}; done
 
 if ! type -p usage; then
     echo "ERROR: Missing meta-functions. Aborting." >&2
@@ -53,9 +53,9 @@ alias hax='activate hax; cd ~/hax; ipython'
 export VIRTUALENV_BASE=${LIBRARY-$HOME/lib}/python
 [[ -d ${VIRTUALENV_BASE} ]] || mkdir -p ${VIRTUALENV_BASE}
 
-# pipsi - install script venvs in ~/bin and venvs into $VIRTUALENV_BASE
-export PIPSI_HOME=${VIRTUALENV_BASE}
+# pipsi - install script venvs in ~/bin and venvs into a separate dir under lib
 export PIPSI_BIN_DIR=${HOME}/bin
+export PIPSI_HOME=${LIBRARY-$HOME/lib}/pipsi
 
 mkvenv() {
     local FUNCDESC="Makes a Python Virtual env in ${VIRTUALENV_BASE}."
