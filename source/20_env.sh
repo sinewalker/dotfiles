@@ -27,6 +27,11 @@ alias please=sudo
 is_osx || is_exe tracepath && alias traceroute=tracepath
 alias tracert=traceroute
 
+function wtfo(){
+        FUNCDESC="Look up an abbreviation, including obscene meanings"
+        wtf -o ${@}|sed 's/nothing appropriate/nothing inappropriate/'
+}
+
 #terminals
 alias kons="konsole --profile $1 2> /dev/null"
 alias kons-show="konsole --list-profiles"
