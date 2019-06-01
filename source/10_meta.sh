@@ -135,14 +135,14 @@ declared in DOTFILES then there will be no output."
         return 1
     fi
 
-    \grep -Rn "${1}=" $DOTFILES/init/ $DOTFILES/source |\
-      awk -F: '{print "var: " $3 "\tin " $1 "\tline " $2}'
+    \grep -Rn "${1}=" $DOTFILES/init/ $DOTFILES/source 2>/dev/null  |\
+      awk -F: '{print "∈ var: " $3 "\tin " $1 "\tline " $2}'
 }
 _vars() {
     COMPREPLY=()
     local cur words
     cur="${COMP_WORDS[COMP_CWORD]}"
-    words="$(env|awk -F= '/\=/{print $1}')"
+    words="$(env|awk -F= '/=/{print $1}')"
     COMPREPLY=($(compgen -W "${words}" -- ${cur}))
     return 0
 }
