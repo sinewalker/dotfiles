@@ -182,6 +182,20 @@ script instead, per conda practice. Bail after sourcing."
 complete -F _venvs activate
 alias workon=activate
 
+freezenv() {
+    FUNCDESC='Freeze the active Python Environment pip requirements.
+
+This stores the requirements.txt in the active $VIRTUAL_ENV or $CONDA_PREFIX
+directory, overwriting any existing requirements file.'
+
+    if [[ -z ${VIRTUAL_ENV-$CONDA_PREFIX} ]] ; then
+        error "$FUNCNAME: no active python or conda venv"
+        return 1
+    fi
+    local VENV_REQS=${VIRTUAL_ENV-$CONDA_PREFIX}/requirements.txt
+    echo "Storing PIP package list into ${VENV_REQS}"
+    pip freeze > ${VENV_REQS}
+}
 
 #### Anaconda
 
