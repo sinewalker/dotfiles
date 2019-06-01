@@ -191,6 +191,7 @@ sucuri() {
         [[ ${CONDA_DEFAULT_ENV} ]] && source deactivate
         path_remove ${LIB-$HOME/lib}/anaconda/bin
         is_exe deactivate && unalias deactivate
+        export PIP_REQUIRE_VIRTUALENV=true
         echo "Anaconda: deactivated"
     else
         local SNAKE WARN; SNAKE='(S)'; WARN='[!]'
@@ -198,6 +199,7 @@ sucuri() {
             SNAKE="🐍" && WARN="⚠"
         path_add ${LIB-$HOME/lib}/anaconda/bin PREPEND
         if [[ ${PATH} =~ anaconda ]]; then
+            export PIP_REQUIRE_VIRTUALENV=false
             echo "Anaconda: ACTIVATED ${SNAKE}"
         else
             echo "Anaconda: NOT FOUND ${WARN}"
