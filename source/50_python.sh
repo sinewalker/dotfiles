@@ -3,7 +3,7 @@
 ## This Python tool-chain is designed to be sourced by bash when it starts. It
 ## relies on the following being available:
 ##
-## * virtualenv and pip installed globally
+## * virtualenv and pip installed globally, or with pipsi
 ## * (optional) anaconda installed normally
 ##
 ## These functions also use my bash shell meta-functions, which are in
@@ -25,7 +25,7 @@
 # sibling files reliably. See http://mywiki.wooledge.org/BashFAQ/028
 #
 # The best approach to loading all files successfully is:
-# for X in path/to/bash_source_files; do source $X; done
+# for X in path/to/bash_source_files; do source ${X}; done
 
 if ! type -p usage; then
     echo "ERROR: Missing meta-functions. Aborting." >&2
@@ -53,9 +53,9 @@ alias hax='activate hax; cd ~/hax; ipython'
 export VIRTUALENV_BASE=${LIBRARY-$HOME/lib}/python
 [[ -d ${VIRTUALENV_BASE} ]] || mkdir -p ${VIRTUALENV_BASE}
 
-# pipsi - install script venvs in ~/bin and venvs into $VIRTUALENV_BASE
-export PIPSI_HOME=${VIRTUALENV_BASE}
+# pipsi - install script venvs in ~/bin and venvs into a separate dir under lib
 export PIPSI_BIN_DIR=${HOME}/bin
+export PIPSI_HOME=${LIBRARY-$HOME/lib}/pipsi
 
 mkvenv() {
     local FUNCDESC="Makes a Python Virtual env in ${VIRTUALENV_BASE}."
@@ -182,6 +182,20 @@ script instead, per conda practice. Bail after sourcing."
 complete -F _venvs activate
 alias workon=activate
 
+freezenv() {
+    FUNCDESC='Freeze the active Python Environment pip requirements.
+
+This stores the requirements.txt in the active $VIRTUAL_ENV or $CONDA_PREFIX
+directory, overwriting any existing requirements file.'
+
+    if [[ -z ${VIRTUAL_ENV-$CONDA_PREFIX} ]] ; then
+        error "$FUNCNAME: no active python or conda venv"
+        return 1
+    fi
+    local VENV_REQS=${VIRTUAL_ENV-$CONDA_PREFIX}/requirements.txt
+    echo "Storing PIP package list into ${VENV_REQS}"
+    pip freeze > ${VENV_REQS}
+}
 
 #### Anaconda
 
@@ -191,6 +205,7 @@ sucuri() {
         [[ ${CONDA_DEFAULT_ENV} ]] && source deactivate
         path_remove ${LIB-$HOME/lib}/anaconda/bin
         is_exe deactivate && unalias deactivate
+        export PIP_REQUIRE_VIRTUALENV=true
         echo "Anaconda: deactivated"
     else
         local SNAKE WARN; SNAKE='(S)'; WARN='[!]'
@@ -198,6 +213,7 @@ sucuri() {
             SNAKE="🐍" && WARN="⚠"
         path_add ${LIB-$HOME/lib}/anaconda/bin PREPEND
         if [[ ${PATH} =~ anaconda ]]; then
+            export PIP_REQUIRE_VIRTUALENV=false
             echo "Anaconda: ACTIVATED ${SNAKE}"
         else
             echo "Anaconda: NOT FOUND ${WARN}"

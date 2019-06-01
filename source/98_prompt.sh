@@ -1,6 +1,6 @@
 # My awesome bash prompt
 #
-# Copyright (c) 2012,2017,2018 "Cowboy" Ben Alman, Michael Lockhart [MJL]
+# Copyright (c) 2012,2017,2018,2019 "Cowboy" Ben Alman, Michael Lockhart [MJL]
 #
 # Licensed under the MIT license.
 # http://benalman.com/about/license/
@@ -48,12 +48,8 @@ if [[ ! "${PROMPT_COLORS[@]}" ]]; then
   fi
 fi
 
-# Inside a prompt function, run this alias to setup local $c0-$c9 color vars.
-alias __prompt_getcolors='PROMPT_COLORS[9]=; local I; for I in ${!PROMPT_COLORS[@]}; do local C${I}="\[\e[0;${PROMPT_COLORS[${I}]}m\]"; done'
-
 # Exit code of previous command.
 function __prompt_exitcode() {
-  __prompt_getcolors
   [[ ${1} != 0 ]] && echo "${C2} ${1} ${C9}"
 }
 
@@ -87,6 +83,29 @@ function __prompt_venv() {
 function __prompt_screen() {
     [[ -z ${WINDOW} ]] && return
     echo "${C6} ${WINDOW} ${C9}"
+}
+
+#MJL20190520 emoji
+function __prompt_emoji() {
+    if [[ ${TERM} =~ linux ]] || \
+       [[ ${TERM} =~ eterm ]] || \
+       [[ ${TERM_PROGRAM} =~ code ]] || \
+       [[ ! -z ${SSH_TTY} ]] || \
+       [[ ! -z ${WINDOW} ]]; then
+       return
+    fi
+    case $(echo ${HOSTNAME}|sed 's/\..*$//') in
+        milo)
+            echo -n "💻 "
+            ;;
+        tesla)
+            echo -n "👾 "
+            ;;
+        hoppy)
+            echo -n "🌿 "
+            ;;
+    esac
+    [[ ${PWD} =~ ${SSHFS_MOUNT_POINT} ]] && echo "⚠️ "
 }
 
 # Git status.
@@ -157,9 +176,12 @@ function __prompt_sizes() {
 }
 
 #MJL20170218 CPU load and uptime (from monster prompt)
+# TODO This doesn't handle multiple-day uptimes right
 function __prompt_cpu() {
-    local upt=$(uptime|awk '{gsub(",",""); printf "%d ",$3/NR}; /day/ {print $4",", $5}; /min/ {print $6}')
-    local lda=$(uptime|awk --field-separator 'load' '{split($2, lds, " "); print lds[2]}')
+    local upt=$(uptime|awk '{gsub(",",""); print $3 }')
+    local lda=$(uptime|awk '{gsub(",",""); print $8}')
+    #local upt=$(uptime|awk '{gsub(",",""); printf "%d ",$3/NR}; /day/ {print $4",", $5}; /min/ {print $6}')
+    #local lda=$(uptime|awk --field-separator 'load' '{split($2, lds, " "); print lds[2]}')
     echo "${C1}[${C0}Up ${C4}${upt}${C0} Load ${C5}${lda}${C1}]${C9}"
 }
 
@@ -230,6 +252,7 @@ trap '__PROMPT_STACK=("${__PROMPT_STACK[@]}" "${BASH_COMMAND}")' DEBUG
 
 function __prompt_command() {
   local EXIT_CODE=${?}
+  PS1=""
   # If the first command in the stack is prompt_command, no command was run.
   # Set exit_code to 0 and reset the stack.
   [[ "${__PROMPT_STACK[0]}" == "__PROMPT_COMMAND" ]] && EXIT_CODE=0
@@ -244,7 +267,12 @@ function __prompt_command() {
   # While the simple_prompt environment var is set, disable the awesome prompt.
   [[ "$__USE_SIMPLE_PROMPT" ]] && PS1='[\u@\h:\w]\$ ' && return
 
-  __prompt_getcolors
+  # Setup local $c0-$c9 color vars.
+   PROMPT_COLORS[9]=;
+   local i; for i in ${!PROMPT_COLORS[@]}; do
+     local C${i}="\[\e[0;${PROMPT_COLORS[${i}]}m\]"
+   done
+
    if [[ -n ${MC_SID} ]]; then
       #MJL20170205 single-line prompt for Midnight Commander
       PS1="$(__prompt_titlebar "MC - ${USER}@${HOSTNAME%%.*}")"
@@ -258,15 +286,16 @@ function __prompt_command() {
   else
       #MJL20170207 Cowboy's Awesome prompt is the fall-through case
       # http://twitter.com/cowboy/status/150254030654939137
-      PS1=""
       #MJL20170204 titlebar: [dir] - user@host:/full/working/dir
       PS1="${PS1}$(__prompt_titlebar "[${HOSTNAME%%.*}:$(basename ${PWD})] - ${USER}@${HOSTNAME%%.*}:${PWD}")"
-      # svn: [repo:lastchanged]
-      PS1="${PS1}$(__prompt_svn)"
-      # git: [branch:flags]
-      PS1="${PS1}$(__prompt_git)"
-      # hg:  [branch:flags]
-      PS1="${PS1}$(__prompt_hg)"
+      if [[ ! ${PWD} =~ ${SSHFS_MOUNT_POINT} ]]; then
+        # svn: [repo:lastchanged]
+        PS1="${PS1}$(__prompt_svn)"
+        # git: [branch:flags]
+        PS1="${PS1}$(__prompt_git)"
+        # hg:  [branch:flags]
+        PS1="${PS1}$(__prompt_hg)"
+      fi
       # path: [user@host:path]
       PS1="${PS1}${C1}[${C0}\u${C1}@${C0}\h${C1}:${C0}\w${C1}]${C9}"
       if [[ -n ${__USE_MONSTER_PROMPT} ]]; then
@@ -294,6 +323,8 @@ function __prompt_command() {
       PS1="${PS1}$(__prompt_conda)"
       # exit code: 127
       PS1="${PS1}$(__prompt_exitcode "${EXIT_CODE}")"
+      # emoji
+      PS1="${PS1}$(__prompt_emoji)"
       PS1="${PS1}$(__prompt_ending)"
   fi
 }

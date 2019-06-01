@@ -20,20 +20,51 @@ function install_ssh_keys() {
 }
 export -f install_ssh_keys
 
-export KEYDIR=${HOME}/key
-alias keys='ls ${KEYDIR}'
+export SSH_KEYDIR=${HOME}/key/ssh
+alias ssh-keys='find -L ${SSH_KEYDIR} -type f'
 
-#TODO this doesn't quite work and causes more trouble than it saves if enabled
-_ssh-add () {
+function ssh-pass() {
+    local FUNCDESC="Add specified SSH keys to the SSH Agent, using the matching passphrase from pass(1).
+
+Each key's passphrase is retrieved from the Unix password store (pass), and
+given to ssh-add(1) via the SSH_ASKPASS mechanism. This relies upon the keys
+having the same path names in both your key directory (${KEY_DIR}), and your
+password store."
+
+    if test -z ${1}; then
+        error "${FUNCNAME}: no SSH key specified."
+        usage "${FUNCNAME} <key> [...]" ${FUNCDESC}
+    return 1;
+    fi
+
+    test -z ${DISPLAY} && export DISPLAY=dummy
+
+    pushd ${SSH_KEYDIR} > /dev/null
+
+    local KEY
+    for KEY in ${@}; do
+        export SSH_ASKPASS=$(mktemp -t ssh-askpass)
+        cat > ${SSH_ASKPASS} << EOF
+#!/bin/sh
+pass ${KEY}|head -1
+EOF
+        chmod +x ${SSH_ASKPASS}
+        ssh-add ${SSH_KEYDIR}/${KEY} < /dev/null
+        rm ${SSH_ASKPASS}
+    done
+    unset SSH_ASKPASS
+
+    popd > /dev/null
+}
+function _ssh-pass() {
     COMPREPLY=()
     local CUR KEYS
     CUR="${COMP_WORDS[COMP_CWORD]}"
-    KEYS="$(keys|egrep -v '\.pub$')"
-
-    COMPREPLY=( ${KEYDIR}/$(compgen -W "${KEYS}" -- ${CUR}) )
+    KEYS="$(find -L ${SSH_KEYDIR} -type f|awk -F ${SSH_KEYDIR}/ '{print $2}')"
+    COMPREPLY=( $(compgen -W "${KEYS}" -- ${CUR}) )
     return 0
 }
-#complete -F _ssh-add ssh-add
+complete -F _ssh-pass ssh-pass
 
 function ssh() {
     local FUNCDESC="Connect to a Secure SHell, disabling any Control Master if needed by 'Dynamic', 'Local', or 'Remote' options."
@@ -118,28 +149,97 @@ function ssh-proxy() {
     ssh -S none -o 'ProxyCommand ssh ${proxy} nc %h %p' ${target}
 }
 
-export SSHFS_MOUNT_POINT=~/mnt
+# SSHFS
+
+export SSHFS_MOUNT_POINT=~/mnt/sshfs
+if [ ! -d ${SSHFS_MOUNT_POINT} ] ; then
+    mkdir -p ${SSHFS_MOUNT_POINT}
+fi
+CDPATH=${SSHFS_MOUNT_POINT}:${CDPATH}
+
+#TODO This relies on Host User mapping in your SSH config. There SHOULD be a way
+#     to specify the connecting user
 
 function ssh-mount() {
-    local FUNCDESC="Mount a server with SSHFS"
-    local server mntdir
+    local FUNCDESC="Mount a remote server directory with SSHFS.
+
+The files within the <directory> on the <server> will be accessible locally at
+${SSHFS_MOUNT_POINT}/<server>, via SSHFS.  If no <directory> is specified, the
+root directory is assumed. If <sudo user> is specified, then files will be
+accessed using that user's credentials (provided your user is on the sudoers
+list)."
+
+    if test -z ${1}; then
+        error "${FUNCNAME}: Must specify a server to mount."
+        usage "${FUNCNAME} <server> [<directory>] [<sudo user>]" ${FUNCDESC}
+        return 1
+    fi
+    local server mntdir sudoer
     server="${1}"
     mntdir="${2}"
-    [[ -d ${SSHFS_MOUNT_POINT}/${server} ]] || \
+    test -z $mntdir && mntdir=/
+    sudoer="${3}"
+
+    if [ ! -d ${SSHFS_MOUNT_POINT}/${server} ]; then
       mkdir -p ${SSHFS_MOUNT_POINT}/${server}
-    [[ -z $mntdir ]] && mntdir=/
-    mount|grep ${server} || \
-      sshfs ${server}:${mntdir} ${SSHFS_MOUNT_POINT}/${server}
+    fi
+
+    if mount|grep ${SSHFS_MOUNT_POINT}/${server} > /dev/null; then
+        error ${FUNCNAME}: ${server}: already mounted on ${SSHFS_MOUNT_POINT}/${server}
+        return 1
+    fi
+
+    if test -z ${sudoer}; then
+        sshfs ${server}:${mntdir} ${SSHFS_MOUNT_POINT}/${server}
+    else
+        sshfs -o sftp_server="sudo -u ${sudoer} /usr/libexec/openssh/sftp-server" \
+            ${server}:${mntdir} ${SSHFS_MOUNT_POINT}/${server}
+    fi
 }
 
+_sshmnts() {
+    COMPREPLY=()
+    local CUR SSHMNTS
+    CUR="${COMP_WORDS[COMP_CWORD]}"
+    SSHMNTS="$(ls ${SSHFS_MOUNT_POINT})"
+    COMPREPLY=( $(compgen -W "${SSHMNTS}" -- ${CUR}) )
+    return 0
+}
 function ssh-umount(){
-    FUNCDESC="Unmount an SSHFS server mount, clean up the mount point"
-    local server="${1}"
-    ls ${SSHFS_MOUNT_POINT}|grep ${server} || \
-      echo "$FUNCNAME: ${server}: not mounted" && return 1
-    mount|grep ${server} && \
-      umount ${SSHFS_MOUNT_POINT}/${server}/ && \
-      rmdir ${SSHFS_MOUNT_POINT}/${server}
-}
+    FUNCDESC="Unmount an SSHFS server, clean up the mount point.
 
-alias lsmnt='ls ${SSHFS_MOUNT_POINT}'
+Specify the server to unmount, this function will determine the mount point
+and release the SSH mount if possible.  If umount fails, it will search for
+open files to help you close them."
+
+    if test -z ${1}; then
+        error "${FUNCNAME}: no server specified."
+        usage "${FUNCNAME} <server> [...]" ${FUNCDESC}
+        return 1
+    fi
+
+    local ret=0
+    local server
+    for server in ${@}; do
+        local umntpoint=${SSHFS_MOUNT_POINT}/${server}
+        if ! mount | grep ${umntpoint} > /dev/null; then
+            error "${FUNCNAME}: ${server}: not mounted"
+            ret=$(( $ret + 1 ))
+            continue
+        fi
+
+        if umount ${umntpoint} 2> /dev/null; then
+            rmdir ${umntpoint}
+        else
+            error "${FUNCNAME}: ${server}: device busy.  Searching for open files..."
+            lsof | awk -v srvmnt=${umntpoint} 'NR==1{print $0}; $0 ~ srvmnt' >&2
+            ret=$(( $ret + 2 ))
+        fi
+    done
+    return $ret
+}
+complete -F _sshmnts ssh-umount
+
+alias lsssh='ls ${SSHFS_MOUNT_POINT}'
+alias lsshmnt='mount|grep ${SSHFS_MOUNT_POINT}'
+alias lsofmnt="lsof|awk -v srvmnt=\${SSHFS_MOUNT_POINT} 'NR==1{print \$0}; \$0 ~ srvmnt'"

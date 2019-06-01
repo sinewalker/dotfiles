@@ -4,13 +4,12 @@ is_osx || return 1
 # Exit if Homebrew is not installed.
 [[ ! "$(type -P brew)" ]] && e_error "Brew casks need Homebrew to install." && return 1
 
-# Ensure the cask keg and recipe are installed.
-KEGS=(caskroom/cask)
-brew_tap_kegs
+
 
 
 # Install Brew command for updating casks
 # https://github.com/buo/homebrew-cask-upgrade
+brew tap caskroom/cask
 brew tap buo/cask-upgrade
 
 # Exit if, for some reason, cask is not installed.
@@ -22,6 +21,7 @@ CASKS=(
     aerial
     anaconda
     android-file-transfer
+    puppetlabs/puppet/pdk
     clementine
     etcher
     flux
@@ -54,6 +54,4 @@ if (( ${#CASKS[@]} > 0 )); then
   for CASK in "${CASKS[@]}"; do
     brew cask install ${CASK}
   done
-  brew cask cleanup
 fi
-

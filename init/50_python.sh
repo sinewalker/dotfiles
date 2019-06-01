@@ -10,16 +10,25 @@ source ${DOTFILES}/source/50_python.sh
 # see http://hackercodex.com/guide/python-development-environment-on-mac-osx/
 # (which ideas are more widely applicable than just macOS)
 
-e_header "Installing system-wide Python tools"
-cat <<EOM
-You may need to enter a password for root access (either your own or
-the system root password) depending on the system's sudo configuration.
+e_header "Installing global Python tools"
 
-If you don't know the root password, just press Enter to skip these.
-
-EOM
-gpip install --upgrade pip setuptools wheel virtualenv pipsi
-gpip install --upgrade isort ipython
-if type -p hg > /dev/null; then
-    gpip install --upgrade hg-git
+if ! is_exe pipsi; then
+  curl https://raw.githubusercontent.com/mitsuhiko/pipsi/master/get-pipsi.py \
+  | python3
 fi
+
+local pipsi_pkgs=(\
+  pip \
+  virtualenv \
+  pipsi \
+  isort \
+  ipython \
+  pygments \
+)
+
+local pkg
+for pkg in ${pipsi_pkgs[*]}; do
+  pipsi install --python $(which python3) ${pkg}
+  pipsi upgrade ${pkg}
+done 
+

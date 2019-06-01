@@ -71,6 +71,15 @@ _fns() {
     return 0
 }
 
+function _executables {
+    local exclude=$(compgen -abkA function | sort)
+    local executables=$(
+        comm -23 <(compgen -c) <(echo $exclude)
+        type -tP $( comm -12 <(compgen -c) <(echo $exclude) )
+    )
+    COMPREPLY=( $(compgen -W "$executables" -- ${COMP_WORDS[COMP_CWORD]}) )
+}
+
 function describe() {
     local FUNCDESC='Describe a function and show where it is defined.
 
@@ -82,19 +91,32 @@ This function requires shopt -s extdebug to show file and line details.'
 
     if [[ -z "${1}" ]]; then
         usage "${FUNCNAME} <function>" ${FUNCDESC}
-        error "Must supply a function to describe."
+        error "Must supply a function or executable to describe."
         return 1
     fi
-    local toggled=0
-    shopt extdebug > /dev/null || shopt -s extdebug && toggled=1
+    if [[ $(type ${1} 2>/dev/null ) =~ alias ]]; then
+        #piping grep to awk is usually not great, but awk can't search for a bash variable?
+        \grep -Rn " ${1}=" ${DOTFILES}/source | awk -F: '{print "⍺: " $3 "\tin " $1 "\tline " $2}'
+        return $?
+    fi
+    if [[ $(type ${1} 2>/dev/null ) =~ function ]]; then
+        local toggled=0
+        shopt extdebug > /dev/null || shopt -s extdebug && toggled=1
 
-    declare -F "${1}" | awk '{print "Fn: " $1 " in " $3 " line " $2}'
-    type -a "${1}" | awk -F = '/FUNCDESC/{print "    "$2;exit}' \
-        | fold -s -w ${COLUMNS}
+        declare -F "${1}" | awk '{print "λ: function " $1 "\tin " $3 "\tline " $2}'
+        type -a "${1}" | awk -F = '/FUNCDESC/{print "    "$2;exit}' \
+            | fold -s -w ${COLUMNS}
 
-    [[ $toggled == 1 ]] && shopt -u extdebug
+        [[ $toggled == 1 ]] && shopt -u extdebug
+    elif [[ -f $(which ${1} 2>/dev/null ) ]]; then
+        echo -n "◆: "
+        file $(which ${1}) | fold -s -w ${COLUMNS}
+    else
+        echo -n "β: "
+        type ${1} 2>&1 |sed 's/bash://g; s/type://g;'
+    fi
 }
-complete -F _fns describe
+complete -F _executables describe
 
 function list() {
   local FUNDCESC='Print a listing of a function definition.
@@ -106,11 +128,47 @@ The specified function is described and then listed.'
       error "Must supply a function to list."
       return 1
   fi
+
   describe ${1}
-  type -a ${1}|tail -n +2
+
+  if [[ $(type ${1}) =~ function ]]; then
+        if is_exe pygmentize ; then
+            type -a ${1}|tail -n +2|pygmentize -l bash|less -R
+        else
+            type -a ${1}|tail -n +2|less -R
+        fi
+  elif  [[ -f $(which ${1}) ]]; then
+      less -R $(which ${1})|grep -v 'switch off syntax highlighting'
+  fi
+
 }
 complete -F _fns list
 
+function defined() {
+    local FUNCDESC="Show environment variable dotfile definition.
+
+This shows where in DOTFILES the variable was declared, and how. This could be
+different to the variable's current definition. If the variable was not
+declared in DOTFILES then there will be no output."
+
+    if [[ -z "${1}" ]]; then
+        usage "${FUNCNAME} <variable>" ${FUNCDESC}
+        error "Must supply a variable to look up."
+        return 1
+    fi
+
+    \grep -Rn "${1}=" $DOTFILES/init/ $DOTFILES/source 2>/dev/null  |\
+      awk -F: '{print "∈ var: " $3 "\tin " $1 "\tline " $2}'
+}
+_vars() {
+    COMPREPLY=()
+    local cur words
+    cur="${COMP_WORDS[COMP_CWORD]}"
+    words="$(env|awk -F= '/=/{print $1}')"
+    COMPREPLY=($(compgen -W "${words}" -- ${cur}))
+    return 0
+}
+complete -F _vars defined
 
 ## MJL20180314 PATH manipulation
 

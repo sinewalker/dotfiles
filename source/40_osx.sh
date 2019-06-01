@@ -10,6 +10,10 @@ PATH="/usr/local/opt/openssl/bin:${PATH}"
 PATH="/usr/local/opt/grep/libexec/gnubin:${PATH}"
 export PATH
 
+#MJL20190226 Fix osX fork() behaviour to work with Python again
+# see https://github.com/ansible/ansible/issues/31869#issuecomment-337769174
+export OBJC_DISABLE_INITIALIZE_FORK_SAFETY=YES
+
 # Trim new lines and copy to clipboard
 alias c="tr -d '\n' | pbcopy"
 
@@ -18,6 +22,10 @@ alias c="tr -d '\n' | pbcopy"
 
 # Start ScreenSaver. This will lock the screen if locking is enabled.
 alias ss="open /System/Library/Frameworks/ScreenSaver.framework/Versions/A/Resources/ScreenSaverEngine.app"
+
+
+#MJL20190210 - squash the CPU-hungry Google Drive File System
+alias gdfs='cpulimit -l 3 -p $(pgrep -f "crash_handler_token=")&'
 
 # Create a new Parallels VM from template, replacing the existing one.
 #function vm_template() {
