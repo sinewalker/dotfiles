@@ -218,23 +218,28 @@ open files to help you close them."
         return 1
     fi
 
+    local ret=0
     local server
     for server in ${@}; do
-        if ! mount|grep ${SSHFS_MOUNT_POINT}/${server} > /dev/null; then
-            error ${FUNCNAME}: ${server}: not mounted
-        return 1
+        local umntpoint=${SSHFS_MOUNT_POINT}/${server}
+        if ! mount | grep ${umntpoint} > /dev/null; then
+            error "${FUNCNAME}: ${server}: not mounted"
+            ret=$(( $ret + 1 ))
+            continue
         fi
 
-        if umount ${SSHFS_MOUNT_POINT}/${server}; then
-            rmdir ${SSHFS_MOUNT_POINT}/${server}
+        if umount ${umntpoint} 2> /dev/null; then
+            rmdir ${umntpoint}
         else
-            error "${FUNCNAME}: Could not unmount ${server}.  Searching for open files..."
-            lsof | grep ${SSHFS_MOUNT_POINT} >&2
-        return 2
+            error "${FUNCNAME}: ${server}: device busy.  Searching for open files..."
+            lsof | awk -v srvmnt=${umntpoint} 'NR==1{print $0}; $0 ~ srvmnt' >&2
+            ret=$(( $ret + 2 ))
         fi
     done
+    return $ret
 }
 complete -F _sshmnts ssh-umount
 
-alias lsmnt='ls ${SSHFS_MOUNT_POINT}'
-alias lsofmnt='lsof |grep ${SSHFS_MOUNT_POINT}'
+alias lsssh='ls ${SSHFS_MOUNT_POINT}'
+alias lsshmnt='mount|grep ${SSHFS_MOUNT_POINT}'
+alias lsofmnt="lsof|awk -v srvmnt=\${SSHFS_MOUNT_POINT} 'NR==1{print \$0}; \$0 ~ srvmnt'"
