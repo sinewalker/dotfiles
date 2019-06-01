@@ -85,6 +85,29 @@ function __prompt_screen() {
     echo "${C6} ${WINDOW} ${C9}"
 }
 
+#MJL20190520 emoji
+function __prompt_emoji() {
+    if [[ ${TERM} =~ linux ]] || \
+       [[ ${TERM} =~ eterm ]] || \
+       [[ ${TERM_PROGRAM} =~ code ]] || \
+       [[ ! -z ${SSH_TTY} ]] || \
+       [[ ! -z ${WINDOW} ]]; then
+       return
+    fi
+    case $(echo ${HOSTNAME}|sed 's/\..*$//') in
+        milo)
+            echo -n "💻 "
+            ;;
+        tesla)
+            echo -n "👾 "
+            ;;
+        hoppy)
+            echo -n "🌿 "
+            ;;
+    esac
+    [[ ${PWD} =~ ${SSHFS_MOUNT_POINT} ]] && echo "⚠️ "
+}
+
 # Git status.
 function __prompt_git() {
   local STATUS OUTPUT FLAGS BRANCH
@@ -246,7 +269,7 @@ function __prompt_command() {
 
   # Setup local $c0-$c9 color vars.
    PROMPT_COLORS[9]=;
-   local i; for i in ${!PROMPT_COLORS[@]}; do 
+   local i; for i in ${!PROMPT_COLORS[@]}; do
      local C${i}="\[\e[0;${PROMPT_COLORS[${i}]}m\]"
    done
 
@@ -300,6 +323,8 @@ function __prompt_command() {
       PS1="${PS1}$(__prompt_conda)"
       # exit code: 127
       PS1="${PS1}$(__prompt_exitcode "${EXIT_CODE}")"
+      # emoji
+      PS1="${PS1}$(__prompt_emoji)"
       PS1="${PS1}$(__prompt_ending)"
   fi
 }
