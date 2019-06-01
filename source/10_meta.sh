@@ -111,12 +111,12 @@ The specified function is described and then listed.'
 
   if [[ $(type ${1}) =~ function ]]; then
         if is_exe pygmentize ; then
-            type -a ${1}|tail -n +2|pygmentize|less -R
+            type -a ${1}|tail -n +2|pygmentize -l bash|less -R
         else
             type -a ${1}|tail -n +2|less -R
         fi
   elif  [[ -f $(which ${1}) ]]; then
-      less -R $(which ${1})
+      less -R $(which ${1})|grep -v 'switch off syntax highlighting'
   fi
 
 }
