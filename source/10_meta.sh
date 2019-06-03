@@ -96,7 +96,7 @@ This function requires shopt -s extdebug to show file and line details.'
     fi
     if [[ $(type ${1} 2>/dev/null ) =~ alias ]]; then
         #piping grep to awk is usually not great, but awk can't search for a bash variable?
-        \grep -Rn " ${1}=" ${DOTFILES}/source | awk -F: '{print "⍺: " $3 "\tin " $1 "\tline " $2}'
+        \grep -Rn "alias ${1}=" ${DOTFILES}/source | awk -F: '{print "⍺: " $3 "\tin " $1 "\tline " $2}'
         return $?
     fi
     if [[ $(type ${1} 2>/dev/null ) =~ function ]]; then
@@ -158,6 +158,7 @@ declared in DOTFILES then there will be no output."
     fi
 
     \grep -Rn "${1}=" $DOTFILES/init/ $DOTFILES/source 2>/dev/null  |\
+      grep -v alias |\
       awk -F: '{print "∈ var: " $3 "\tin " $1 "\tline " $2}'
 }
 _vars() {
