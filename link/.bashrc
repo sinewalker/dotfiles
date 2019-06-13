@@ -10,9 +10,13 @@ function src() {
   if [[ "${1}" ]]; then
     source "${DOTFILES}/source/${1}.sh"
   else
+    echo "Loading environment..."
     for FILE in ${DOTFILES}/source/*.sh; do
+      printf "\r%${COLUNMS}s"
+      printf "\r<-- ${FILE}"
       source "${FILE}"
     done
+    printf "\rReady%$((${COLUMNS}-5))s"
   fi
 }
 
