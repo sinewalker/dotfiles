@@ -202,3 +202,8 @@ export SQUIZAUSVNDIR=${SQUIZAU_SVN}
 export SQUIZUKSVNDIR=${SQUIZUK_SVN}
 export SQUIZNETBOXTOKENFILE=${SQUIZ_NETBOX}
 export SQUIZP4GITDIR=${SQUIZ_PUPPET}
+
+### MJL20190611 patch slack for darkness
+
+patch -sN /Applications/Slack.app/Contents/Resources/app.asar.unpacked/src/static/ssb-interop.js \
+    ${DOTFILES}/misc/osx/dark-slack.patch  2>&1 > /dev/null || true

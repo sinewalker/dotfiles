@@ -1,0 +1,16 @@
+--- /Applications/Slack.app/Contents/Resources/app.asar.unpacked/src/static/ssb-interop.js	2019-06-11 09:08:28.000000000 +1000
++++ /Applications/Slack.app/Contents/Resources/app.asar.unpacked/src/static/ssb-interop-dark.js	2019-06-11 09:09:02.000000000 +1000
+@@ -118,3 +118,13 @@
+ 
+   init(resourcePath, mainModule, !isDevMode);
+ }
++
++/* Slack Dark Theme */
++document.addEventListener('DOMContentLoaded', function() {
++  $.ajax({
++    url: 'https://gist.githubusercontent.com/sinewalker/1f02031e3a3ec1f1a345c25470eb0158/raw/bf6a63db76625ad11850aa0aabc3ecf2648dfa48/slack-dark.css',
++    success: function(css) {
++      $("<style></style>").appendTo('head').html(css);
++    }
++  });
++ });
