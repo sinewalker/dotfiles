@@ -198,3 +198,8 @@ alias pirate=fsync
 
 # The PGP Web Of Trust is broken. Just trust your keys, or not.
 alias gpgtrust='gpg --trust-model always'
+
+function gpgd(){
+    local FUNCDESC="GPG decript -- all errors to /dev/null "
+    gpg -d "${@}" 2>/dev/null
+}
