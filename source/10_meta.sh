@@ -48,7 +48,7 @@ alias debugon='shopt -s extdebug'
 alias debugoff='shopt -u extdebug'
 
 function functions() {
-    local FUNDCESC='Prints the names of all defined shell functions.
+    local FUNCDESC='Prints the names of all defined shell functions.
 
 By default this will list all "interactive" functions designed to be called from
 a shell prompt. If the optional argument -a or --all is supplied then functions
@@ -119,7 +119,7 @@ This function requires shopt -s extdebug to show file and line details.'
 complete -F _executables describe
 
 function list() {
-  local FUNDCESC='Print a listing of a function definition.
+  local FUNCDESC='Print a listing of a function definition.
 
 The specified function is described and then listed.'
 
@@ -138,7 +138,7 @@ The specified function is described and then listed.'
             type -a ${1}|tail -n +2|less -R
         fi
   elif  [[ -f $(which ${1}) ]]; then
-      less -R $(which ${1})|grep -v 'switch off syntax highlighting'
+      less -R $(which ${1})|grep -v 'switch off syntax highlighting'|less
   fi
 
 }
