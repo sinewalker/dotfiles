@@ -43,7 +43,7 @@ password store."
 
     local KEY
     for KEY in ${@}; do
-        export SSH_ASKPASS=$(mktemp -t ssh-askpass)
+        export SSH_ASKPASS=$(mktemp -t ssh-askpassXXX)
         cat > ${SSH_ASKPASS} << EOF
 #!/bin/sh
 pass ${KEY}|head -1
