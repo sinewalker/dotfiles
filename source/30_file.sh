@@ -1,7 +1,20 @@
-# Files will be created with these permissions:
-# files 644 -rw-r--r-- (666 minus 022)
-# dirs  755 drwxr-xr-x (777 minus 022)
-umask 022
+    # By default, we want umask to get set. This sets it for non-login shell.
+    # Current threshold for system reserved uid/gids is 200
+    # You could check uidgid reservation validity in
+    # /usr/share/doc/setup-*/uidgid file
+    if [ $UID -gt 199 ] && [ "`/usr/bin/id -gn`" = "`/usr/bin/id -un`" ]; then
+      # Mortal users - Files will be created with these permissions:
+      # files 664 -rw-r--r-- (666 minus 002)
+      # dirs  775 drwxr-xr-x (777 minus 002)
+       umask 002
+    else
+      # System users - Files will be created with these permissions:
+      # files 644 -rw-r--r-- (666 minus 022)
+      # dirs  755 drwxr-xr-x (777 minus 022)
+       umask 022
+    fi
+
+
 
 # Always use color output for `ls`
 if is_osx; then
