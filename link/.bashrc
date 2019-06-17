@@ -1,10 +1,14 @@
 # Bash Run Commands
-# Run by login or interactive shells, and also by Bash when called as /bin/sh
-# in some situations. So this needs to be POSIX syntax or guard Bashisms
 
-# There's a lot of nonsense display logic. All of this is opinionated, so 
-# it's guarded with tests for flag files - by default you'll see nothing when
-# bash loads. See ${BASH_MODULES}/20_env.sh for bashrc_ aliases to turn it on.
+# Run by login or interactive shells, and also by Bash when called as /bin/sh in
+# some situations. So this needs to be POSIX syntax or guard Bashisms
+
+# There's a lot of nonsense display logic. All of this is opinionated, so it's
+# guarded with tests for flag files - by default you'll see nothing when bash
+# loads. See ${BASH_MODULES}/20_env.sh for bashrc_ aliases to turn it on.
+
+# Source system global definitions
+test -f /etc/bashrc && source /etc/bashrc
 
 # Where the magic happens
 export DOTFILES=~/.dotfiles
@@ -17,14 +21,19 @@ function __load_modules() {
   local MODULE
   if test -t 1 && test -f ~/etc/.bashrc_loading; then  # is a TTY and show?
     local HIGH='\033[1;32m' MED='\033[0;36m' LOW='\033[0;37m'
+
     echo -e " ${HIGH}Loading bash modules...${LOW}"
-    for MODULE in ${BASH_MODULES}/*.sh; do
+    local MODULES=(${BASH_MODULES}/*.sh)
+    local WIDTH=$((${#MODULES[0]} - ${#BASH_MODULES} + 4))
+
+    for MODULE in ${MODULES[@]}; do
       if test -f ~/etc/.bashrc_debug; then
         echo "${MODULE}"
         source "${MODULE}"
       else
-        printf "\r%${COLUNMS}s"
-        printf "\r${MED}<-- $(basename -s .sh ${MODULE})${LOW}%$((${COLUMNS}-${#MODULE}+${#BASH_MODULES}))s"
+        printf "\r%${WIDTH}s"
+        WIDTH=$((${#MODULE} - ${#BASH_MODULES} + 4))
+        printf "\r${MED}<-- $(basename -s .sh ${MODULE})${LOW}"
         source "${MODULE}"
         if test -f  ~/etc/.bashrc_slow ; then
           sleep 0.25
@@ -48,7 +57,7 @@ If no attached TTY, or no loading file, then just source the modules."
   if [[ "${1}" ]]; then
     source "${BASH_MODULES}/${1}.sh"
   elif test -t 1 && test -f ~/etc/.bashrc_loading; then # is a TTY and show?
-    local TIMER=$(mktemp -t loadtime)
+    local TIMER=$(mktemp -t loadtimeXXX)
     local RED='\033[0;31m' GREEN='\033[0;32m' LOW='\033[0;37m'
     local PR_COLOUR=${RED}
     { time __load_modules; } 2> ${TIMER} && PR_COLOUR=${GREEN}
@@ -83,29 +92,36 @@ This causes the Copy, Link and Init step to be run."
     ${DOTFILES}/bin/dotfiles "${@}" && src
 }
 
-# In interactive shells, unless in POSIX mode, load the rest of the
-# Dotfiles bash modules into the environment. (POSIX will fail, non-interactive
-# shells don't need the Dotfiles bash modules)
+# In interactive shells, unless in POSIX mode, load the rest of the Dotfiles
+# bash modules into the environment. (POSIX will fail, non-interactive shells
+# don't need the Dotfiles bash modules)
+
 #
-# For a login shell, also print a bash banner, à la the AMSTRAD CPC
-# if enabled by presence of ~/etc/.bashrc_banner ;-)
+# For a login shell, also print a bash banner, à la the AMSTRAD CPC if enabled
+# by presence of ~/etc/.bashrc_banner ;-)
 #
 # If there's a ~/etc/.bashrc_lols file then use lolcat for the banner.
 if kill -l|grep SIG &> /dev/null; then #is not POSIX?
     if ( shopt -q login_shell && test -f ~/etc/.bashrc_banner ); then
-      echo " $(hostname -s) $(uname -srm)"
-      echo ' '
+
       BANNER=$(bash --version|head -n2\
             |sed 's/Copyright (C) /©/'|awk '{print " " $0}')
-      if ( type -p lolcat &> /dev/null && test -f ~/etc/.bashrc_lols ); then
+
+      if test -f ~/etc/.bashrc_amstrad; then
+        printf " \033[0;33m$(hostname -s) $(uname -srm)\n\n${BANNER}\n"
+      elif ( type -p lolcat &> /dev/null && test -f ~/etc/.bashrc_lols ); then
+        printf " $(hostname -s) $(uname -srm)\n\n"
         echo "${BANNER}"|lolcat
       else
-        echo "${BANNER}"
+        printf " $(hostname -s) $(uname -srm)\n\n${BANNER}\n"
       fi
+
       unset BANNER
       echo ' '
       src
-      printf '\n\n\033[0;33mReady\033[0;37m\n'
+      echo ' '
+      test -f ~/etc/.bashrc_amstrad && prompt_amstrad t
+
     elif [[ $- == *i* ]] ; then  # is interactive?
       src
     fi

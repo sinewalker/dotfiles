@@ -209,6 +209,15 @@ function __prompt_ending(){
     echo "${C9}${__ENDING} "
 }
 
+function prompt_amstrad() {
+    local FUNCDESC="Toggle using a AMSTRAD Ready prompt. If an argument is supplied, force to Amstrad"
+    if [[ -z ${__USE_AMSTRAD_PROMPT} || -n "${1}" ]]; then
+        export __USE_AMSTRAD_PROMPT=1
+    else
+        unset __USE_AMSTRAD_PROMPT
+    fi
+}
+
 #MJL20170205 toggle using a simple prompt
 # If an argument is supplied, force it to simple
 function prompt_simple() {
@@ -246,6 +255,9 @@ function prompt_trace() {
 }
 alias trace_prompt=prompt_trace
 
+
+alias prompt_reset="unset __USE_SIMPLE_PROMPT __USE_AMSTRAD_PROMPT __USE_MONSTER_PROMPT __USE_TRACE_PROMPT"
+
 # Maintain a per-execution call stack.
 __PROMPT_STACK=()
 trap '__PROMPT_STACK=("${__PROMPT_STACK[@]}" "${BASH_COMMAND}")' DEBUG
@@ -266,6 +278,10 @@ function __prompt_command() {
 
   # While the simple_prompt environment var is set, disable the awesome prompt.
   [[ "$__USE_SIMPLE_PROMPT" ]] && PS1='[\u@\h:\w]\$ ' && return
+
+  # While the simple_prompt environment var is set, disable the awesome prompt.
+  [[ "$__USE_AMSTRAD_PROMPT" ]] && PS1='\033[0;33mReady\n' && return
+
 
   # Setup local $c0-$c9 color vars.
    PROMPT_COLORS[9]=;
