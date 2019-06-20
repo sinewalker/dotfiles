@@ -71,15 +71,6 @@ _fns() {
     return 0
 }
 
-function _executables {
-    local exclude=$(compgen -abkA function | sort)
-    local executables=$(
-        comm -23 <(compgen -c) <(echo $exclude)
-        type -tP $( comm -12 <(compgen -c) <(echo $exclude) )
-    )
-    COMPREPLY=( $(compgen -W "$executables" -- ${COMP_WORDS[COMP_CWORD]}) )
-}
-
 function describe() {
     local FUNCDESC='Describe a function and show where it is defined.
 
@@ -94,29 +85,39 @@ This function requires shopt -s extdebug to show file and line details.'
         error "Must supply a function or executable to describe."
         return 1
     fi
-    if [[ $(type ${1} 2>/dev/null ) =~ alias ]]; then
-        #piping grep to awk is usually not great, but awk can't search for a bash variable?
-        \grep -Rn "alias ${1}=" ${DOTFILES}/source | awk -F: '{print "⍺: " $3 "\tin " $1 "\tline " $2}'
-        return $?
-    fi
-    if [[ $(type ${1} 2>/dev/null ) =~ function ]]; then
-        local toggled=0
-        shopt extdebug > /dev/null || shopt -s extdebug && toggled=1
+    case $(type -t "${1}" 2> /dev/null) in
+        alias)
+            #piping grep to awk is usually not great, but awk can't search for a
+            #bash variable?
+            \grep -Rn "alias ${1}=" ${DOTFILES}/source \
+                | awk -F: '{print "⍺: " $3 "\tin " $1 "\tline " $2}'
+            return $?
+            ;;
+        function)
+            local toggled=0
+            shopt extdebug > /dev/null || shopt -s extdebug && toggled=1
 
-        declare -F "${1}" | awk '{print "λ: function " $1 "\tin " $3 "\tline " $2}'
-        type -a "${1}" | awk -F = '/FUNCDESC/{print "    "$2;exit}' \
-            | fold -s -w ${COLUMNS}
+            declare -F "${1}" \
+                | awk '{print "λ: function " $1 "\tin " $3 "\tline " $2}'
+            type -a "${1}" | awk -F = '/FUNCDESC/{print "    "$2;exit}' \
+                | fold -s -w ${COLUMNS}
 
-        [[ $toggled == 1 ]] && shopt -u extdebug
-    elif [[ -f $(which ${1} 2>/dev/null ) ]]; then
-        echo -n "◆: "
-        file $(which ${1}) | fold -s -w ${COLUMNS}
-    else
-        echo -n "β: "
-        type ${1} 2>&1 |sed 's/bash://g; s/type://g;'
-    fi
+            [[ $toggled == 1 ]] && shopt -u extdebug
+            ;;
+        file)
+            echo -n "◆: "
+            file $(which ${1}) | fold -s -w ${COLUMNS}
+            ;;
+        builtin|keyword)
+            echo -n "β: "
+            type ${1} 2>&1 |sed 's/bash://g; s/type://g;'
+            ;;
+        '')
+            error "${FUNCNAME}: ${1}: command not found"
+            return 2
+    esac
 }
-complete -F _executables describe
+complete -F _command describe
 
 function list() {
   local FUNCDESC='Print a listing of a function definition.
