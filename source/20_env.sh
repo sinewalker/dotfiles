@@ -3,8 +3,8 @@
 # Case-insensitive globbing (used in pathname expansion)
 shopt -s nocaseglob
 
-# Check the window size after each command and, if necessary,
-# update the values of LINES and COLUMNS.
+# Check the window size after each command and, if necessary, update the values
+# of LINES and COLUMNS.
 shopt -s checkwinsize
 
 alias grep="grep --color=auto"
@@ -43,8 +43,9 @@ alias x=exit
 alias q=exit
 
 #MJL20170213 misc bash controls
-# this is to allow incremental forward search on the command line using ^S
-# (the test checks that stdin is a terminal. see: http://tldp.org/LDP/abs/html/intandnonint.html#II2TEST)
+# this is to allow incremental forward search on the command line using ^S (the
+# test checks that stdin is a terminal. see:
+# http://tldp.org/LDP/abs/html/intandnonint.html#II2TEST)
 [[ -t 0 ]] && stty stop 
 
 #MJL20170216 temporary files
@@ -56,12 +57,13 @@ export TMPDIR=${TMP}
 
 #MJL20190614 turn on my bashrc banner loading bells and whistles (see link/.bashrc)
 alias bashrc_pretty="touch ~/etc/.bashrc_banner ~/etc/.bashrc_loading ~/etc/.bashrc_lols"
-alias bashrc_boring="rm -f ~/etc/.bashrc_banner ~/etc/.bashrc_loading ~/etc/.bashrc_lols ~/etc/.bashrc_slow"
+alias bashrc_boring="rm -f ~/etc/.bashrc_*"
 alias bashrc_lols=bashrc_pretty
 alias bashrc_banner="touch ~/etc/.bashrc_banner ~/etc/.bashrc_loading"
-alias cpcify="bashrc_boring; bashrc_banner"
-alias uncpcify=bashrc_boring
-alias bashrc_debug="touch ~/etc/.bashrc_debug"
+alias bashrc_loading="touch ~/etc/.bashrc_loading"
+alias cpcify="bashrc_boring; bashrc_banner; touch ~/etc/.bashrc_amstrad; prompt_amstrad 1"
+alias uncpcify="bashrc_boring; prompt_reset"
+alias bashrc_debug="touch ~/etc/.bashrc_debug ~/etc/.bashrc_loading"
 alias bashrc_undebug="rm -f ~/etc/.bashrc_debug"
 alias bashrc_slow="touch ~/etc/.bashrc_slow"
 alias bashrc_fast="rm -f ~/etc/.bashrc_slow"
