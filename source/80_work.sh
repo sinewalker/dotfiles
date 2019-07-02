@@ -64,6 +64,7 @@ function ssh_site() {
 # take fqdn, if it's .mq.edu.au, trace down to the last name
 
 ################
+[[ $(hostname) =~ milo ]] || return
 
 # to make SQ_CONF_ROOT_URLS into wiki urls
 # just enter the URLS followed by EOF
