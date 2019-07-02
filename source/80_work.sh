@@ -128,6 +128,7 @@ export SQUIZ_PUPPET=${SQUIZ_GITLAB}/ops/puppet4
 export SQUIZ_API_AU=https://hosting-api.squiz.net/api/v1/
 export SQUIZ_API_UK=https://hosting-api.squiz.co.uk/api/v1/
 export SQUIZ_API_US=https://hosting-api01.sac1.squiz.systems/api/v1
+export SQUIZ_USER=mlockhart
 
 #MJL20180828 Squiz variables
 # Some infra/hosting scripts use globals with different names to mine.
@@ -137,6 +138,9 @@ export SQUIZAUSVNDIR=${SQUIZAU_SVN}
 export SQUIZUKSVNDIR=${SQUIZUK_SVN}
 export SQUIZNETBOXTOKENFILE=${SQUIZ_NETBOX}
 export SQUIZP4GITDIR=${SQUIZ_PUPPET}
+#MJL20190615 username on Squiz hosts -- used for C7 Makefiles
+alias c7='export SERVERUSER=${SQUIZ_USER}'
+alias sl6='unset SERVERUSER'
 
 ### MJL20190611 patch slack for darkness
 
