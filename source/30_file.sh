@@ -105,12 +105,6 @@ source ${DOTFILES}/vendor/z/z.sh
 #I should be able to quickly move around now.
 export CDPATH=.:~:~/Projects:~/Documents:~/net:~/Grid:~/Uploads:~/Downloads:~/dev:~/tmp
 
-[[ -d ~/Work ]] && CDPATH=~/Work:${CDPATH}
-[[ -d ~/Work/svn ]] && CDPATH=${CDPATH}:~/Work/svn
-[[ -d ~/Work/lab ]] && CDPATH=${CDPATH}:~/Work/lab
-[[ -d ~/Work/Projects ]] && CDPATH=~/Work/Projects:${CDPATH}
-[[ -d ~/Work/Documents ]] && CDPATH=~/Work/Documents:${CDPATH}
-
 alias rd=rmdir
 alias rrm='rm -r'
 

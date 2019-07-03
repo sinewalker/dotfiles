@@ -7,6 +7,20 @@ alias wiki_urls='cat <<EOF | sed -re "s^(.*)^|| http://\1 ||^"'
 # according to https://opswiki.squiz.net/Policies/Password_Guidelines#GeneralPasswordGuidelines
 alias pwgen='pwgen -1 -c -n -y 12'
 
+
+function __cdpath_add(){
+    [[ -d "${1}" ]] && export CDPATH="${CDPATH}:${1}"
+}
+function __add_cdpath(){
+    [[ -d "${1}" ]] && export CDPATH="${1}:${CDPATH}"
+}
+__add_cdpath ~/Work
+__cdpath_add ~/Work/svn
+__cdpath_add ~/Work/lab
+__add_cdpath ~/Work/Projects
+__add_cdpath ~/Work/Documents
+
+
 # we want colour and paging in svn diff commands
 svn () {
   # bail if the user didnt specify which subversion command to invoke
