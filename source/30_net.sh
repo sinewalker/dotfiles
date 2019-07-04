@@ -1,5 +1,27 @@
 # IP addresses
-alias wanip="dig +short myip.opendns.com @resolver1.opendns.com"
+function wanip(){
+    FUNCDESC='Print Wide Area Network IP address'
+    dig +short myip.opendns.com @resolver1.opendns.com
+}
+
+if is_linux; then
+    function lanip(){
+        FUNCDESC='Print Local Area Network IP address'
+        hostname -I
+    }
+else
+# see https://stackoverflow.com/a/13322667/776953
+    function lanip(){
+        FUNCDESC='Print Local Area Network IP address'
+        local _ip _line
+        while IFS=$': \t' read -a _line ;do
+            [ -z "${_line%inet}" ] &&
+               _ip=${_line[${#_line[1]}>4?1:2]} &&
+               [ "${_ip#127.0.0.1}" ] && echo $_ip && return 0
+        done< <(LANG=C /sbin/ifconfig)
+    }
+fi
+
 # see https://opswiki.squiz.net/ncallahan
 alias showip='curl http://ipecho.net/plain; echo'
 
