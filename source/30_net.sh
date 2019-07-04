@@ -167,6 +167,7 @@ Returns 0 if matching, 1 otherwise."
         return 1
     fi
 
+    # There can be only one!
     local DIGESTS=$((check-tls-crt-digest "${1}";\
                      check-tls-key-digest "${2}") | uniq | wc -l)
     if [[ ${DIGESTS} -eq "1" ]]; then
