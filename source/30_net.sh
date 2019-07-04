@@ -89,20 +89,93 @@ Params:  <server_name>:  server name (you must be able to read the web logs on t
     fi
 }
 
-function check-tls() {
+function check-tls-web() {
     local FUNCDESC="Connect to a web server and report TLS details."
     if [[ -z ${1} ]]; then
         error "${FUNCNAME}: must supply a DNS name to connect to."
         usage "${FUNCNAME} <domainname> [<servername>]" ${FUNCDESC}
         return 1
     fi
-    local domain=${1}
-    local server=${2}
-    [[ -z ${2} ]] && server=${1}
+    local domain="${1}"
+    local server="${2}"
+    [[ -z "${2}" ]] && server="${1}"
 
     echo | openssl s_client -connect ${server}:443 -servername ${domain} \
-        | openssl x509 -noout -text | tr -s " " | tr ',' '\n'| \
-        egrep --color=auto 'O=|C=|L=|OU=|ST=|CN=|Before|After|DNS:'
+        | openssl x509 -noout -text | tr -s " " | tr ',' '\n' \
+        | sed 's/ Issuer:/Issuer:/' | sed 's/ Subject:/Subject:/' \
+        | sed 's/ DNS:/DNS: /g' \
+        | \egrep -v 'X509|Public Key Info|CA Issuers' \
+        | \egrep --color=auto 'Issuer|Subject|O=|C=|L=|OU=|ST=|CN=|Before|After|DNS:'
+}
+
+alias check-tls-csr="openssl req -text -noout -verify -in"
+alias check-tls-key="openssl rsa -check -in"
+alias check-tls-crt="openssl x509 -text -noout -in"
+alias check-tls-pkcs="openssl pkcs12 -info -in"
+
+# https://kb.wisc.edu/middleware/page.php?id=4064
+function check-tls-crt-digest(){
+    local FUNCDESC="Output the MD5SUM of a TLS certificate's Modulus.
+
+Use this to compare with a key's digest from check-tls-key-digest."
+
+    if [[ -z "${1}" ]]; then
+        error "${FUNCNAME}: must specified at least one certificate to summarise"
+        usage "${FUNCNAME} <crt-file> [<crt-file>...]" ${FUNCDESC}
+        return 1
+    fi
+
+    local CRT CRTS
+    CRTS="${@}"
+    for CRT in ${CRTS}; do
+        [[ -f ${CRT} ]] || [[ -s ${CRT} ]] \
+            || error "${FUNCNAME}: ${CRT}: not found"
+        [[ ${#CRTS[@]} -gt 1 ]] && echo -n "${CRT}: "
+        openssl x509 -noout -modulus -in ${CRT} | openssl md5
+    done
+}
+
+function check-tls-key-digest(){
+    local FUNCDESC="Output the MD5SUM of a TLS key's Modulus.
+
+Use this to compare with a certificate's digest from check-tls-crt-digest."
+
+    if [[ -z "${1}" ]]; then
+        error "${FUNCNAME}: must specified at least one key to summarise"
+        usage "${FUNCNAME} <key-file> [<key-file>...]" ${FUNCDESC}
+        return 1
+    fi
+
+    local KEY KEYS
+    KEYS="${@}"
+    for KEY in ${KEYS}; do
+        [[ -f ${KEY} ]] || [[ -s ${KEY} ]] \
+            || error "${FUNCNAME}: ${KEY}: not found"
+        [[ ${#KEYS[@]} -gt 1 ]] && echo -n "${KEY}: "
+        openssl rsa -noout -modulus -in ${KEY} | openssl md5
+    done
+}
+
+function check-tls-crt-matches-key(){
+    local FUNCDESC="Compare the MD5 digests of a TLS key/certificate modulus pair.
+
+Returns 0 if matching, 1 otherwise."
+
+    if [[ -z "${2}" ]]; then
+        error "${FUNCNAME}: must specified a certificate and key to compare"
+        usage "${FUNCNAME} <crt-file> <key-file>" ${FUNCDESC}
+        return 1
+    fi
+
+    local DIGESTS=$((check-tls-crt-digest "${1}";\
+                     check-tls-key-digest "${2}") | uniq | wc -l)
+    if [[ ${DIGESTS} -eq "1" ]]; then
+        echo "${FUNCNAME}: matching"
+        return 0
+    else
+        echo "${FUNCNAME}: DIFFERENT"
+        return 1
+    fi
 }
 
 function createconf() {
