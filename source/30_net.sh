@@ -119,7 +119,7 @@ function __check-tls-digest(){
     KIND="${1}"; shift
     THINGS="${@}"
     for THING in ${THINGS}; do
-        if  [[ ! -f ${THING} ]] && [[ ! -s ${THING} ]] ; then
+        if  [[ ! -f ${THING} ]] || [[ ! -s ${THING} ]] ; then
             error "${FUNCNAME} (${KIND}): ${THING}: not found"
             return 1
         fi
