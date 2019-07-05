@@ -141,7 +141,7 @@ function check-tls-crt-digest(){
 Use this to compare with a key's digest from check-tls-key-digest."
 
     if [[ -z "${1}" ]]; then
-        error "${FUNCNAME}: must specified at least one certificate to summarise"
+        error "${FUNCNAME}: must specify at least one certificate to summarise"
         usage "${FUNCNAME} <crt-file> [<crt-file>...]" ${FUNCDESC}
         return 1
     fi
@@ -156,7 +156,7 @@ function check-tls-key-digest(){
 Use this to compare with a certificate's digest from check-tls-crt-digest."
 
     if [[ -z "${1}" ]]; then
-        error "${FUNCNAME}: must specified at least one key to summarise"
+        error "${FUNCNAME}: must specify at least one key to summarise"
         usage "${FUNCNAME} <key-file> [<key-file>...]" ${FUNCDESC}
         return 1
     fi
@@ -171,7 +171,7 @@ function check-tls-crt-matches-key(){
 Returns 0 if matching, 1 otherwise."
 
     if [[ -z "${2}" ]]; then
-        error "${FUNCNAME}: must specified a certificate and key to compare"
+        error "${FUNCNAME}: must specify a certificate and key to compare"
         usage "${FUNCNAME} <crt-file> <key-file>" ${FUNCDESC}
         return 1
     fi
