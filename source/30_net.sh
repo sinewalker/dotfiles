@@ -115,14 +115,15 @@ alias check-tls-pkcs="openssl pkcs12 -info -in"
 
 # https://kb.wisc.edu/middleware/page.php?id=4064
 function __check-tls-digest(){
-    local KIND THING THINGS COUNT
+    local KIND THING THINGS COUNT RET
     KIND="${1}"; shift
     THINGS="${@}"
     COUNT="$#"
+    RET=0
     for THING in ${THINGS[@]}; do
         if  [[ ! -f ${THING} ]] || [[ ! -s ${THING} ]] ; then
-            error "${FUNCNAME} (${KIND}): ${THING}: not found"
-            return 1
+            error "${FUNCNAME}(${KIND}): ${THING}: not found"
+            RET=1
         fi
 
         [[ ${COUNT} -gt 1 ]] && echo -n "${THING}: "
@@ -137,6 +138,7 @@ function __check-tls-digest(){
                 ;;
         esac
     done
+    return ${RET}
 }
 
 function check-tls-crt-digest(){
