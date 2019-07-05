@@ -115,21 +115,25 @@ alias check-tls-pkcs="openssl pkcs12 -info -in"
 
 # https://kb.wisc.edu/middleware/page.php?id=4064
 function __check-tls-digest(){
-    local KIND THING THINGS
+    local KIND THING THINGS COUNT
     KIND="${1}"; shift
     THINGS="${@}"
-    for THING in ${THINGS}; do
+    COUNT="$#"
+    for THING in ${THINGS[@]}; do
         if  [[ ! -f ${THING} ]] || [[ ! -s ${THING} ]] ; then
             error "${FUNCNAME} (${KIND}): ${THING}: not found"
             return 1
         fi
-        [[ ${#THINGS[@]} -gt 1 ]] && echo -n "${THING}: "
+
+        [[ ${COUNT} -gt 1 ]] && echo -n "${THING}: "
         case ${KIND} in
             KEY)
-                openssl rsa -noout -modulus -in ${THING} | openssl md5
+                openssl rsa -noout -modulus -in ${THING} | openssl md5 \
+                | sed 's/(stdin)= //g'
                 ;;
             CRT)
-                openssl x509 -noout -modulus -in ${THING} | openssl md5
+                openssl x509 -noout -modulus -in ${THING} | openssl md5 \
+                | sed 's/(stdin)= //g'
                 ;;
         esac
     done
