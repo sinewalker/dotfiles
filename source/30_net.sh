@@ -114,6 +114,27 @@ alias check-tls-crt="openssl x509 -text -noout -in"
 alias check-tls-pkcs="openssl pkcs12 -info -in"
 
 # https://kb.wisc.edu/middleware/page.php?id=4064
+function __check-tls-digest(){
+    local KIND THING THINGS
+    KIND="${1}"; shift
+    THINGS="${@}"
+    for THING in ${THINGS}; do
+        if  [[ ! -f ${THING} ]] && [[ ! -s ${THING} ]] ; then
+            error "${FUNCNAME} (${KIND}): ${THING}: not found"
+            return 1
+        fi
+        [[ ${#THINGS[@]} -gt 1 ]] && echo -n "${THING}: "
+        case ${KIND} in
+            KEY)
+                openssl rsa -noout -modulus -in ${THING} | openssl md5
+                ;;
+            CRT)
+                openssl x509 -noout -modulus -in ${THING} | openssl md5
+                ;;
+        esac
+    done
+}
+
 function check-tls-crt-digest(){
     local FUNCDESC="Output the MD5SUM of a TLS certificate's Modulus.
 
@@ -125,14 +146,8 @@ Use this to compare with a key's digest from check-tls-key-digest."
         return 1
     fi
 
-    local CRT CRTS
-    CRTS="${@}"
-    for CRT in ${CRTS}; do
-        [[ -f ${CRT} ]] || [[ -s ${CRT} ]] \
-            || error "${FUNCNAME}: ${CRT}: not found"
-        [[ ${#CRTS[@]} -gt 1 ]] && echo -n "${CRT}: "
-        openssl x509 -noout -modulus -in ${CRT} | openssl md5
-    done
+    local CRTS="${@}"
+    __check-tls-digest CRT ${CRTS}
 }
 
 function check-tls-key-digest(){
@@ -146,14 +161,8 @@ Use this to compare with a certificate's digest from check-tls-crt-digest."
         return 1
     fi
 
-    local KEY KEYS
-    KEYS="${@}"
-    for KEY in ${KEYS}; do
-        [[ -f ${KEY} ]] || [[ -s ${KEY} ]] \
-            || error "${FUNCNAME}: ${KEY}: not found"
-        [[ ${#KEYS[@]} -gt 1 ]] && echo -n "${KEY}: "
-        openssl rsa -noout -modulus -in ${KEY} | openssl md5
-    done
+    local KEYS="${@}"
+    __check-tls-digest KEY ${KEYS}
 }
 
 function check-tls-crt-matches-key(){
@@ -167,9 +176,12 @@ Returns 0 if matching, 1 otherwise."
         return 1
     fi
 
+    local CRT_DIGEST KEY_DIGEST DIGESTS
+    CRT_DIGEST=$(check-tls-crt-digest "${1}") || return 1
+    KEY_DIGEST=$(check-tls-key-digest "${2}") || return 1
+
     # There can be only one!
-    local DIGESTS=$((check-tls-crt-digest "${1}";\
-                     check-tls-key-digest "${2}") | uniq | wc -l)
+    DIGESTS=$((printf "${CRT_DIGEST}\n${KEY_DIGEST}\n") | uniq | wc -l)
     if [[ ${DIGESTS} -eq "1" ]]; then
         echo "${FUNCNAME}: matching"
         return 0
