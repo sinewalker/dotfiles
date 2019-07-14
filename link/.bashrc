@@ -7,6 +7,9 @@
 # guarded with tests for flag files - by default you'll see nothing when bash
 # loads. See ${BASH_MODULES}/20_env.sh for bashrc_ aliases to turn it on.
 
+# have we been here before? (SUSE /etc/profile will source $HOME/.bashrc)
+type -p usage && return
+
 # Source system global definitions
 test -f /etc/bashrc && source /etc/bashrc
 
