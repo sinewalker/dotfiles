@@ -48,11 +48,14 @@ function __load_modules() {
 }
 function src() {
   local FUNCDESC="Source all modules in ${BASH_MODULES}, or a specified module.
+
 If there is a file ~/etc/.bashrc_loading then show the modules as they load,
 with a summary at the end of how many modules there are, and how long they
 took to load.
+
 If there is a file ~/etc/.bashrc_debug then the module names will be listed
 while sourced, instead of overwritten.
+
 If no attached TTY, or no loading file, then just source the modules."
   if [[ "${1}" ]]; then
     source "${BASH_MODULES}/${1}.sh"
@@ -64,7 +67,7 @@ If no attached TTY, or no loading file, then just source the modules."
     local NOMODS=(${BASH_MODULES}/*.sh); NOMODS=${#NOMODS[@]}
     local SUMMARY=" (${NOMODS} modules, $(awk '/real/{print $2}' ${TIMER}))"
     rm ${TIMER}
-    printf "\r${PR_COLOUR}${SUMMARY}${LOW}%$((${COLUMNS}-${#SUMMARY}))s";
+    printf "\r${PR_COLOUR}${SUMMARY}${LOW}%$((${COLUMNS}/2-${#SUMMARY}))s\n";
   else # no TTY, just load
     __load_modules
   fi
