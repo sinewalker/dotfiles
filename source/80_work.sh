@@ -159,6 +159,10 @@ export SQUIZP4GITDIR=${SQUIZ_PUPPET}
 alias c7='export SERVERUSER=${SQUIZ_USER}'
 alias sl6='unset SERVERUSER'
 
+#MJL20190711 Squiz Edge
+export SQUIZ_EDGE_STAGING_IP=202.9.94.180
+export SQUIZ_EDGE_PROD_IP=202.9.95.188
+
 ### MJL20190611 patch slack for darkness
 
 patch -sN /Applications/Slack.app/Contents/Resources/app.asar.unpacked/src/static/ssb-interop.js \
