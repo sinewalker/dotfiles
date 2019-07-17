@@ -28,8 +28,8 @@ function ssh-pass() {
 
 Each key's passphrase is retrieved from the Unix password store (pass), and
 given to ssh-add(1) via the SSH_ASKPASS mechanism. This relies upon the keys
-having the same path names in both your key directory (${KEY_DIR}), and your
-password store."
+having the same path names in both your key directory (${SSH_KEYDIR}), and
+your password store."
 
     if test -z ${1}; then
         error "${FUNCNAME}: no SSH key specified."

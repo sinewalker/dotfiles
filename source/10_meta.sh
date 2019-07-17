@@ -195,7 +195,7 @@ Only loads if the file is present. Silently ignores missing files."
 function path_add() {
     local FUNCDESC='Add an entry to $PATH, but ONLY if dir exists AND not already in $PATH.
 
-If second parameter is specified (and value), PREPEND (to front of $PATH) rather
+If second parameter is specified (any value), PREPEND (to front of $PATH) rather
 than Append.'
     if [[ -z "${1}" ]]; then
         usage "${FUNCNAME} directory [prepend]" ${FUNCDESC}
