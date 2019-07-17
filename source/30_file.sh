@@ -103,10 +103,23 @@ alias probes="find . -name 'probes.json' -type f -ls -delete"
 # Aliasing eachdir like this allows you to use aliases/functions as commands.
 alias eachdir=". eachdir"
 
-# Create a new directory and enter it
 function md() {
-  mkdir -p "$@" && cd "$@"
+    local FUNCDESC="Create new directory (or multiple) and enter the last"
+
+    if [[ -z "${1}" ]]; then
+        error "${FUNCNAME}: must specify at least one directory to make."
+        usage "${FUNCNAME} <dir-path> [<dir-path]..." ${FUNCDESC}
+        return 1
+    fi
+
+    if mkdir -p "${@}"; then
+        local da=(${@})
+        cd ${da[${#da[@]}-1]}
+    else
+        return ${?}
+    fi
 }
+complete -F _cd md
 
 alias wrap='fold -sw ${1:-$COLUMNS}'
 
