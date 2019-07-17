@@ -9,16 +9,15 @@ type -p usage && return
 # Source system global definitions
 test -f /etc/bashrc && source /etc/bashrc
 
-# Where the magic happens
-export DOTFILES=~/.dotfiles
-export BASH_MODULES=${DOTFILES}/source
-
-PATH=${DOTFILES}/bin:${PATH}
-export PATH
-
 # Unless in POSIX mode, load the rest of the Dotfiles bash modules into the
 # environment. (POSIX will fail)
 if kill -l|grep SIG &> /dev/null; then #is not POSIX?
-    source ${BASH_MODULES}/00_modules.sh
-    __bootstrap_modules
+  # Where the magic happens
+  export DOTFILES=~/.dotfiles
+  export BASH_MODULES=${DOTFILES}/source
+
+  PATH=${DOTFILES}/bin:${PATH}
+  export PATH
+  source ${BASH_MODULES}/00_modules.sh
+  __bootstrap_modules
 fi
