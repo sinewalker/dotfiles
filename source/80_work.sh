@@ -22,7 +22,7 @@ __cdpath_add ~/Work/svn
 __cdpath_add ~/Work/lab
 __add_cdpath ~/Work/Projects
 __add_cdpath ~/Work/Documents
-
+__add_cdpath .
 
 # we want colour and paging in svn diff commands
 svn () {
