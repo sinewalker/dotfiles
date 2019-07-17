@@ -1,5 +1,8 @@
 [[ $(hostname) =~ milo ]] || return
 
+# Override my preferred, more stringent umask with a Squiz-friendly one
+umask 0022
+
 # to make SQ_CONF_ROOT_URLS into wiki urls
 # just enter the URLS followed by EOF
 alias wiki_urls='cat <<EOF | sed -re "s^(.*)^|| http://\1 ||^"'

@@ -1,18 +1,31 @@
-    # By default, we want umask to get set. This sets it for non-login shell.
+function is_mortal(){
+    local FUNCDESC="Return 0 if current user is 'mortal' (not a system user), else return 1."
+    is_osx && [ ${UID} -gt 199 ] && return 0
+
+    #TODO: verify this "is_mortal" logic in C7/SUSE
     # Current threshold for system reserved uid/gids is 200
     # You could check uidgid reservation validity in
     # /usr/share/doc/setup-*/uidgid file
-    if [ $UID -gt 199 ] && [ "`/usr/bin/id -gn`" = "`/usr/bin/id -un`" ]; then
-      # Mortal users - Files will be created with these permissions:
-      # files 664 -rw-r--r-- (666 minus 002)
-      # dirs  775 drwxr-xr-x (777 minus 002)
-       umask 002
+    # In Linux, the standard is to set mortals' user and group to be the same
+    if [ ${UID} -gt 199 ] && [ "`/usr/bin/id -gn`" = "`/usr/bin/id -un`" ]; then
+        return 0
     else
+        return 1
+    fi
+}
+# By default, we want umask to get set. This sets it for non-login shell.
+
+if is_mortal; then
+      # Mortal users - Files will be created with these permissions:
+      # files 664 -rw-rw-r-- (0666 minus 0027)
+      # dirs 775 drwxr-x--- (0777 minus 0027)
+       umask 0027
+else
       # System users - Files will be created with these permissions:
       # files 644 -rw-r--r-- (666 minus 022)
-      # dirs  755 drwxr-xr-x (777 minus 022)
-       umask 022
-    fi
+      # dirs 755 drwxr-xr-x (777 minus 022)
+       umask 0022
+fi
 
 
 
