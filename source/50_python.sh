@@ -1,6 +1,6 @@
 # see http://hackercodex.com/guide/python-development-environment-on-mac-osx/
 
-## This Python tool-chain is designed to be sourced by bash when it starts. It
+## This Python tool-chain is designed to be loaded by bash when it starts. It
 ## relies on the following being available:
 ##
 ## * virtualenv and pip installed globally, or with pipsi
@@ -8,7 +8,7 @@
 ##
 ## These functions also use my bash shell meta-functions, which are in
 ## 10_meta.sh. These should be downloaded and kept together with this file, and
-## sourced first. The required functions are:
+## loaded first. The required functions are:
 ##
 ##   usage
 ##   error
@@ -138,7 +138,7 @@ activate() {
 
 (will deactivate current Venv if one is active).
 
-If Anaconda is active (conda command is in the PATH) then source the 'anaconda'
+If Anaconda is active (conda command is in the PATH) then load the 'anaconda'
 script instead, per conda practice. Bail after sourcing."
 
     local RET=0
@@ -161,7 +161,7 @@ script instead, per conda practice. Bail after sourcing."
         VENV="${VIRTUALENV_BASE}/${1}"
         if test -f ${VENV}/bin/activate; then
             is_exe deactivate && deactivate
-            source ${VENV}/bin/activate
+            load ${VENV}/bin/activate
             RET=${?}
         else
             RET=2
@@ -202,7 +202,7 @@ directory, overwriting any existing requirements file.'
 sucuri() {
     FUNCDESC='Activate or deactivate Anaconda by inspecting and changing $PATH'
     if [[ ${PATH} =~ anaconda ]]; then
-        [[ ${CONDA_DEFAULT_ENV} ]] && source deactivate
+        [[ ${CONDA_DEFAULT_ENV} ]] && load deactivate
         path_remove ${LIB-$HOME/lib}/anaconda/bin
         is_exe deactivate && unalias deactivate
         export PIP_REQUIRE_VIRTUALENV=true

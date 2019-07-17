@@ -170,6 +170,26 @@ _vars() {
 }
 complete -F _vars defined
 
+function load(){
+    local FUNCDESC="Load (source) file(s) into the bash environment.
+
+Only loads if the file is present. Silently ignores missing files."
+
+    if [[ -z "${1}" ]] ; then
+        error $"${FUNCNAME}: must specify a file to load"
+        usage "${FUNCNAME} <file> [<file>]..."  ${FUNCDESC}
+        return 1
+    fi
+
+    local MODULE
+    for MODULE in "${@}"; do
+        if [[ -f "${MODULE}" ]] || [[ -s "${MODULE}" ]]; then
+            is_bashrc_debug && echo "${MODULE}"
+            source "${MODULE}"
+        fi
+    done
+}
+
 ## MJL20180314 PATH manipulation
 
 function path_add() {

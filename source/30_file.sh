@@ -94,12 +94,12 @@ function page() {
 }
 
 # Bashmarks directory bookmarks
-source ${DOTFILES}/vendor/bashmarks/bashmarks.sh
+load ${DOTFILES}/vendor/bashmarks/bashmarks.sh
 
 mkdir -p ${DOTFILES}/caches/z
 #_Z_NO_PROMPT_COMMAND=1
 _Z_DATA=${DOTFILES}/caches/z/z
-source ${DOTFILES}/vendor/z/z.sh
+load ${DOTFILES}/vendor/z/z.sh
 
 #MJL20170214 also use CDPATH. Between above vendor tools and this bash-feature,
 #I should be able to quickly move around now.
