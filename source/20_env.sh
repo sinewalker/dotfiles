@@ -54,16 +54,3 @@ export TEMP=${TMP}
 export TMPDIR=${TMP}
 #MJL20170226 in case ~/tmp is missing...
 [[ -d ${TMP} ]] || mkdir ${TMP}
-
-#MJL20190614 turn on my bashrc banner loading bells and whistles (see link/.bashrc)
-alias bashrc_pretty="touch ~/etc/.bashrc_banner ~/etc/.bashrc_loading ~/etc/.bashrc_lols"
-alias bashrc_boring="rm -f ~/etc/.bashrc_*"
-alias bashrc_lols=bashrc_pretty
-alias bashrc_banner="touch ~/etc/.bashrc_banner ~/etc/.bashrc_loading"
-alias bashrc_loading="touch ~/etc/.bashrc_loading"
-alias cpcify="bashrc_boring; bashrc_banner; touch ~/etc/.bashrc_amstrad; prompt_amstrad 1"
-alias uncpcify="bashrc_boring; prompt_reset"
-alias bashrc_debug="touch ~/etc/.bashrc_debug ~/etc/.bashrc_loading"
-alias bashrc_undebug="rm -f ~/etc/.bashrc_debug"
-alias bashrc_slow="touch ~/etc/.bashrc_slow"
-alias bashrc_fast="rm -f ~/etc/.bashrc_slow"
