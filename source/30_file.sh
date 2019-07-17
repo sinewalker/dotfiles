@@ -55,7 +55,7 @@ alias lll='ll -ah'
 alias llh='lh'
 alias llk='ll -ask'
 
-alias ld='CLICOR_FORCE=1 lla | sort -r'
+alias ld='CLICOR_FORCE=1 lla | sort'
 alias d='CLICOLOR_FORCE=1 lla | grep --color=never "^d"'
 # optional override with tree
 if [[ "$(type -P tree)" ]]; then
