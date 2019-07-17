@@ -256,11 +256,17 @@ function prompt_trace() {
 alias trace_prompt=prompt_trace
 
 
-alias prompt_reset="unset __USE_SIMPLE_PROMPT __USE_AMSTRAD_PROMPT __USE_MONSTER_PROMPT __USE_TRACE_PROMPT"
+function prompt_reset(){
+    local FUNCDESC="Reset the shell prompt to standard (not simple, noot other"
+    unset __USE_SIMPLE_PROMPT __USE_AMSTRAD_PROMPT
+    unset __USE_MONSTER_PROMPT __USE_TRACE_PROMPT
+}
 
 # Maintain a per-execution call stack.
 __PROMPT_STACK=()
 trap '__PROMPT_STACK=("${__PROMPT_STACK[@]}" "${BASH_COMMAND}")' DEBUG
+
+#TODO add $SHLVL if greater than 0
 
 function __prompt_command() {
   local EXIT_CODE=${?}
