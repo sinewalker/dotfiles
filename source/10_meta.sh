@@ -36,7 +36,6 @@ function is_exe() {
     type -p "${@}" > /dev/null
 }
 
-
 function is_linux() {
     local FUNCDESC="Test if the operating system is a Linux flavour"
     [[ $(uname) =~ Linux ]] || return 1
@@ -134,14 +133,13 @@ The specified function is described and then listed.'
 
   if [[ $(type ${1}) =~ function ]]; then
         if is_exe pygmentize ; then
-            type -a ${1}|tail -n +2|pygmentize -l bash|less -R
+            type -a ${1}|tail -n +2|pygmentize -f terminal -l bash|less -R
         else
             type -a ${1}|tail -n +2|less -R
         fi
   elif  [[ -f $(which ${1}) ]]; then
       less -R $(which ${1})|grep -v 'switch off syntax highlighting'|less
   fi
-
 }
 complete -F _fns list
 
