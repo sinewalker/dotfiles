@@ -40,7 +40,7 @@
   newbr = checkout -b
   pick = cherry-pick
   pop = stash pop
-  porig = !"git push -u origin $(git branch|awk '/\\*/{print $2}')"
+  pmr = !"git push -u origin $(git branch|awk '/\\*/{print $2}')"
   pp = !"echo 'Pull'; git pull; echo 'Push'; git push"
   revert = checkout
   rb = rbranch
