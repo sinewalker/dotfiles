@@ -1,2 +1,87 @@
-\timing
+\set HISTCONTROL ignoreboth
+\set HISTSIZE 32767
+\set HISTFILE ~/.psql_history- :DBNAME-:USER
+\pset border 2
+\pset linestyle unicode
+\pset format aligned
+
+
+-- \setenv PAGER less
+\setenv YELLOW '`echo -e \"\\033[1;33m\"`'
+\setenv LIGHT_CYAN '`echo -e \"\\033[1;36m\"`'
+\setenv NOCOLOR '`echo -e \"\\033[0m\"`'
+
+-- \setenv PAGER 'sed \\"s/\\([[:space:]]\\+[0-9.\\-]\\+\\)$/${LIGHT_CYAN}\\1$NOCOLOR/; s/\\([[:space:]]\\+[0-9.\\-]\\+[[:space:]]\\)/${LIGHT_CYAN}\\1$NOCOLOR/g; s/│/${YELLOW}│${NOCOLOR}/g;s/^\\([-+]\\+\\)/$YELLOW\\1$NOCOLOR/\\" 2>/dev/null  | less'
+
+-- ├─┼┤┌┐└┘
+
+\setenv PAGER less
+\setenv LESS '-iMSx4e -FXR'
 \pset pager always
+
+
+\pset null '⧽null⧼'
+\x auto
+\timing on
+
+\set PROMPT1 '%[%033[32;1m%]%x%[%033[41m%]%[%033[1m%]%/%[%033[0m%]%R%# '
+
+\set COMP_KEYWORD_CASE upper
+
+\setenv PSQL_EDITOR_LINENUMBER_ARG +
+
+\set clear '\\! clear;'
+\set cls '\\! clear;'
+
+
+\set show_pgsql_data_sizes '\\! du -sh $PGDATA/*|sort -rh'
+
+\set show_top_ten_pgsql_files '\\! du -sh $PGDATA/*|sort -rh|head -10'
+
+\set show_top_ten_tables 'SELECT relname AS objectname, relkind AS objecttype, reltuples AS "#entries", pg_size_pretty(relpages::bigint*8*1024) AS size FROM pg_class ORDER BY relpages DESC LIMIT 10;'
+
+\set show_table_sizes 'SELECT relname AS objectname, relkind AS objecttype, reltuples AS "#entries", pg_size_pretty(relpages::bigint*8*1024) AS size FROM pg_class ORDER BY relpages DESC;'
+
+-- https://gist.github.com/rgreenjr/3637525
+
+
+\set show_running_queries 'SELECT pid, age(clock_timestamp(), query_start), usename, query FROM pg_stat_activity WHERE query != \'<IDLE>\' AND query NOT ILIKE \'%pg_stat_activity%\' ORDER BY query_start DESC;'
+\set show_running_queries_old 'SELECT procpid, age(clock_timestamp(), uery_start), usename, current_query FROM pg_stat_activity WHERE current_query != \'<IDLE>\' AND current_query NOT ILIKE \'%pg_stat_activity%\' ORDER BY query_start DESC;'
+
+\set do_vacuum 'VACUUM (VERBOSE, ANALYZE);'
+
+\set show_database_users 'SELECT * FROM pg_stat_activity where query NOT LIKE \'<%\';'
+
+\set show_database_sizes 'SELECT datname AS database, pg_size_pretty(pg_database_size(datname)) AS size FROM pg_database ORDER BY pg_database_size(datname) DESC;'
+
+\set show_cache_hit_rates 'SELECT sum(heap_blks_read) as heap_read, sum(heap_blks_hit)  as heap_hit, (sum(heap_blks_hit) - sum(heap_blks_read)) / sum(heap_blks_hit) as ratio FROM pg_statio_user_tables;'
+
+\set show_index_usage_rates 'SELECT relname, 100 * idx_scan / (seq_scan + idx_scan) percent_of_times_index_used, n_live_tup rows_in_table FROM pg_stat_user_tables ORDER BY n_live_tup DESC;'
+
+\set show_indecies_in_cache 'SELECT sum(idx_blks_read) as idx_read, sum(idx_blks_hit)  as idx_hit, (sum(idx_blks_hit) - sum(idx_blks_read)) / sum(idx_blks_hit) as ratio FROM pg_statio_user_indexes;'
+
+-- https://wiki.postgresql.org/wiki/Lock_Monitoring
+
+\set show_locks 'SELECT a.datname,l.relation::regclass,l.transactionid,l.mode,l.GRANTED,a.usename,a.query,a.query_start,age(now(), a.query_start) AS "age",a.pid FROM pg_stat_activity a JOIN pg_locks l ON l.pid = a.pid ORDER BY a.query_start;'
+
+\set show_deadlocks 'SELECT blocked_locks.pid AS blocked_pid, blocked_activity.usename  AS blocked_user, blocking_locks.pid AS blocking_pid,blocking_activity.usename AS blocking_user, blocked_activity.query AS blocked_statement, blocking_activity.query AS current_statement_in_blocking_process FROM pg_catalog.pg_locks blocked_locks JOIN pg_catalog.pg_stat_activity blocked_activity  ON blocked_activity.pid = blocked_locks.pid JOIN pg_catalog.pg_locks blocking_locks ON blocking_locks.locktype = blocked_locks.locktype AND blocking_locks.DATABASE IS NOT DISTINCT FROM blocked_locks.DATABASE AND blocking_locks.relation IS NOT DISTINCT FROM blocked_locks.relation AND blocking_locks.page IS NOT DISTINCT FROM blocked_locks.page AND blocking_locks.tuple IS NOT DISTINCT FROM blocked_locks.tuple AND blocking_locks.virtualxid IS NOT DISTINCT FROM blocked_locks.virtualxid AND blocking_locks.transactionid IS NOT DISTINCT FROM blocked_locks.transactionid AND blocking_locks.classid IS NOT DISTINCT FROM blocked_locks.classid AND blocking_locks.objid IS NOT DISTINCT FROM blocked_locks.objid AND blocking_locks.objsubid IS NOT DISTINCT FROM blocked_locks.objsubid AND blocking_locks.pid != blocked_locks.pid JOIN pg_catalog.pg_stat_activity blocking_activity ON blocking_activity.pid = blocking_locks.pid WHERE NOT blocked_locks.GRANTED;'
+
+\set mx_internal_msgs 'SELECT count(*),min(sent),max(sent) FROM sq_internal_msg;'
+
+-- https://central.squiz.net/delivery/sys-admin/induction-and-reference/matrix-management/database-maintenance/cleaning-sq_internal_msg
+
+\set mx_internal_msg_types 'SELECT type, count(*) AS records FROM sq_internal_msg GROUP BY type ORDER BY records DESC;'
+
+-- https://opswiki.squiz.net/ncallahan
+
+\set mx_show_old_file_sizes 'SELECT count(*), pg_size_pretty(sum(file_size)) FROM sq_file_vers_history where to_date < (SELECT min(sq_eff_from) FROM sq_rb_ast);'
+
+-- https://central.squiz.net/delivery/sys-admin/induction-and-reference/matrix-specific-nginx-stack/matrix-installation/postgresql-streaming-replication
+
+\set show_master_replication_stats 'SELECT * FROM pg_stat_replication; SELECT pg_current_xlog_location();'
+
+\set show_slave_replication_stats 'SELECT pg_last_xlog_receive_location(); SELECT pg_last_xlog_replay_location();'
+
+\set show_slave_replication_lag 'SELECT EXTRACT(EPOCH FROM (now() - pg_last_xact_replay_timestamp()))::INTEGER AS lag_seconds;'
+
+:show_database_sizes
