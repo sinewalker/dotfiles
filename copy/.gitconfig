@@ -21,34 +21,42 @@
   #MJL20170723 this causes issue on Raspbian with Git < 2.0. Maybe use 'upstream'?
   default = simple
 [alias]
+  lg = log -p
   glog = log --graph --all --decorate
   dlog = log --graph --all --decorate --date-order
+  rlog = reflog
+  hist = log --pretty=format:\"%h %ad | %s%d [%an]\" --graph --date=short
+
+  pp = !"echo 'Pull'; git pull; echo 'Push'; git push"
   sup = submodule update --init --recursive
   spull = !echo git pull && git pull && echo git submodule update --init --recursive && git sup
 
   br = branch
+  newbr = checkout -b
   ci = commit
   co = checkout
+
   df = diff
   dfs = diff --staged
-  dump = cat-file -p
-  fix = commit --amend
-  fuck-this-noise = !"echo 'Fucking thing sucks!'; FUCK=$(git url); SHIT=$(basename $PWD); cd ..; rm -rf $SHIT; git clone $FUCK; unset FUCK SHIT"
   g = grep -I
-  hist = log --pretty=format:\"%h %ad | %s%d [%an]\" --graph --date=short
-  lg = log -p
-  newbr = checkout -b
+
   pick = cherry-pick
   pop = stash pop
   pmr = !"git push -u origin $(git branch|awk '/\\*/{print $2}')"
-  pp = !"echo 'Pull'; git pull; echo 'Push'; git push"
+
   revert = checkout
+  undo = reset HEAD~
+  fix = commit --amend
+
   rb = rbranch
   rv = review
   st = status
+
+  dump = cat-file -p
   type = cat-file -t
-  undo = reset HEAD~
+
   url = config --get remote.origin.url
+  fuck-this-noise = !"echo 'Fucking thing sucks!'; FUCK=$(git url); SHIT=$(basename $PWD); cd ..; rm -rf $SHIT; git clone $FUCK; unset FUCK SHIT"
 
 #  ksdiff = difftool -y -t Kaleidoscope
 
