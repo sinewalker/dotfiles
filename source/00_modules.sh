@@ -1,5 +1,9 @@
 #Module loading
 
+# Note:- functions in this file are to do with loading bash modules only, and
+#        are not meant to be utility functions for other modules.  Those belong
+#        in 10_meta.sh
+
 # Skip if already loaded
 type -p __load_modules && return
 
