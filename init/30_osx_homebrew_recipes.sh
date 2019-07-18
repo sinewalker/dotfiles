@@ -13,6 +13,7 @@ RECIPES=(
   ansible
   asciinema
   bash
+  cmatrix
   cowsay
   git
   git-extras
