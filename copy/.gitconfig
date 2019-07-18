@@ -32,14 +32,17 @@
   df = diff
   dfs = diff --staged
   dump = cat-file -p
+  fix = commit --amend
   fuck-this-noise = !"echo 'Fucking thing sucks!'; FUCK=$(git url); SHIT=$(basename $PWD); cd ..; rm -rf $SHIT; git clone $FUCK; unset FUCK SHIT"
   g = grep -I
   hist = log --pretty=format:\"%h %ad | %s%d [%an]\" --graph --date=short
   lg = log -p
   newbr = checkout -b
+  pick = cherry-pick
   pop = stash pop
   porig = !"git push -u origin $(git branch|awk '/\\*/{print $2}')"
   pp = !"echo 'Pull'; git pull; echo 'Push'; git push"
+  revert = checkout
   rb = rbranch
   rv = review
   st = status
