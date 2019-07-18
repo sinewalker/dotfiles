@@ -131,16 +131,18 @@ The specified function is described and then listed.'
 
   describe ${1}
 
-  if [[ $(type ${1}) =~ function ]]; then
+  if [[ $(type "${1}") =~ function ]]; then
         if is_exe pygmentize ; then
             type -a "${1}"|tail -n +2 \
               |pygmentize -O encoding=utf8 -f terminal -l bash \
               |less -R
         else
-            type -a ${1}|tail -n +2|less -R
+            type -a "${1}"|tail -n +2|less -R
         fi
-  elif  [[ -f $(which ${1}) ]]; then
-      less -R $(which ${1})|grep -v 'switch off syntax highlighting'|less
+  elif  [[ -f $(which "${1}") || -s $(which "${1}") ]]; then
+      less -R $(which "${1}") \
+        |grep -v 'switch off syntax highlighting' \
+        |less
   fi
 }
 complete -F _fns list
