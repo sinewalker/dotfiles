@@ -167,3 +167,25 @@ export SQUIZ_EDGE_PROD_IP=202.9.95.188
 
 patch -sN /Applications/Slack.app/Contents/Resources/app.asar.unpacked/src/static/ssb-interop.js \
     ${DOTFILES}/misc/osx/dark-slack.patch  2>&1 > /dev/null || true
+
+# see https://klaig.blogspot.com/2013/04/make-your-dotfiles-follow-you.html
+# I could SCP, but this way is a template for adding into .ssh config
+# (if I wanna go that radical).
+slurp_dotfiles() {
+    tar cz -C${HOME} .bashrc .psqlrc .tmux.conf .toprc \
+         .dotfiles/link/.bashrc \
+         .dotfiles/link/.psqlrc \
+         .dotfiles/link/.toprc \
+         .config/htop/htoprc \
+         .dotfiles/bin/dotfiles \
+         .dotfiles/misc/loadenv \
+         .dotfiles/source/00_dotfiles.sh \
+         .dotfiles/source/00_modules.sh \
+         .dotfiles/source/10_meta.sh .dotfiles/source/20_completion.sh \
+         .dotfiles/source/20_env.sh .dotfiles/source/20_history.sh \
+         .dotfiles/source/30_editor.sh .dotfiles/source/30_net.sh \
+         .dotfiles/source/30_file.sh \
+         .dotfiles/source/99_path.sh  \
+         | ssh ${1} 'tar mxz -C${HOME}'
+    ssh "${1}" '[[ -s ~/etc ]] || ln -s .config ~/etc'
+}

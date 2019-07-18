@@ -1,0 +1,23 @@
+# alternate init-file
+#
+# for use in a sudo session, e.g.:
+#  pushd $HOME; sudo bash --init-file ~/loadenv; popd
+
+echo " You are ${USER}"
+
+echo " Loading bash environment from ${PWD}"
+SUDO_HOME=${HOME}
+export HOME=${PWD}
+source ~/.bashrc
+
+echo " Copy and set Postgresql Run Commands"
+REAL_USER=$(who am i|awk '{print $1}')
+export PSQLRC=$(mktemp /tmp/${REAL_USER}.XXX.psqlrc)
+cp ~/.psqlrc ${PSQLRC}
+chmod o+rw ${PSQLRC}
+
+echo " Loading ${USER}'s Bash Run Commands"
+export HOME=${SUDO_HOME}
+unset SUDO_HOME
+cd
+load ~/.bash_profile ~/.bashrc
