@@ -156,7 +156,7 @@ If no attached TTY, or no loading file, then just source the modules."
     local NOMODS=(${BASH_MODULES}/*.sh); NOMODS=${#NOMODS[@]}
     local SUMMARY=" (${NOMODS} modules, $(awk '/real/{print $2}' ${TIMER}))"
     rm ${TIMER}
-    printf "\r${PR_COLOUR}${SUMMARY}${LOW}%$((${COLUMNS}-${#SUMMARY}))s";
+    printf "\r${PR_COLOUR}${SUMMARY}${LOW}%$((${COLUMNS}-${#SUMMARY}))s\n";
   else # no TTY, just load
     __load_modules
   fi
