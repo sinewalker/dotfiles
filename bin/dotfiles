@@ -62,19 +62,46 @@ function is_raspbian() {
     #lsb_release is not installed by default in Raspbian
     [[ -f /etc/rpi-issue ]] || return 1
 }
+function __redhat_release(){
+    # sometimes RedHat has lsb_release, and sometimes not
+    local DIST RELEASE
+    if type -p lsb_release &> /dev/null; then
+      DIST=$(lsb_release -i 2> /dev/null)
+      RELEASE=$(lsb_release -r 2> /dev/null|awk '{print $2}')
+    elif [[ -f /etc/redhat-release ]]; then
+      DIST=$(cat /etc/redhat-release)
+      RELEASE=$(awk '{print $4}' /etc/redhat-release)
+    else
+      return 1
+    fi
+    echo ${DIST} ${RELEASE}
+}
 function is_redhat6() {
     local FUNCDESC="Return 0 if operating system is a RedHat 6 variant, else return 1"
-    [[ $(lsb_release -r 2> /dev/null|awk '{print $2}') =~ ^6\. ]] || return 1
-    local DIST=$(lsb_release -i 2> /dev/null)
-    [[ ${DIST} =~ Scientific ]] || [[ ${DIST} =~ CentOS  ]] \
-        || [[ ${DIST} =~ Red ]] || return 1
+    local DIST_RELEASE=$(__redhat_release) || return 1
+    local RELEASE=$(echo ${DIST_RELEASE}|awk '{print $NF}')
+
+    [[ ${RELEASE} =~ ^6\. ]] || return 1
+    [[ ${DIST_RELEASE} =~ Scientific ]] || [[ ${DIST_RELEASE} =~ CentOS  ]] \
+      || [[ ${DIST_RELEASE} =~ Red ]] || return 1
 }
-function is_redhat7() {
-    local FUNCDESC="Return 0 if operating system is a RedHat 7 variant, else return 1"
-    local DIST=$(lsb_release -i 2> /dev/null)
-    [[ ${DIST} =~ Fedora ]] && return 0
-    [[ $(lsb_release -r 2> /dev/null|awk '{print $2}') =~ ^7\. ]] || return 1
-    [[ ${DIST} =~ CentOS ]] || [[ ${DIST} =~ Red  ]] || return 1
+function is_redhat7(){
+    local FUNCDESC="Return 0 if operating system is a RedHat 7 variant, else return 1";
+    local DIST_RELEASE=$(__redhat_release) || return 1
+    local RELEASE=$(echo ${DIST_RELEASE}|awk '{print $NF}')
+
+    [[ ${RELEASE} =~ ^7\. ]] || return 1
+    [[ ${DIST_RELEASE} =~ Fedora ]] || [[ ${DIST_RELEASE} =~ CentOS ]] \
+      || [[ ${DIST_RELEASE} =~ Red ]] || return 1
+}
+function is_redhat8(){
+    local FUNCDESC="Return 0 if operating system is a RedHat 8 variant, else return 1";
+    local DIST_RELEASE=$(__redhat_release) || return 1
+    local RELEASE=$(echo ${DIST_RELEASE}|awk '{print $NF}')
+
+    [[ ${RELEASE} =~ ^8\. ]] || return 1
+    [[ ${DIST_RELEASE} =~ Fedora ]] || [[ ${DIST_RELEASE} =~ CentOS ]] \
+      || [[ ${DIST_RELEASE} =~ Red ]] || return 1
 }
 function get_os() {
     local FUNCDESC="Report operating system. If unknown, prints nothing and returns 1.
@@ -82,7 +109,7 @@ function get_os() {
 If first argument is '1', then list all known OSes that this system is NOT
 running."
     local RET=1
-    for OS in osx ubuntu suse raspbian redhat6 redhat7; do
+    for OS in osx ubuntu suse raspbian redhat6 redhat7 redhat8; do
         is_${OS}; [[ ${?} == ${1:-0} ]] && echo ${OS} && RET=0
     done
     return ${RET}
