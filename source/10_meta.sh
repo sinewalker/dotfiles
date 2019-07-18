@@ -125,7 +125,7 @@ The specified function is described and then listed.'
 
   if [[ -z "${1}" ]]; then
       usage "${FUNCNAME} <function>" ${FUNCDESC}
-      error "Must supply a function to list."
+      error "Must supply a function or script to list."
       return 1
   fi
 
