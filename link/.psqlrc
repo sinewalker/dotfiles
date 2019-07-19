@@ -1,3 +1,44 @@
+-----------------------------------------------------*- mode:sql[postgres] -*-
+--
+--  File:       ~/.psqlrc -> ${DOTFILES}/link/.psqlrc
+--  Created:    2019-07-12
+--  Language:   PostgreSQL
+--  Time-stamp: <2019-07-20 09:54:18 mjl>
+--  Platform:   PostgreSQL
+--  OS:         N/A
+--  Author:     [MJL] Michael J. Lockhart <sinewalker@gmail.com>
+--
+--  Rights:     Copyright © 2019 Michael James Lockhart, B.App.Comp(HONS)
+--
+--  PURPOSE:    PostgreSQL preferences
+--
+------------------------------------------------------------------------------
+--
+--- Commentary:
+--
+-- This file is loaded by psql at startup. It should live in ~/.psqlrc
+-- Alternately you may set an environment variable $PSQLRC to reference where
+-- you have installed it
+--
+------------------------------------------------------------------------------
+--
+--- Bugs:
+--
+-- This contains many PostgreSQL "commands" which are hard to read because the
+-- syntax requires a single line. I should separate this out into a separate
+-- commands-file to be included from here, and then write some code to build the
+-- commands from regular .sql files. See example from here:
+---
+-- https://bitbucket.org/adamkg/libakg/src/default/dot/psqlrc-commands.d/update_psqlrc_commands.sh
+-- (loads from https://bitbucket.org/adamkg/libakg/src/default/dot/psqlrc-commands.d/ )
+-- (included by https://bitbucket.org/adamkg/libakg/src/default/dot/psqlrc )
+--
+-- The generated commands file could be put on all servers with puppet, to a
+-- known location, such as /opt/squiz/mx-utilities.sql. The whole thing belongs
+-- in a separate repository.
+--
+------------------------------------------------------------------------------
+
 \set HISTCONTROL ignoreboth
 \set HISTSIZE 32767
 \set HISTFILE ~/.psql_history- :DBNAME-:USER
@@ -6,16 +47,17 @@
 \pset format aligned
 
 
--- \setenv PAGER less
+\setenv PAGER less
 \setenv YELLOW '`echo -e \"\\033[1;33m\"`'
 \setenv LIGHT_CYAN '`echo -e \"\\033[1;36m\"`'
 \setenv NOCOLOR '`echo -e \"\\033[0m\"`'
 
+-- colour pager  (broken, may not want it anyway)
 -- \setenv PAGER 'sed \\"s/\\([[:space:]]\\+[0-9.\\-]\\+\\)$/${LIGHT_CYAN}\\1$NOCOLOR/; s/\\([[:space:]]\\+[0-9.\\-]\\+[[:space:]]\\)/${LIGHT_CYAN}\\1$NOCOLOR/g; s/│/${YELLOW}│${NOCOLOR}/g;s/^\\([-+]\\+\\)/$YELLOW\\1$NOCOLOR/\\" 2>/dev/null  | less'
 
--- ├─┼┤┌┐└┘
 
-\setenv PAGER less
+-- unicode border chars: ├─┼┤┌┐└┘
+
 \setenv LESS '-iMSx4e -FXR'
 \pset pager always
 
@@ -33,6 +75,8 @@
 \set clear '\\! clear;'
 \set cls '\\! clear;'
 
+------------------------------------------------------------------------------
+-- commands to be relocated/generated from SQL:
 
 \set show_pgsql_data_sizes '\\! du -sh $PGDATA/*|sort -rh'
 
@@ -66,6 +110,16 @@
 
 \set show_deadlocks 'SELECT blocked_locks.pid AS blocked_pid, blocked_activity.usename  AS blocked_user, blocking_locks.pid AS blocking_pid,blocking_activity.usename AS blocking_user, blocked_activity.query AS blocked_statement, blocking_activity.query AS current_statement_in_blocking_process FROM pg_catalog.pg_locks blocked_locks JOIN pg_catalog.pg_stat_activity blocked_activity  ON blocked_activity.pid = blocked_locks.pid JOIN pg_catalog.pg_locks blocking_locks ON blocking_locks.locktype = blocked_locks.locktype AND blocking_locks.DATABASE IS NOT DISTINCT FROM blocked_locks.DATABASE AND blocking_locks.relation IS NOT DISTINCT FROM blocked_locks.relation AND blocking_locks.page IS NOT DISTINCT FROM blocked_locks.page AND blocking_locks.tuple IS NOT DISTINCT FROM blocked_locks.tuple AND blocking_locks.virtualxid IS NOT DISTINCT FROM blocked_locks.virtualxid AND blocking_locks.transactionid IS NOT DISTINCT FROM blocked_locks.transactionid AND blocking_locks.classid IS NOT DISTINCT FROM blocked_locks.classid AND blocking_locks.objid IS NOT DISTINCT FROM blocked_locks.objid AND blocking_locks.objsubid IS NOT DISTINCT FROM blocked_locks.objsubid AND blocking_locks.pid != blocked_locks.pid JOIN pg_catalog.pg_stat_activity blocking_activity ON blocking_activity.pid = blocking_locks.pid WHERE NOT blocked_locks.GRANTED;'
 
+
+\set show_master_replication_stats 'SELECT * FROM pg_stat_replication; SELECT pg_current_xlog_location();'
+
+\set show_slave_replication_stats 'SELECT pg_last_xlog_receive_location(); SELECT pg_last_xlog_replay_location();'
+
+\set show_slave_replication_lag 'SELECT EXTRACT(EPOCH FROM (now() - pg_last_xact_replay_timestamp()))::INTEGER AS lag_seconds;'
+
+------------------------------------------------------------------------------
+-- Matrix-specific:
+
 \set mx_internal_msgs 'SELECT count(*),min(sent),max(sent) FROM sq_internal_msg;'
 
 -- https://central.squiz.net/delivery/sys-admin/induction-and-reference/matrix-management/database-maintenance/cleaning-sq_internal_msg
@@ -78,10 +132,8 @@
 
 -- https://central.squiz.net/delivery/sys-admin/induction-and-reference/matrix-specific-nginx-stack/matrix-installation/postgresql-streaming-replication
 
-\set show_master_replication_stats 'SELECT * FROM pg_stat_replication; SELECT pg_current_xlog_location();'
 
-\set show_slave_replication_stats 'SELECT pg_last_xlog_receive_location(); SELECT pg_last_xlog_replay_location();'
-
-\set show_slave_replication_lag 'SELECT EXTRACT(EPOCH FROM (now() - pg_last_xact_replay_timestamp()))::INTEGER AS lag_seconds;'
+------------------------------------------------------------------------------
+-- execute start-up commands, for orientation:
 
 :show_database_sizes
