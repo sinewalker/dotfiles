@@ -243,3 +243,36 @@ complete -F _sshmnts ssh-umount
 alias lsssh='ls ${SSHFS_MOUNT_POINT}'
 alias lsshmnt='mount|grep ${SSHFS_MOUNT_POINT}'
 alias lsofmnt="lsof|awk -v srvmnt=\${SSHFS_MOUNT_POINT} 'NR==1{print \$0}; \$0 ~ srvmnt'"
+
+slurp_dotfiles() {
+    local FUNCDESC="Upload selected dotfiles and bash modules to specified host
+
+The files uploaded are the settings for most common Unix utilities, but not development chains like Python/Node, or OS customisations. These SHOULD be safe to include in any Linux-like system with the GNU tools and a bash shell."
+
+    if [[ -z "{1}" ]]; then
+        error "${FUNCNAME}: must specify where to slurp"
+        usage "${FUNCNAME} <destination-host>" ${FUNCDESC}
+        return 1
+    fi
+
+# see https://klaig.blogspot.com/2013/04/make-your-dotfiles-follow-you.html
+# I could SCP, but this way is a template for adding into .ssh config
+# (if I wanna go that radical).
+    tar cz -C${HOME} .bashrc .psqlrc .screenrc .tmux.conf .toprc \
+         .dotfiles/link/.bashrc \
+         .dotfiles/link/.psqlrc \
+         .dotfiles/link/.screenrc \
+         .dotfiles/link/.toprc \
+         .config/htop/htoprc \
+         .dotfiles/bin/dotfiles \
+         .dotfiles/misc/loadenv \
+         .dotfiles/source/00_dotfiles.sh \
+         .dotfiles/source/00_modules.sh \
+         .dotfiles/source/10_meta.sh .dotfiles/source/20_completion.sh \
+         .dotfiles/source/20_env.sh .dotfiles/source/20_history.sh \
+         .dotfiles/source/30_editor.sh .dotfiles/source/30_net.sh \
+         .dotfiles/source/30_file.sh \
+         .dotfiles/source/99_path.sh  \
+         | ssh "${1}" 'tar mxz -C${HOME}'
+    ssh "${1}" '[[ -s ${HOME}/etc ]] || ln -s .config ${HOME}/etc'
+}
