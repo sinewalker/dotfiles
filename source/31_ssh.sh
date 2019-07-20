@@ -128,7 +128,6 @@ function ssh-master() {
 
     ls ~/.ssh/*master* |  awk -F @ '{gsub(/:22/, "", $2); print $2 }'
 }
-alias ssh-ls=ssh-master
 
 function ssh-find() {
     local FUNCDESC="search for a host in SSH config"
@@ -201,7 +200,7 @@ _sshmnts() {
     COMPREPLY=()
     local CUR SSHMNTS
     CUR="${COMP_WORDS[COMP_CWORD]}"
-    SSHMNTS="$(ls ${SSHFS_MOUNT_POINT})"
+    SSHMNTS="$(ssh-mount|awk -F : '{print $1}')"
     COMPREPLY=( $(compgen -W "${SSHMNTS}" -- ${CUR}) )
     return 0
 }
@@ -240,9 +239,32 @@ open files to help you close them."
 }
 complete -F _sshmnts ssh-umount
 
-alias lsssh='ls ${SSHFS_MOUNT_POINT}'
-alias lsshmnt='mount|grep ${SSHFS_MOUNT_POINT}'
-alias lsofmnt="lsof|awk -v srvmnt=\${SSHFS_MOUNT_POINT} 'NR==1{print \$0}; \$0 ~ srvmnt'"
+function ssh-clean-mounts(){
+    local FUNCDESC="Remove all stale SSHFS mount-point directories."
+    local MNT
+    for MNT in ${SSHFS_MOUNT_POINT}/*; do
+       [[ ${MNT} =~ '*' ]] && continue
+       if ! mount | grep ${MNT}; then
+           echo "Removing ${MNT} - not mounted"
+           rmdir ${MNT}
+        fi
+    done
+}
+
+function ssh-lsof(){
+    local FUNCDESC="List all open SSHFS files."
+
+    is_osx && echo "Listing open SSHFS files, please wait..."
+    lsof|awk -v srvmnt=${SSHFS_MOUNT_POINT}\
+       'NR==1{print $0}; /DS_Store/{next}; $0 ~ srvmnt'
+}
+
+alias ssh-ls='ls -l ${SSHFS_MOUNT_POINT}'
+alias lsssh=ssh-ls
+alias lsshmnt=ssh-mount
+alias lsofmnt=ssh-lsof
+alias ssh-rmdir=ssh-clean-mounts
+
 function ssh-rmknown-host(){
     local FUNCDESC="Remove a known_hosts entry by pattern (e.g. hostname or IP)
 
