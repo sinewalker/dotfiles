@@ -180,7 +180,10 @@ function cpmod {
 }
 
 function backup {
-    local FUNCDESC="Backup and change mode of files before editing (as required by NBR change process). The backup will be named with -dateTtime.bak and have mode changed +w -x to prevent accidental execution."
+    local FUNCDESC="Backup and change mode of files before editing (as required by NBR change process).
+
+The backup will be named with -dateTtime.bak and have mode changed +w -x to
+prevent accidental execution."
 
     [[ -z ${1} ]] && error "No file specified" \
         && usage "${FUNCNAME} <filename> [<filename> ...]" "where <filename> is the file(s) to back up." \
@@ -198,7 +201,11 @@ function backup {
 }
 
 function backout {
-    local FUNCDESC="Reverses a backup by putting the backup back to the original name. CAUTION: the mode is NOT reset to what it was before backup, rather the mode of the restored file is set to that of the file it's replacing.  The new file will be renamed '<filename>.keep'"
+    local FUNCDESC="Reverses a backup by putting the backup back to the original name.
+
+CAUTION: the mode is NOT reset to what it was before backup, rather the mode of
+the restored file is set to that of the file it's replacing. The new file will
+be renamed '<filename>.keep'"
 
     local RET=0
 
