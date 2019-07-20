@@ -222,29 +222,116 @@ be renamed '<filename>.keep'"
     [[ -x ${1}.keep ]] && chmod -x ${1}.keep
 }
 
-function fsync {
-    local FUNCDESC="rsync <source> directory to <dest> so that <dest> is just like <source>, no extra files."
+
+# https://gist.github.com/sinewalker/9fb8be2034891a21d50a21d3398c193b
+alias rcopy="rsync --hard-links --partial --progress --verbose --archive"
+alias rcopyz="rsync --hard-links --partial --progress --verbose --archive --compress"
+
+function dsync {
+    local FUNCDESC="rsync <source> directory to <dest> so that <dest> is just like <source>, no extra files.
+
+<source> and <dest> may be server-specs:  [user@]server:/filespec...
+
+Optional -z switch will compress (good for networks, bad for local)
+
+CARE: Optional -y switch will copy over existing directory without asking"
+
+    local RET=0 DOIT=n
+    local CMPRS=""
+    if [[ "${1}" == "-z" ]]; then
+        CMPRS="${1}"; shift
+    fi
+    if [[ "${1}" == "-y" ]]; then
+        DOIT=y; shift
+    fi
     local SRC="${1}"; shift
     local DST="${1}"; shift
 
-    local RET=0
     if [[ -z ${SRC} ]] || [[ -z ${DST} ]]; then
         RET=1
         error "${FUNCNAME}: must specify a sync source and destination."
     fi
-    if [[ ! -d ${SRC} ]] || [[ ! -d ${DST} ]]; then
+    if [[ ! -d ${SRC} ]]; then
         RET=1
-        error "${FUNCNAME}: source and destination must be directories."
+        error "${FUNCNAME}: source must be a directory."
+    fi
+    if [[ ! -d ${DST} ]]; then
+        echo "WARNING: ${DST} directory does not exist."
+        echo -n "Create? (Y/n)"
+        local DODIR
+        read DODIR
+        if [[ ${DODIR} =~ y ]]; then
+            if ! mkdir -p ${DST} ; then
+                error "${FUNCNAME}: cannot make ${DST} directory. Aborted"
+                return 2
+            else
+                RET=1
+                echo "Aborted"
+            fi
+        fi
     fi
 
+    local RSYNC_COMMAND="rsync --hard-links --partial \
+          --progress --verbose --archive --delete ${CMPRS} ${SRC}/ ${DST}/"
+
     if [[ ${RET} -gt 0 ]]; then
-        usage "${FUNCNAME} <source> <dest>" ${FUNCDESC}
+        usage "${FUNCNAME} [-z] [-y] <source> <dest>" ${FUNCDESC}
         return ${RET}
+    elif [ -n "$(\ls -A ${DST})" ]; then
+        if [[ ${DOIT} =~ n ]]; then
+            echo "WARNING: ${DST} contains files. Additional files in ${DST} will be deleted to match ${SRC}"
+            echo -n "Proceed? (y/N) "
+            read DOIT
+        fi
+        [[ ${DOIT} =~ y ]] && eval ${FSYNC_COMMAND} || echo "Aborted."
     else
-        rsync --hard-links --partial --progress --verbose --archive --delete ${SRC}/ ${DST}/
+        eval ${RSYNC_COMMAND}
     fi
 }
-alias pirate=fsync
+
+function dcopy(){
+    local FUNCDESC="rsync <source> directory to <dest>
+
+This is like dsync() only it doesn't delete from the destination.
+
+<source> and <dest> may be server-specs:  [user@]server:/filespec...
+
+Optional -z switch will use compression (good for networks, bad for local)"
+
+    local CMPRS=""
+    if [[ "${1}" == "-z" ]]; then
+        CMPRS="${1}"; shift
+    fi
+    local SRC="${1}"; shift
+    local DST="${1}"; shift
+
+    local RET=0 DOIT=n
+    if [[ -z ${SRC} ]] || [[ -z ${DST} ]]; then
+        RET=1
+        error "${FUNCNAME}: must specify source and destination directories."
+    fi
+    if [[ ! -d ${SRC} ]]; then
+        RET=1
+        error "${FUNCNAME}: source must be a directory."
+    fi
+    if [[ ! -d ${DST} ]]; then
+        echo "${FUNCNAME}: INFO: ${DST} directory does not exist. Creating."
+        if ! mkdir -p ${DST} ; then
+            error "${FUNCNAME}: cannot make ${DST} directory. Aborted"
+            return 2
+        fi
+    fi
+
+    local RSYNC_COMMAND="rsync --hard-links --partial --progress \
+          --verbose --archive ${CMPRS} ${SRC}/ ${DST}/"
+
+    if [[ ${RET} -gt 0 ]]; then
+        usage "${FUNCNAME} [-z] <source> <dest>" ${FUNCDESC}
+        return ${RET}
+    else
+        eval ${RSYNC_COMMAND}
+    fi
+}
 
 # The PGP Web Of Trust is broken. Just trust your keys, or not.
 alias gpgtrust='gpg --trust-model always'
