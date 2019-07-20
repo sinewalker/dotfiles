@@ -156,22 +156,32 @@ if [ ! -d ${SSHFS_MOUNT_POINT} ] ; then
 fi
 CDPATH=${SSHFS_MOUNT_POINT}:${CDPATH}
 
-#TODO This relies on Host User mapping in your SSH config. There SHOULD be a way
-#     to specify the connecting user
-
 function ssh-mount() {
     local FUNCDESC="Mount a remote server directory with SSHFS.
 
 The files within the <directory> on the <server> will be accessible locally at
-${SSHFS_MOUNT_POINT}/<server>, via SSHFS.  If no <directory> is specified, the
-root directory is assumed. If <sudo user> is specified, then files will be
-accessed using that user's credentials (provided your user is on the sudoers
-list)."
+${SSHFS_MOUNT_POINT}/<server>, via SSHFS.
 
-    if test -z ${1}; then
-        error "${FUNCNAME}: Must specify a server to mount."
-        usage "${FUNCNAME} <server> [<directory>] [<sudo user>]" ${FUNCDESC}
-        return 1
+If no <directory> is specified, the root directory is assumed.
+
+If <sudo user> is specified, then files will be accessed using that user's
+credentials (provided your user is on the sudoers list).
+
+If no <server> is specified, list the current SSH mounts. Use -h or --help for
+this help message."
+
+    #TODO The sshfs calls rely on Host User mapping in your SSH config. So that
+    #     you can simply go to the server without the user@ part. There SHOULD
+    #     be a way to specify the connecting user
+
+
+    if test -z "${1}"; then
+        mount | grep ${SSHFS_MOUNT_POINT}
+        return 0
+    fi
+    if [[ "${1}" =~ --help ]] || [[ "${1}" =~ -h ]]; then
+        usage "${FUNCNAME} -h|--help|[<server>] [<directory>] [<sudo user>]" ${FUNCDESC}
+        return 0
     fi
     local server mntdir sudoer
     server="${1}"
