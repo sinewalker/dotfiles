@@ -243,6 +243,22 @@ complete -F _sshmnts ssh-umount
 alias lsssh='ls ${SSHFS_MOUNT_POINT}'
 alias lsshmnt='mount|grep ${SSHFS_MOUNT_POINT}'
 alias lsofmnt="lsof|awk -v srvmnt=\${SSHFS_MOUNT_POINT} 'NR==1{print \$0}; \$0 ~ srvmnt'"
+function ssh-rmknown-host(){
+    local FUNCDESC="Remove a known_hosts entry by pattern (e.g. hostname or IP)
+
+This will remove all lines from your ~/.ssh/known_hosts that match the pattern
+you give it.  You may use egrep style regexps.  Useful for warnings about
+changed host keys (after you have verified the new key, of course)"
+
+    if [[ -z "${1}" ]] ; then
+        error ${FUNCNAME}: must supply a pattern to remove
+        usage "${FUNCNAME} <pattern>" ${FUNCDESC}
+    fi
+
+    local OLD_HOSTS=~/.ssh/known_hosts.$(date +%s)
+    cp ~/.ssh/known_hosts ${OLD_HOSTS}
+    egrep -v "${1}" ${OLD_HOSTS} > ~/.ssh/known_hosts
+}
 
 slurp_dotfiles() {
     local FUNCDESC="Upload selected dotfiles and bash modules to specified host
