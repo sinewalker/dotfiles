@@ -15,6 +15,7 @@ RECIPES=(
   bash
   cmatrix
   cowsay
+  dos2unix
   git
   git-extras
   htop
