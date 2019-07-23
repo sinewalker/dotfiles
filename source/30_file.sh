@@ -79,16 +79,6 @@ alias ...........='cd ../../../../../../../../../..'
 #this aliases '-' to go back to previous directory
 alias -- -='cd -'
 
-function cd() {
-    local FUNCDESC="Change Directory, saving previous dir in $PLD
-
-Unlike pushd/popd/dirs, this allows one to Print Last Directory for things
-such as copying files."
-
-    export PLD=${PWD}
-    command cd ${1}
-}
-complete -F _cd cd
 complete -F _cd pushd
 
 # File size
