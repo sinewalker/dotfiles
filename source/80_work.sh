@@ -20,6 +20,8 @@ function __add_cdpath(){
 __add_cdpath ~/Work
 __cdpath_add ~/Work/svn
 __cdpath_add ~/Work/lab
+__add_cdpath ~/Work/lab/mlockhart
+__cdpath_add ~/Work/lab/ops
 __add_cdpath ~/Work/Projects
 __add_cdpath ~/Work/Documents
 __add_cdpath .
@@ -163,8 +165,59 @@ alias sl6='unset SERVERUSER'
 export SQUIZ_EDGE_STAGING_IP=202.9.94.180
 export SQUIZ_EDGE_PROD_IP=202.9.95.188
 
-### MJL20190611 patch slack for darkness
+#MJL20190904 Edit eyaml
+#  https://opswiki.squiz.net/asharpe/workstation/walkthrough#Edit_eyaml
 
-patch -sN /Applications/Slack.app/Contents/Resources/app.asar.unpacked/src/static/ssb-interop.js \
-    ${DOTFILES}/misc/osx/dark-slack.patch  2>&1 > /dev/null || true
+#TODO:  completion doesn't work.  I'd like to complete files in $SQUIZ_PUPPET/hieradata from anywhere
+#  see https://stackoverflow.com/questions/44453510/how-to-autocomplete-a-bash-commandline-with-file-paths-from-a-specific-directory
+#  for now:  cd $SQUIZ_PUPPET  and then use default file completion
 
+function _sq_hieradata(){
+    COMPREPLY=()
+    local cur yaml
+    cur="${COMP_WORDS[COMP_CWORD]}"
+    yaml=\
+     "$(find ${SQUIZ_PUPPET}/hieradata -name *.yaml)"
+#         -exec realpath --relative-to ${SQUIZ_PUPPET} {} \;)"
+    COMPREPLY=($(compgen -W "${yaml}" -- ${cur}))
+    return 0
+}
+function eyaml_sq_edit() {
+    local FUNCDESC="Edit a file with eyaml, encrypted for the squiz sysadmins group"
+
+   pushd ${SQUIZ_PUPPET}  #so that the right rbenv activates
+   echo editing ${@} with ${EDITOR}
+   eyaml edit -n gpg --gpg-always-trust \
+     --gpg-recipients-file=${SQUIZ_PUPPET}/hieradata/allsysadmins.gpg-recipients "$@"
+   popd
+}
+#complete -F _sq_hieradata eyaml_sq_edit
+
+function eyaml_sq_recrypt() {
+    local FUNCDESC="Recrypt a file with eyaml, encrypted for the squiz sysadmins group"
+
+   pushd ${SQUIZ_PUPPET}  #so that right rbenv activates
+   echo recrypting ${@}
+   eyaml recrypt -d gpg -n gpg --gpg-always-trust \
+     --gpg-recipients-file=${SQUIZ_PUPPET}/hieradata/allsysadmins.gpg-recipients "$@"
+   popd
+}
+#complete -F _sq_hieradata eyaml_sq_recrypt
+
+#MJL20191010 - web shortcuts
+
+alias howtoedge='open https://opswiki.squiz.net/HowTo/Edge/edge-config#Make_your_changes_in_Staging'
+alias ohshitgit='open https://ohshitgit.com/'
+alias sslcheat='open https://opswiki.squiz.net/dbelcher/OpenSSL_Cheats'
+
+function jira(){
+  local FUNCDESC="Open a JIRA ticket"
+
+  if test -z "${1}"; then
+    error "${FUNCNAME}: Error: no ticket supplied"
+    usage "${FUNCNAME} <ticket-id>" ${FUNCDESC}
+    return 1
+  fi
+
+  open https://jira.squiz.net/browse/${1}
+}

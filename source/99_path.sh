@@ -34,5 +34,8 @@ path_add ~/bin PREPEND
 path_add ~/Work/bin
 path_add .
 
+#RUST
+path_add ~/.cargo/bin
+
 export PATH
 alias path='echo ${PATH}'

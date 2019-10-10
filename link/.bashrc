@@ -20,4 +20,5 @@ if kill -l|grep SIG &> /dev/null; then #is not POSIX?
   export PATH
   source ${BASH_MODULES}/00_modules.sh
   __bootstrap_modules
+#  eval "$(rbenv init -)"
 fi

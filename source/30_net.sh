@@ -201,12 +201,12 @@ function create-csr-conf() {
     local FUNCDESC="Create a CSR openssl configuration from an existing web server certificate."
     if [[ -z "${1}" ]] ; then
         error "missing domain to generation config for"
-        usage "${FUNCNAME} https://<somedomain>" ${FUNCDESC}
+        usage "${FUNCNAME} <somedomain>" ${FUNCDESC}
         return 1
     fi
 
-    local C ST OU O L CN subject
-    subject=$(echo | openssl s_client -connect "${1}:443 -servername ${1}" | openssl x509 -subject -noout)
+    local domain="${1}" C ST OU O L CN subject
+    subject=$(echo | openssl s_client -connect ${domain}:443 -servername ${domain} | openssl x509 -subject -noout)
     C=$(echo ${subject}  | grep -oP '\/C=.*?\/'  | tr -d /)
     ST=$(echo ${subject} | grep -oP '\/ST=.*?\/' | tr -d /)
     OU=$(echo ${subject} | grep -oP '\/OU=.*?\/' | tr -d /)
@@ -250,7 +250,7 @@ EOF
 
     local create
     read -p "Create CSR? (y/n) " create
-    [[ $create == "y" ]] && createcsr ${outfile}
+    [[ $create == "y" ]] && create-csr ${outfile}
 }
 alias gencsr-conf=create-csr-conf
 
@@ -325,3 +325,17 @@ alias dl-opus='dl-av opus'
 alias dl-mp3='dl-av mp3'
 alias dl-audio='dl-av audio'
 alias dl-video='dl-av'
+
+function geoip(){
+    local FUNCDESC="Get Geographic info for an IP address, or current WAN address.
+
+Uses the JS API from geojs.io
+
+https://www.geojs.io/docs/v1/endpoints/geo/"
+
+    if [[ -z "${1}" ]]; then
+        http https://get.geojs.io/v1/ip/geo.json
+    else
+        http "https://get.geojs.io/v1/ip/geo/${1}.json"
+    fi
+}

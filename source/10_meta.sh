@@ -86,10 +86,11 @@ This function requires shopt -s extdebug to show file and line details.'
     fi
     case $(type -t "${1}" 2> /dev/null) in
         alias)
-            #piping grep to awk is usually not great, but awk can't search for a
-            #bash variable?
+            #piping grep to awk and seding the output is usually not great, but
+            #awk can't search for or match a bash variable?
             \grep -Rn "alias ${1}=" ${DOTFILES}/source \
-                | awk -F: '{print "⍺: " $3 "\tin " $1 "\tline " $2}'
+                | awk -F: '{print "⍺:\t" $3 "\t--> " $1 ":" $2}' \
+                    | sed "s/${1}=//g"
             return $?
             ;;
         function)
@@ -97,19 +98,20 @@ This function requires shopt -s extdebug to show file and line details.'
             shopt extdebug > /dev/null || shopt -s extdebug && toggled=1
 
             declare -F "${1}" \
-                | awk '{print "λ: function " $1 "\tin " $3 "\tline " $2}'
+                | awk '{print "λ:\tfunction " $1 "\t--> " $3 ":" $2}'
             type -a "${1}" | awk -F = '/FUNCDESC/{print "    "$2;exit}' \
                 | fold -s -w ${COLUMNS}
 
             [[ $toggled == 1 ]] && shopt -u extdebug
             ;;
         file)
-            echo -n "◆: "
-            file $(which ${1}) | fold -s -w ${COLUMNS}
+            echo -en "◆:\t"
+            file $(which ${1}) | awk -F ': ' '{print $2 "\t--> " $1}' \
+                | fold -s -w ${COLUMNS}
             ;;
         builtin|keyword)
-            echo -n "β: "
-            type ${1} 2>&1 |sed 's/bash://g; s/type://g;'
+            echo -en "β:\t"
+            type ${1} 2>&1 |sed $'s/bash://g; s/type://g; s/is a/\t--> /g;'
             ;;
         '')
             error "${FUNCNAME}: ${1}: command not found"
@@ -117,6 +119,39 @@ This function requires shopt -s extdebug to show file and line details.'
     esac
 }
 complete -F _command describe
+
+function codeit() {
+    local FUNCDESC="Edit a command in VS-Code.
+
+Uses describe() to find the command and then opens the source file at the line
+number. Will also work with commands which are files."
+
+# There doesn't appear to be a general way to tell $EDITOR to go to a specific
+# line, so I had to choose one editor for this shell function. I chose Code,
+# which understands the path/to/file:linenumber format output by describe()."
+
+    if [[ -z "${1}" ]]; then
+        usage "${FUNCNAME} <command>" ${FUNCDESC}
+        error "${FUNCNAME}: Must supply a command to edit"
+        return 1
+    fi
+
+    local COMMAND=$(describe ${1} 2> /dev/null |awk '{print $NF}')
+
+    case ${COMMAND} in
+        '')
+            error "${FUNCNAME}: ${1}: command not found"
+            return 2
+            ;;
+        builtin|keyword)
+            error "${FUNCNAME}: '${1}' is a shell builtin/keyword."
+            return 3
+            ;;
+        *)
+            code -g ${COMMAND}
+    esac
+}
+complete -F _command codeit
 
 function list() {
   local FUNCDESC='Print a listing of a function definition.
@@ -162,7 +197,7 @@ declared in DOTFILES then there will be no output."
 
     \grep -Rn "${1}=" $DOTFILES/init/ $DOTFILES/source 2>/dev/null  |\
       grep -v alias |\
-      awk -F: '{print "∈ var: " $3 "\tin " $1 "\tline " $2}'
+      awk -F: '{print "∈ var: " $3 "\t--> " $1 ":" $2}'
 }
 _vars() {
     COMPREPLY=()

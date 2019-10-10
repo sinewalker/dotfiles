@@ -76,6 +76,9 @@ alias .........='cd ../../../../../../../..'
 alias ..........='cd ../../../../../../../../..'
 alias ...........='cd ../../../../../../../../../..'
 
+#reload the current directory (e.g. if CWD was recreated by another process)
+alias rcd='cd;cd ${OLDPWD}'
+
 #this aliases '-' to go back to previous directory
 alias -- -='cd -'
 
@@ -104,6 +107,7 @@ function md() {
 
     if mkdir -p "${@}"; then
         local da=(${@})
+        # Bash is icky.  This means "last element in 'da' array"
         cd ${da[${#da[@]}-1]}
     else
         return ${?}
