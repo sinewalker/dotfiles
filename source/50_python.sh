@@ -17,7 +17,7 @@
 ##   path_remove
 ##
 ## The python tools will optionally use these dotfiles environment variables:
-##   $LIBRARY - location for library files, defaults to ~/lib
+##   $LIB - location for library files, defaults to ~/lib
 
 #### Check for a required function and abort if not loaded.
 #
@@ -50,12 +50,12 @@ alias hax='activate hax; cd ~/hax; ipython'
 #### virtualenv-wrapper work-alike
 
 #this is where Python Virtual Environments belong
-export VIRTUALENV_BASE=${LIBRARY-$HOME/lib}/python
+export VIRTUALENV_BASE=${LIB-$HOME/lib}/python
 [[ -d ${VIRTUALENV_BASE} ]] || mkdir -p ${VIRTUALENV_BASE}
 
 # pipsi - install script venvs in ~/bin and venvs into a separate dir under lib
 export PIPSI_BIN_DIR=${HOME}/bin
-export PIPSI_HOME=${LIBRARY-$HOME/lib}/pipsi
+export PIPSI_HOME=${LIB-$HOME/lib}/pipsi
 
 mkvenv() {
     local FUNCDESC="Makes a Python Virtual env in ${VIRTUALENV_BASE}."
@@ -257,5 +257,5 @@ sucuri() {
 
 ## PYENV
 
-is_exe pyenv && export PYENV_ROOT=~/lib/python/pyenv
+is_exe pyenv && export PYENV_ROOT=${LIB}/python/pyenv
 is_exe pyenv && eval "$(pyenv init -)"
