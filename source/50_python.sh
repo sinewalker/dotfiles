@@ -77,7 +77,7 @@ mkvenv() {
     fi
 
     shift
-    virtualenv $@ ${VENV}
+    virtualenv --always-copy $@ ${VENV}
 }
 
 lsvenv() {
@@ -254,3 +254,8 @@ sucuri() {
         fi
     fi
 }
+
+## PYENV
+
+is_exe pyenv && export PYENV_ROOT=~/lib/python/pyenv
+is_exe pyenv && eval "$(pyenv init -)"
