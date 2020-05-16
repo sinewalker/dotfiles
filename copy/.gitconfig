@@ -87,3 +87,7 @@
  insteadOf = "gist:"
 [url "git@heroku.com:"]
  insteadOf = "heroku:"
+[url "git@gitlab.com:"]
+ insteadOf = "lab:"
+ pushInsteadOf = "gitlab:"
+ pushInsteadOf = "git://gitlab.com/"
