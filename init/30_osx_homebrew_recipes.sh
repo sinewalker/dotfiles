@@ -5,14 +5,18 @@ is_osx || return 1
 [[ ! "$(type -P brew)" ]] && e_error "Brew recipes need Homebrew to install." && return 1
 
 # Ensure taps for recipes are installed.
-KEGS=(d12frosted/emacs-plus)
+KEGS=(d12frosted/emacs-plus
+  amar1729/formulae
+)
+
 brew_tap_kegs
 
 # Homebrew recipes
 RECIPES=(
-  ansible
+#  ansible
   asciinema
   bash
+  browserpass
   cmatrix
   cowsay
   dos2unix
@@ -23,7 +27,6 @@ RECIPES=(
   id3tool
   lesspipe
   man2html
-  mercurial
   nmap
   sl
   ssh-copy-id
@@ -31,12 +34,11 @@ RECIPES=(
   tree
   #MJL20170131 more by me
   apm-bash-completion
-  aria2
   bash-completion
   bash-git-prompt
-  clamav
-  clisp
-  clojure
+#  clamav
+#  clisp
+#  clojure
   colordiff
   coreutils
   cpulimit
@@ -45,11 +47,10 @@ RECIPES=(
   fortune
   gawk
   gnu-sed
-  gnuplot
   goaccess
-  graphviz
   grep
-  guile
+#  guile
+  htop
   httpie
   httrack
   imagemagick
@@ -61,36 +62,38 @@ RECIPES=(
   libmikmod
   librsvg
   libvorbis
+  lolcat
   markdown
   midnight-commander
-  node
+#  node
   opencore-amr
   openssl
   pass
   pcre
   proctools
   pwgen
-  python
-  python3
+  pygments
+#  python
+#  python3
   qcachegrind
-  rdesktop
   screenfetch
   socat
   sqlite
   sshfs
   sslscan
-  stunnel
   tidy-html5
-  tinyproxy
   tmux
-  tokyo-cabinet
   vorbis-tools
   watch
   wget
   wireshark
-  xmlstarlet
   xz
   youtube-dl
+
+# former specials:
+  ffmpeg
+  curl
+  sox
 )
 
 brew_install_recipes
@@ -98,13 +101,13 @@ brew_install_recipes
 
 #MJL20170216 Special recipes
 
-brew_install_special_recipe ffmpeg --with-libvorbis
-brew_install_special_recipe curl --with-openssl
-brew_install_special_recipe sox --with-libvorbis --with-flac --with-lame --with-opencore-amr
+#brew_install_special_recipe ffmpeg --with-libvorbis
+#brew_install_special_recipe curl --with-openssl
+#brew_install_special_recipe sox --with-libvorbis --with-flac --with-lame --with-opencore-amr
 
 #MJL20180304 Emacs-plus (the latest preferred way to install emacs on macOS for spacemacs)
 #            This is from the d12frosted tap, see above before call to brew_tap_kegs
-brew_install_special_recipe emacs-plus --with-natural-titlebar --with-24bit-color
+#brew_install_special_recipe emacs-plus --with-natural-titlebar --with-24bit-color
 #brew linkapps emacs-plus #linkapps is deprecated, no replacement
 
 #brew_reinstall_special_recipe   homebrew/emacs/tern

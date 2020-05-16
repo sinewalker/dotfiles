@@ -9,7 +9,6 @@ is_osx || return 1
 
 # Install Brew command for updating casks
 # https://github.com/buo/homebrew-cask-upgrade
-brew tap caskroom/cask
 brew tap buo/cask-upgrade
 
 # Exit if, for some reason, cask is not installed.
@@ -21,28 +20,18 @@ CASKS=(
     aerial
     anaconda
     android-file-transfer
-    puppetlabs/puppet/pdk
-    clementine
-    etcher
     flux
     gpg-suite
     hammerspoon
     iterm2
-    karabiner
-    keepassx
     keybase
-    netbeans
-    netbeans-java-se
     osxfuse
-    spotify
-    vagrant
-    virtualbox
-    visual-studio-code
+    rectangle
+#    spotify
+#    vagrant
+#    virtualbox
+#    visual-studio-code
     vlc
-    xquartz
-    # Quick Look plugins
-    suspicious-package
-    webpquicklook
 #    wireshark-chmodbpf
 
 )
