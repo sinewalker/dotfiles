@@ -46,7 +46,7 @@ your password store."
         export SSH_ASKPASS=$(mktemp -t ssh-askpassXXX)
         cat > ${SSH_ASKPASS} << EOF
 #!/bin/sh
-pass ${KEY}|head -1
+pass ssh/${KEY}|head -1
 EOF
         chmod +x ${SSH_ASKPASS}
         ssh-add ${SSH_KEYDIR}/${KEY} < /dev/null
