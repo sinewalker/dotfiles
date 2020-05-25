@@ -17,7 +17,7 @@
 ##   path_remove
 ##
 ## The python tools will optionally use these dotfiles environment variables:
-##   $LIBRARY - location for library files, defaults to ~/lib
+##   $LIB - location for library files, defaults to ~/lib
 
 #### Check for a required function and abort if not loaded.
 #
@@ -50,12 +50,12 @@ alias hax='activate hax; cd ~/hax; ipython'
 #### virtualenv-wrapper work-alike
 
 #this is where Python Virtual Environments belong
-export VIRTUALENV_BASE=${LIBRARY-$HOME/lib}/python
+export VIRTUALENV_BASE=${LIB-$HOME/lib}/python
 [[ -d ${VIRTUALENV_BASE} ]] || mkdir -p ${VIRTUALENV_BASE}
 
 # pipsi - install script venvs in ~/bin and venvs into a separate dir under lib
 export PIPSI_BIN_DIR=${HOME}/bin
-export PIPSI_HOME=${LIBRARY-$HOME/lib}/pipsi
+export PIPSI_HOME=${LIB-$HOME/lib}/pipsi
 
 mkvenv() {
     local FUNCDESC="Makes a Python Virtual env in ${VIRTUALENV_BASE}."
@@ -77,7 +77,7 @@ mkvenv() {
     fi
 
     shift
-    virtualenv $@ ${VENV}
+    virtualenv --always-copy $@ ${VENV}
 }
 
 lsvenv() {
@@ -125,6 +125,7 @@ rmvenv() {
             rm -rf ${VENV}
         else
             echo "${FUNCNAME}: aborted"
+            return 4
         fi
     else
         error "${FUNCNAME}: No such Venv: ${1}"
@@ -197,6 +198,38 @@ directory, overwriting any existing requirements file.'
     pip freeze > ${VENV_REQS}
 }
 
+thawenv() {
+    FUNCDESC='Restore a Python Environment and re-install pip requirements from freezenv.
+
+This removes the active virtual environment, then re-creates it and re-installs
+from the saved requirements.txt'
+
+    if [[ -z ${VIRTUAL_ENV-$CONDA_PREFIX} ]] ; then
+        error "$FUNCNAME: no active python venv"
+        return 1
+    fi
+    if is_exe conda; then
+        error "$FUNCNAME:  Annaconda is active. This is not supported, yet. Aborting"
+        return 3
+    fi
+
+    local VENV_REQS=${VIRTUAL_ENV}/requirements.txt
+    local VENV_NAME=$(basename ${VIRTUAL_ENV})
+    local PYTHON_VER=$(readlink $(which python))
+
+    if ! [[ -f ${VENV_REQS} ]]; then
+        error "${FUNCNAME}:  No frozen requirements found for ${VENV_NAME}, sorry."
+        return 2
+    fi
+
+    echo "${FUNCNAME}: rebuilding environment: ${VENV_NAME}"
+    cp ${VENV_REQS} ${TMP}/${VENV_NAME}-requirements.txt
+    rmvenv ${VENV_NAME} || return 0
+    mkvenv ${VENV_NAME} --python=${PYTHON_VER}
+    activate ${VENV_NAME}
+    pip install -r ${TMP}/${VENV_NAME}-requirements.txt
+    freezenv
+}
 #### Anaconda
 
 sucuri() {
@@ -221,3 +254,8 @@ sucuri() {
         fi
     fi
 }
+
+## PYENV
+
+is_exe pyenv && export PYENV_ROOT=${LIB}/python/pyenv
+is_exe pyenv && eval "$(pyenv init -)"

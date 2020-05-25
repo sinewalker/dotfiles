@@ -25,7 +25,9 @@ alias ss="open /System/Library/Frameworks/ScreenSaver.framework/Versions/A/Resou
 
 
 #MJL20190210 - squash the CPU-hungry Google Drive File System
-alias gdfs='cpulimit -l 3 -p $(pgrep -f "crash_handler_token=")&'
+alias gdfs='cpulimit -l 2 -p $(pgrep -f "crash_handler_token=")&'
+#MJL20191012 - another one: Apple's ReportCrash help runs a lot after Catalina
+alias nocrash='cpulimit -l 1 -p $(pgrep -f "ReportCrash")&'
 
 # Create a new Parallels VM from template, replacing the existing one.
 #function vm_template() {

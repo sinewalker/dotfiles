@@ -91,6 +91,8 @@ function ssh() {
 }
 export -f ssh
 
+alias shh='ssh -A'
+
 ssh-reset() {
     FUNCDESC="interactively remove the SSH control-master for specified/matching hosts"
 
