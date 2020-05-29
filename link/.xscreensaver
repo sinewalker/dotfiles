@@ -44,6 +44,7 @@ textProgram:	fortune
 textURL:	http://twitter.com/statuses/public_timeline.atom
 
 programs:								      \
+"arial" mpv --really-quiet --no-audio --no-stop-screensaver --fs --wid=$XSCREENSAVER_WINDOW $(/data/pub/arial/*.mov|shuf -n 1)
 				maze -root				    \n\
   GL: 				superquadrics -root			    \n\
 				attraction -root			    \n\

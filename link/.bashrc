@@ -21,3 +21,6 @@ if kill -l|grep SIG &> /dev/null; then #is not POSIX?
   source ${BASH_MODULES}/00_modules.sh
   __bootstrap_modules
 fi
+
+# Add RVM to PATH for scripting. Make sure this is the last PATH variable change.
+export PATH="$PATH:$HOME/.rvm/bin"
