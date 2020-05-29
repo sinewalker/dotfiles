@@ -1,2 +1,77 @@
-\timing
+---------------------------------------*- mode:sql; sql-product: postgres; -*-
+--
+--  File:       psqlrc
+--  Created:    2019-07-12
+--  Language:   PostgreSQL
+--  Time-stamp: <2019-08-05 09:17:14 mjl>
+--  Platform:   PostgreSQL 9.3+ [Squiz]
+--  OS:         CentOS 7
+--  Author:     [MJL] Michael J. Lockhart <mlockhart@squiz.net>
+--
+--  Rights:     Copyright © 2019 Squiz Pty Ltd ABN 77 084 670 600
+--
+--  PURPOSE:    Sample PostgreSQL Run Commands
+--
+------------------------------------------------------------------------------
+--
+--- Commentary:
+--
+-- This file is loaded by psql at startup. It should live in ~/.psqlrc
+-- Alternately you may set an environment variable $PSQLRC to reference where
+-- you have installed it
+--
+-- It is based upon my personal .psqlrc, for Squiz's C7 environment
+------------------------------------------------------------------------------
+--
+--- Bugs:
+--
+--    Loads command files from hard-coded location POSTGRES_COMMANDS
+--
+--    Overrides -F delimiter and other display command-line options. For
+--    formatted output in files, use \copy or COPY instead.
+--
+------------------------------------------------------------------------------
+
+\set QUIET on
+
+-- Display settings (opinionated)
+\pset border 2
+\pset linestyle unicode
+\pset format aligned
 \pset pager always
+\pset null '⧽null⧼'
+\x auto
+\setenv PSQL_EDITOR_LINENUMBER_ARG +
+\setenv PAGER less
+\setenv LESS '-iMSx4e -FXR'
+
+------------------------------------------------------------------------------
+-- COMMANDS
+
+---- LOAD psql command library FROM WELL KNOWN/AGREED LOCATION (hard coded)
+\set POSTGRES_COMMANDS /opt/postgres-commands
+\set boot '\\i :POSTGRES_COMMANDS/boot.sql'
+
+:boot
+
+------------------------------------------------------------------------------
+
+\timing on
+
+-- psql special variables
+
+\set HISTCONTROL ignoreboth
+\set HISTSIZE 32767
+\set HISTFILE ~/.psql_history- :DBNAME-:USER
+\set COMP_KEYWORD_CASE upper
+\set ON_ERROR_ROLLBACK on
+
+-- prompt1 uncoloured: '%x%n@%/%x%R%# '
+\set PROMPT1 '%[%033[1;37;42m%]%x%[%033[m%]%[%033[0;36m%]%n%[%033[1;34m%]@%[%033[1;33;44m%]%/%[%033[1;37;42m%]%x%[%033[m%]%[%033[1;36m%]%R%[%033[1;92m%]%#%[%033[0;37m%] '
+
+-- prompt2 uncoloured: '%x%/%x%R%# '
+\set PROMPT2 '%[%033[1;37;42m%]%x%[%033[1;93;40m%]%/%[%033[1;37;42m%]%x%[%033[m%]%[%033[1;95m%]%R%[%033[1;92m%]%#%[%033[0;37m%] '
+
+:show_database_sizes
+
+\set QUIET off

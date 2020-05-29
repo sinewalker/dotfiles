@@ -21,7 +21,7 @@ Additionally, having this on a central github repo makes it easy to re-integrate
 When [dotfiles][dotfiles] is run for the first time, it does a few things:
 
 1. If necessary, **git** is installed via the native OS package manager
-1. This repo is cloned into your `${HOME}` directory (`~/`), under `${DOTFILES}` (`~/.dotfiles/`, unless you change it in [dotfiles](bin/dotfiles#L24)).
+1. This repo is cloned into your `${HOME}` directory (`~/`), under `${DOTFILES}` (`~/.dotfiles/`, unless you change it in [dotfiles](bin/dotfiles#L35)).
 1. Files in `copy/` are copied into `~/`. ([read more](#the-copy-step))
 1. Files in `link/` are symlinked into `~/`. ([read more](#the-link-step))
 1. You are prompted to choose scripts in `init/` to be executed. The installer attempts to only select relevant scripts, based on the detected OS and the script filename.
@@ -69,7 +69,7 @@ Scripts in the `init/` subdirectory will be executed whenever [dotfiles][dotfile
 #### All systems
 * System-wide iPython, pip, virtualenv, and other tools via the [init/50_python.sh](init/50_python.sh) script
 * Node.js, npm and nave via the [init/50_node.sh](init/50_node.sh) script
-* [Fonts](https://github.com/sinewalker/dotfiles/tree/master/conf/fonts) via the [init/50_fonts.sh](init/50_fonts.sh) script
+* [Fonts](https://github.com/sinewalker/dotfiles/tree/master/misc/fonts) via the [init/50_fonts.sh](init/50_fonts.sh) script
 
 
 ## Hacking dotfiles
@@ -163,7 +163,7 @@ To keep things easy, the `~/.bashrc` and `~/.bash_profile` files are extremely s
 In addition to the [dotfiles][dotfiles] script, there are a few other [bin scripts](bin). This includes [nave](https://github.com/isaacs/nave), which is a [git submodule](vendor).
 
 * [dotfiles][dotfiles] - (re)initialize dotfiles. It might ask for your password (for `sudo`).
-* [src](link/.bashrc#L8-18) - (re)source all files in `source/` directory
+* [src](link/.bashrc#L7-17) - (re)source all files in `source/` directory
 * Look through the [bin](bin) subdirectory for a few more.
 
 

@@ -20,7 +20,7 @@ Portions Copyright © 2017, 2018 Mike Lockhart
 Creative Commons CC-by-4.0
 https://creativecommons.org/licenses/by/4.0/
 
-Original work Copyright (c) 2014 "Cowboy" Ben Alman
+Original work Copyright © 2014 "Cowboy" Ben Alman
 Licensed under the MIT license.
 http://benalman.com/about/license/
 
@@ -32,20 +32,17 @@ exit; fi
 ###########################################
 
 # Where the magic happens.
-export DOTFILES=~/.dotfiles
+export DOTFILES=${HOME}/.dotfiles
+
 # Where the configs live.
 export CONFIG=${XDG_CONFIG_HOME-$HOME/.config}
+
 # Where to put libraries
-export LIB=~/lib
+export LIB=${HOME}/lib
 
 
 ### MJL20180317 functions needed by dotfiles bootstrap, before source/* has been
 ### cloned or sourced.
-
-function is_exe() {
-    local FUNCDESC="Test if all arguments are runnable commands"
-    type -p "${@}" > /dev/null
-}
 
 # OS detection
 function is_osx() {
@@ -63,21 +60,48 @@ function is_suse() {
 function is_raspbian() {
     local FUNCDESC="Return 0 if operating system is Raspbian, else return 1"
     #lsb_release is not installed by default in Raspbian
-    [[ "$(cat /etc/os-release 2> /dev/null)" =~ Raspbian ]] || return 1
+    [[ -f /etc/rpi-issue ]] || return 1
+}
+function __redhat_release(){
+    # sometimes RedHat has lsb_release, and sometimes not
+    local DIST RELEASE
+    if type -p lsb_release &> /dev/null; then
+      DIST=$(lsb_release -i 2> /dev/null)
+      RELEASE=$(lsb_release -r 2> /dev/null|awk '{print $2}')
+    elif [[ -f /etc/redhat-release ]]; then
+      DIST=$(cat /etc/redhat-release)
+      RELEASE=$(awk '{print $4}' /etc/redhat-release)
+    else
+      return 1
+    fi
+    echo ${DIST} ${RELEASE}
 }
 function is_redhat6() {
     local FUNCDESC="Return 0 if operating system is a RedHat 6 variant, else return 1"
-    [[ $(lsb_release -r 2> /dev/null|awk '{print $2}') =~ ^6\. ]] || return 1
-    local DIST=$(lsb_release -i 2> /dev/null)
-    [[ ${DIST} =~ Scientific ]] || [[ ${DIST} =~ CentOS  ]] \
-        || [[ ${DIST} =~ Red ]] || return 1
+    local DIST_RELEASE=$(__redhat_release) || return 1
+    local RELEASE=$(echo ${DIST_RELEASE}|awk '{print $NF}')
+
+    [[ ${RELEASE} =~ ^6\. ]] || return 1
+    [[ ${DIST_RELEASE} =~ Scientific ]] || [[ ${DIST_RELEASE} =~ CentOS  ]] \
+      || [[ ${DIST_RELEASE} =~ Red ]] || return 1
 }
-function is_redhat7() {
-    local FUNCDESC="Return 0 if operating system is a RedHat 7 variant, else return 1"
-    local DIST=$(lsb_release -i 2> /dev/null)
-    [[ ${DIST} =~ Fedora ]] && return 0
-    [[ $(lsb_release -r 2> /dev/null|awk '{print $2}') =~ ^7\. ]] || return 1
-    [[ ${DIST} =~ CentOS ]] || [[ ${DIST} =~ Red  ]] || return 1
+function is_redhat7(){
+    local FUNCDESC="Return 0 if operating system is a RedHat 7 variant, else return 1";
+    local DIST_RELEASE=$(__redhat_release) || return 1
+    local RELEASE=$(echo ${DIST_RELEASE}|awk '{print $NF}')
+
+    [[ ${RELEASE} =~ ^7\. ]] || return 1
+    [[ ${DIST_RELEASE} =~ Fedora ]] || [[ ${DIST_RELEASE} =~ CentOS ]] \
+      || [[ ${DIST_RELEASE} =~ Red ]] || return 1
+}
+function is_redhat8(){
+    local FUNCDESC="Return 0 if operating system is a RedHat 8 variant, else return 1";
+    local DIST_RELEASE=$(__redhat_release) || return 1
+    local RELEASE=$(echo ${DIST_RELEASE}|awk '{print $NF}')
+
+    [[ ${RELEASE} =~ ^8\. ]] || return 1
+    [[ ${DIST_RELEASE} =~ Fedora ]] || [[ ${DIST_RELEASE} =~ CentOS ]] \
+      || [[ ${DIST_RELEASE} =~ Red ]] || return 1
 }
 function get_os() {
     local FUNCDESC="Report operating system. If unknown, prints nothing and returns 1.
@@ -85,7 +109,7 @@ function get_os() {
 If first argument is '1', then list all known OSes that this system is NOT
 running."
     local RET=1
-    for OS in osx ubuntu suse raspbian redhat6 redhat7; do
+    for OS in osx ubuntu suse raspbian redhat6 redhat7 redhat8; do
         is_${OS}; [[ ${?} == ${1:-0} ]] && echo ${OS} && RET=0
     done
     return ${RET}
@@ -246,8 +270,8 @@ function init_files() {
     for opt in "${menu_options[@]}"; do
       remove=
       for os in "${oses[@]}"; do
-        [[ "$opt" =~ (^|[^a-z])$os($|[^a-z]) ]] && remove=1 && break
-        [[ "$opt" =~ ".sh" ]] || remove=1 && break
+        [[ "$opt" =~ (^|[^a-z])$os($|[^a-z]) ]] && remove=1
+        [[ "$opt" =~ ".sh" ]] || remove=1
       done
       [[ "$remove" ]] || menu_selects=("${menu_selects[@]}" "$opt")
     done
@@ -277,6 +301,15 @@ function copy_test() {
 function copy_do() {
   e_success "Copying ~/$1."
   cp "$2" ~/
+  local match replacement
+  if match=$(\egrep -o "XX.*XX" ${2}); then
+      for item in ${match[@]}; do
+          echo -n "Enter replacement on this host for ${item}: "
+          read replacement
+          sed -i "s/${item}/${replacement}/g" ~/${1} \
+              && e_success "Replaced ${item} in ~/${1}"
+      done
+  fi
 }
 
 # Link files.
@@ -292,16 +325,15 @@ function link_do() {
 # Link config files.
 function config_header() { e_header "Linking dotfiles into config directory"; }
 function config_dest() {
-  echo "${XDG_CONFIG_HOME-$HOME/.config}/$base"
+  echo "${CONFIG}/$base"
 }
 function config_test() {
   [[ "$1" -ef "$2" ]] && echo "same file"
 }
 function config_do() {
-  local configdir=${LIBS}
-  [[ -d ${configdir} ]] || mkdir -p ${configdir}
-  e_success "Linking ${configdir}/${1}."
-  ln -sf ${2} ${configdir}
+  [[ -d ${CONFIG} ]] || mkdir -p ${CONFIG}
+  e_success "Linking ${CONFIG}/${1}."
+  ln -sf ${2} ${CONFIG}
 }
 
 # Link library files
@@ -313,10 +345,9 @@ function lib_test() {
     [[ "$1" -ef "$2" ]] && echo "same file"
 }
 function lib_do() {
-    local libdir=${LIB}
-    [[ -d ${libdir} ]] || mkdir -p ${libdir}
-    e_success "Linking ${libdir}/${1}."
-    ln -sf ${2} ${libdir}
+    [[ -d ${LIB} ]] || mkdir -p ${LIB}
+    e_success "Linking ${LIB}/${1}."
+    ln -sf ${2} ${LIB}
 }
 
 # Copy, link, init, etc.

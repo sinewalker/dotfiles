@@ -35,7 +35,10 @@ function __session_completion(){
     return 0
 }
 
-alias dims="echo ${COLUMNS} ${LINES}"
+function dims() {
+    local FUNCDESC="print terminal dimensions WIDTH HEIGHT"
+    echo ${COLUMNS} ${LINES}
+}
 
 function session() {
     local FUNCDESC="Save a shell session transcript with timing files to the specified file pair.

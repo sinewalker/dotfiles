@@ -1,44 +1,23 @@
-# Where the magic happens.
-export DOTFILES=~/.dotfiles
+# Bash Run Commands
 
-PATH=${DOTFILES}/bin:${PATH}
-export PATH
+# Run by login or interactive shells, and also by Bash when called as /bin/sh in
+# some situations. So this needs to be POSIX syntax or guard Bashisms
 
-function src() {
-  local FUNCDESC='Source all files in ${DOTFILES}/source/, or a specified file'
-  local FILE
-  if [[ "${1}" ]]; then
-    source "${DOTFILES}/source/${1}.sh"
-  else
-    for FILE in ${DOTFILES}/source/*.sh; do
-      source "${FILE}"
-    done
-  fi
-}
+# have we been here before? (SUSE /etc/profile will source $HOME/.bashrc)
+type -p usage && return
 
-function lssrc(){
-    local FUNCDESC='List the Dotfiles source modules available for the src function.
-The .sh suffix is stripped.'
-    \ls ${DOTFILES}/source|awk '/.sh$/ { gsub(/\.sh/, ""); print }'
-}
+# Source system global definitions
+test -f /etc/bashrc && source /etc/bashrc
 
-# Completion for src function (requires bash_completion)
-_src() {
-  COMPREPLY=()
-  local CUR="${COMP_WORDS[COMP_CWORD]}"
-  local SOURCES="$(lssrc)"
-  COMPREPLY=( $(compgen -W "${SOURCES}" -- ${CUR}) )
-  return 0
-}
-complete -F _src src
+# Unless in POSIX mode, load the rest of the Dotfiles bash modules into the
+# environment. (POSIX will fail)
+if kill -l|grep SIG &> /dev/null; then #is not POSIX?
+  # Where the magic happens
+  export DOTFILES=~/.dotfiles
+  export BASH_MODULES=${DOTFILES}/source
 
-function dotfiles() {
-    local FUNCDESC='Run dotfiles refresh script, then reload.
-This causes the Copy, Link and Init step to be run.'
-    ${DOTFILES}/bin/dotfiles "${@}" && src
-}
-
-#Load the rest of Dotfiles bash modules, unless in POSIX mode
-if kill -l|grep SIG > /dev/null; then
-    src
+  PATH=${DOTFILES}/bin:${PATH}
+  export PATH
+  source ${BASH_MODULES}/00_modules.sh
+  __bootstrap_modules
 fi

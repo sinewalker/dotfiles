@@ -1,9 +1,11 @@
 # Install fonts
 # (I only know how to install fonts for these systems)
-is_osx || is_suse || return 1
+is_osx || is_suse || is_raspbian || is_ubuntu || return 1
 
 is_osx && FONTDIR=~/Library/Fonts/
-is_suse && FONTDIR=~/.fonts
+is_suse || is_raspbian || is_ubuntu && FONTDIR=~/.fonts
+[[ -d ${FONTDIR} ]] || mkdir -p ${FONTDIR}
+
 {
 	pushd ${DOTFILES}/misc/fonts/; setdiffA=(*.ttf); popd
 	pushd ${FONTDIR}; setdiffB=(*.ttf); popd
@@ -17,4 +19,5 @@ if (( ${#setdiffC[@]} > 0 )); then
     ln -s "${DOTFILES}/misc/fonts/${F}" ${FONTDIR}
 	done
   is_suse && su -c "fonts-config --verbose"
+  is_raspbian || is_ubuntu && fc-cache -v
 fi

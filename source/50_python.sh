@@ -1,21 +1,36 @@
 # see http://hackercodex.com/guide/python-development-environment-on-mac-osx/
 
-## This Python tool-chain is designed to be sourced by bash when it starts, from
-## my dotfiles. It cannot yet be sourced without dotfiles. It relies on the following
-## being available:
+## This Python tool-chain is designed to be loaded by bash when it starts. It
+## relies on the following being available:
 ##
-## virtualenv and pip installed globally
-## (optional) anaconda installed normally
+## * virtualenv and pip installed globally, or with pipsi
+## * (optional) anaconda installed normally
 ##
-## dotfiles bash shell meta-functions:
+## These functions also use my bash shell meta-functions, which are in
+## 10_meta.sh. These should be downloaded and kept together with this file, and
+## loaded first. The required functions are:
+##
 ##   usage
 ##   error
 ##   is_exe
 ##   path_add
 ##   path_remove
 ##
-## dotfiles environment variables:
-##   $LIB - location for library files.  Defaults to ~/lib
+## The python tools will optionally use these dotfiles environment variables:
+##   $LIB - location for library files, defaults to ~/lib
+
+#### Check for a required function and abort if not loaded.
+#
+# Be sure you've sourced 10_meta.sh first. We cannot automatically source
+# sibling files reliably. See http://mywiki.wooledge.org/BashFAQ/028
+#
+# The best approach to loading all files successfully is:
+# for X in path/to/bash_source_files; do source ${X}; done
+
+if ! type -p usage; then
+    echo "ERROR: Missing meta-functions. Aborting." >&2
+    return 1
+fi
 
 # pip should only run if there is a virtualenv currently activated
 export PIP_REQUIRE_VIRTUALENV=true
@@ -35,20 +50,24 @@ alias hax='activate hax; cd ~/hax; ipython'
 #### virtualenv-wrapper work-alike
 
 #this is where Python Virtual Environments belong
-
 export VIRTUALENV_BASE=${LIB-$HOME/lib}/python
+[[ -d ${VIRTUALENV_BASE} ]] || mkdir -p ${VIRTUALENV_BASE}
 
+# pipsi - install script venvs in ~/bin and venvs into a separate dir under lib
+export PIPSI_BIN_DIR=${HOME}/bin
+export PIPSI_HOME=${LIB-$HOME/lib}/pipsi
 
 mkvenv() {
     local FUNCDESC="Makes a Python Virtual env in ${VIRTUALENV_BASE}."
-    if is_exe conda; then
-        error "${FUNCNAME}: Anaconda is active."
-        error "Use 'conda create -n ${1}' instead. Aborting."
-        return 3
-    fi
     if test -z ${1}; then
         usage "${FUNCNAME} <venv> [virtualenv options]" ${FUNCDESC}
         return 1
+    fi
+    if is_exe conda; then
+        error "${FUNCNAME}: Warning! Anaconda is active."
+        error "This wrapper will use conda to create ${1}, but it is only very basic."
+        conda create -n "${1}"
+        return ${?}
     fi
 
     VENV=${VIRTUALENV_BASE}/${1}
@@ -58,7 +77,7 @@ mkvenv() {
     fi
 
     shift
-    virtualenv $@ ${VENV}
+    virtualenv --always-copy $@ ${VENV}
 }
 
 lsvenv() {
@@ -93,8 +112,9 @@ rmvenv() {
         return 1
     fi
     if is_exe conda; then
-        error "${FUNCNAME}: Acaconda is active."
-        error "Use 'conda remove -all -n ${1}' instead. Aborting."
+        error "${FUNCNAME}: Warning! Anaconda is active."
+        error "Consider using 'conda remove -all -n ${1}' instead."
+        error "Aborting."
         return 3
     fi
     VENV=${VIRTUALENV_BASE}/${1}
@@ -105,6 +125,7 @@ rmvenv() {
             rm -rf ${VENV}
         else
             echo "${FUNCNAME}: aborted"
+            return 4
         fi
     else
         error "${FUNCNAME}: No such Venv: ${1}"
@@ -118,7 +139,7 @@ activate() {
 
 (will deactivate current Venv if one is active).
 
-If Anaconda is active (conda command is in the PATH) then source the 'anaconda'
+If Anaconda is active (conda command is in the PATH) then load the 'anaconda'
 script instead, per conda practice. Bail after sourcing."
 
     local RET=0
@@ -141,7 +162,7 @@ script instead, per conda practice. Bail after sourcing."
         VENV="${VIRTUALENV_BASE}/${1}"
         if test -f ${VENV}/bin/activate; then
             is_exe deactivate && deactivate
-            source ${VENV}/bin/activate
+            load ${VENV}/bin/activate
             RET=${?}
         else
             RET=2
@@ -162,22 +183,70 @@ script instead, per conda practice. Bail after sourcing."
 complete -F _venvs activate
 alias workon=activate
 
+freezenv() {
+    FUNCDESC='Freeze the active Python Environment pip requirements.
 
+This stores the requirements.txt in the active $VIRTUAL_ENV or $CONDA_PREFIX
+directory, overwriting any existing requirements file.'
+
+    if [[ -z ${VIRTUAL_ENV-$CONDA_PREFIX} ]] ; then
+        error "$FUNCNAME: no active python or conda venv"
+        return 1
+    fi
+    local VENV_REQS=${VIRTUAL_ENV-$CONDA_PREFIX}/requirements.txt
+    echo "Storing PIP package list into ${VENV_REQS}"
+    pip freeze > ${VENV_REQS}
+}
+
+thawenv() {
+    FUNCDESC='Restore a Python Environment and re-install pip requirements from freezenv.
+
+This removes the active virtual environment, then re-creates it and re-installs
+from the saved requirements.txt'
+
+    if [[ -z ${VIRTUAL_ENV-$CONDA_PREFIX} ]] ; then
+        error "$FUNCNAME: no active python venv"
+        return 1
+    fi
+    if is_exe conda; then
+        error "$FUNCNAME:  Annaconda is active. This is not supported, yet. Aborting"
+        return 3
+    fi
+
+    local VENV_REQS=${VIRTUAL_ENV}/requirements.txt
+    local VENV_NAME=$(basename ${VIRTUAL_ENV})
+    local PYTHON_VER=$(readlink $(which python))
+
+    if ! [[ -f ${VENV_REQS} ]]; then
+        error "${FUNCNAME}:  No frozen requirements found for ${VENV_NAME}, sorry."
+        return 2
+    fi
+
+    echo "${FUNCNAME}: rebuilding environment: ${VENV_NAME}"
+    cp ${VENV_REQS} ${TMP}/${VENV_NAME}-requirements.txt
+    rmvenv ${VENV_NAME} || return 0
+    mkvenv ${VENV_NAME} --python=${PYTHON_VER}
+    activate ${VENV_NAME}
+    pip install -r ${TMP}/${VENV_NAME}-requirements.txt
+    freezenv
+}
 #### Anaconda
 
 sucuri() {
     FUNCDESC='Activate or deactivate Anaconda by inspecting and changing $PATH'
     if [[ ${PATH} =~ anaconda ]]; then
-        [[ ${CONDA_DEFAULT_ENV} ]] && source deactivate
+        [[ ${CONDA_DEFAULT_ENV} ]] && load deactivate
         path_remove ${LIB-$HOME/lib}/anaconda/bin
         is_exe deactivate && unalias deactivate
+        export PIP_REQUIRE_VIRTUALENV=true
         echo "Anaconda: deactivated"
     else
         local SNAKE WARN; SNAKE='(S)'; WARN='[!]'
-        is_osx && [[ -z ${SSH_TTY} ]] && [[ -z ${WINDOW} ]] && \
-            SNAKE="🐍";  WARN="⚠"
+        ! [[ ${TERM} =~ linux ]] && [[ -z ${SSH_TTY} ]] && [[ -z ${WINDOW} ]] && \
+            SNAKE="🐍" && WARN="⚠"
         path_add ${LIB-$HOME/lib}/anaconda/bin PREPEND
         if [[ ${PATH} =~ anaconda ]]; then
+            export PIP_REQUIRE_VIRTUALENV=false
             echo "Anaconda: ACTIVATED ${SNAKE}"
         else
             echo "Anaconda: NOT FOUND ${WARN}"
@@ -185,3 +254,8 @@ sucuri() {
         fi
     fi
 }
+
+## PYENV
+
+is_exe pyenv && export PYENV_ROOT=${LIB}/python/pyenv
+is_exe pyenv && eval "$(pyenv init -)"

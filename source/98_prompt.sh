@@ -1,6 +1,6 @@
 # My awesome bash prompt
 #
-# Copyright (c) 2012,2017,2018 "Cowboy" Ben Alman, Michael Lockhart [MJL]
+# Copyright (c) 2012,2017,2018,2019 "Cowboy" Ben Alman, Michael Lockhart [MJL]
 #
 # Licensed under the MIT license.
 # http://benalman.com/about/license/
@@ -41,19 +41,15 @@ if [[ ! "${PROMPT_COLORS[@]}" ]]; then
     # connected via ssh
       PROMPT_COLORS[0]="32;1"
       PROMPT_COLORS[1]="32"
-  elif [[ "${USER}" == "root" ]]; then
+  elif [[ "${USER}" == "root" ]] || [[ "${UID}" == "0" ]]; then
     # logged in as root
       PROMPT_COLORS[0]="31;1"
       PROMPT_COLORS[1]="31"
   fi
 fi
 
-# Inside a prompt function, run this alias to setup local $c0-$c9 color vars.
-alias __prompt_getcolors='PROMPT_COLORS[9]=; local I; for I in ${!PROMPT_COLORS[@]}; do local C${I}="\[\e[0;${PROMPT_COLORS[${I}]}m\]"; done'
-
 # Exit code of previous command.
 function __prompt_exitcode() {
-  __prompt_getcolors
   [[ ${1} != 0 ]] && echo "${C2} ${1} ${C9}"
 }
 
@@ -87,6 +83,29 @@ function __prompt_venv() {
 function __prompt_screen() {
     [[ -z ${WINDOW} ]] && return
     echo "${C6} ${WINDOW} ${C9}"
+}
+
+#MJL20190520 emoji
+function __prompt_emoji() {
+    if [[ ${TERM} =~ linux ]] || \
+       [[ ${TERM} =~ eterm ]] || \
+       [[ ${TERM_PROGRAM} =~ code ]] || \
+       [[ ! -z ${SSH_TTY} ]] || \
+       [[ ! -z ${WINDOW} ]]; then
+       return
+    fi
+    case $(echo ${HOSTNAME}|sed 's/\..*$//') in
+        milo)
+            echo -n "💻 "
+            ;;
+        tesla)
+            echo -n "👾 "
+            ;;
+        hoppy)
+            echo -n "🌿 "
+            ;;
+    esac
+    [[ ${PWD} =~ ${SSHFS_MOUNT_POINT} ]] && echo "⚠️ "
 }
 
 # Git status.
@@ -146,23 +165,57 @@ function __prompt_conda() {
     is_exe conda || return
     local SNAKE VENV
     SNAKE="\[\e[0;30;42m\]S"
-    is_osx && [[ -z ${SSH_TTY} ]] && [[ -z ${WINDOW} ]] && SNAKE="🐍 "
+    ! [[ ${TERM} =~ linux ]] && [[ -z ${SSH_TTY} ]] && [[ -z ${WINDOW} ]] && SNAKE="🐍 "
     [[ ${CONDA_DEFAULT_ENV} ]] && VENV="${C3}-${C5}${CONDA_DEFAULT_ENV}"
     echo "${C1}(${C9}${SNAKE}${VENV}${C1})${C9}"
 }
 
 #MJL20170218 files and size count (from "monster prompt" in my ancient dotfiles)
 function __prompt_sizes() {
-    is_osx && alias __llssi='gls --si -sl' || alias __llssi='ls --si -sl'
-    __llssi|awk '/total/{TOTAL=$2} /(.*) (-.*)/{FILES=FILES+1} END{print FILES " files, " TOTAL}'
-    unalias __lsssi
+    echo "${C1}(${C9}$(ls --si -al|awk '/total/{TOTAL=$2} END{print NR-1 " files, " TOTAL}')${C1})${C9}"
 }
 
-#MJL20170218 CPU load and uptime (from monster prompt -- DAFT)
+#MJL20170218 CPU load and uptime (from monster prompt)
+# TODO This doesn't handle multiple-day uptimes right
 function __prompt_cpu() {
-    $(cat /proc/loadavg)
-    $(temp=$(cat /proc/uptime) && upSec=${temp%%.*} ; let secs=$((${upSec}%60)) ; let mins=$((${upSec}/60%60)) ; let hours=$((${upSec}/3600%24)) ; let days=$((${upSec}/86400)) ; if [ ${days} -ne 0 ]; then echo -n ${days}d; fi ; echo -n ${hours}h${mins}m)
+    local upt=$(uptime|awk '{gsub(",",""); print $3 }')
+    local lda=$(uptime|awk '{gsub(",",""); print $8}')
+    #local upt=$(uptime|awk '{gsub(",",""); printf "%d ",$3/NR}; /day/ {print $4",", $5}; /min/ {print $6}')
+    #local lda=$(uptime|awk --field-separator 'load' '{split($2, lds, " "); print lds[2]}')
+    echo "${C1}[${C0}Up ${C4}${upt}${C0} Load ${C5}${lda}${C1}]${C9}"
+}
 
+function __prompt_ending(){
+    [[ "${USER}" == "root" ]] || [[ "${UID}" == "0" ]] && __USER=root
+    [[ -z ${SSH_TTY} ]] && [[ -z ${WINDOW} ]] && __TERM=smart
+
+    if [[ ${__TERM} == smart  ]]; then
+       if [[ "${__USER}" == "root" ]]; then
+           __ENDING="Ω"
+       else if is_raspbian; then
+                __ENDING="π"
+            else
+                __ENDING="β"
+            fi
+       fi
+    else
+        if [[ "${__USER}" == "root" ]]; then
+            __ENDING="#"
+        else
+            __ENDING="$"
+        fi
+    fi
+
+    echo "${C9}${__ENDING} "
+}
+
+function prompt_amstrad() {
+    local FUNCDESC="Toggle using a AMSTRAD Ready prompt. If an argument is supplied, force to Amstrad"
+    if [[ -z ${__USE_AMSTRAD_PROMPT} || -n "${1}" ]]; then
+        export __USE_AMSTRAD_PROMPT=1
+    else
+        unset __USE_AMSTRAD_PROMPT
+    fi
 }
 
 #MJL20170205 toggle using a simple prompt
@@ -177,7 +230,18 @@ function prompt_simple() {
 }
 alias simple_prompt=prompt_simple
 alias awesome_prompt=prompt_simple
-alias monster_prompt=prompt_simple
+
+#MJL20180402 toggle using monster prompt
+# If an argument is supplied, force it to simple
+function prompt_monster() {
+    local FUNCDESC="Toggle using a monster prompt. If an argument is supplied, force to simple"
+    if [[ -z ${__USE_MONSTER_PROMPT} || -n "${1}" ]]; then
+        export __USE_MONSTER_PROMPT=1
+    else
+        unset __USE_MONSTER_PROMPT
+    fi
+}
+alias monster_prompt=prompt_monster
 
 #MJL20170207 toggle command history trace
 # sometimes this can be useful
@@ -191,12 +255,22 @@ function prompt_trace() {
 }
 alias trace_prompt=prompt_trace
 
+
+function prompt_reset(){
+    local FUNCDESC="Reset the shell prompt to standard (not simple, noot other"
+    unset __USE_SIMPLE_PROMPT __USE_AMSTRAD_PROMPT
+    unset __USE_MONSTER_PROMPT __USE_TRACE_PROMPT
+}
+
 # Maintain a per-execution call stack.
 __PROMPT_STACK=()
 trap '__PROMPT_STACK=("${__PROMPT_STACK[@]}" "${BASH_COMMAND}")' DEBUG
 
+#TODO add $SHLVL if greater than 0
+
 function __prompt_command() {
   local EXIT_CODE=${?}
+  PS1=""
   # If the first command in the stack is prompt_command, no command was run.
   # Set exit_code to 0 and reset the stack.
   [[ "${__PROMPT_STACK[0]}" == "__PROMPT_COMMAND" ]] && EXIT_CODE=0
@@ -211,7 +285,16 @@ function __prompt_command() {
   # While the simple_prompt environment var is set, disable the awesome prompt.
   [[ "$__USE_SIMPLE_PROMPT" ]] && PS1='[\u@\h:\w]\$ ' && return
 
-  __prompt_getcolors
+  # While the simple_prompt environment var is set, disable the awesome prompt.
+  [[ "$__USE_AMSTRAD_PROMPT" ]] && PS1='\033[0;33mReady\n' && return
+
+
+  # Setup local $c0-$c9 color vars.
+   PROMPT_COLORS[9]=;
+   local i; for i in ${!PROMPT_COLORS[@]}; do
+     local C${i}="\[\e[0;${PROMPT_COLORS[${i}]}m\]"
+   done
+
    if [[ -n ${MC_SID} ]]; then
       #MJL20170205 single-line prompt for Midnight Commander
       PS1="$(__prompt_titlebar "MC - ${USER}@${HOSTNAME%%.*}")"
@@ -225,19 +308,26 @@ function __prompt_command() {
   else
       #MJL20170207 Cowboy's Awesome prompt is the fall-through case
       # http://twitter.com/cowboy/status/150254030654939137
-      PS1=""
       #MJL20170204 titlebar: [dir] - user@host:/full/working/dir
       PS1="${PS1}$(__prompt_titlebar "[${HOSTNAME%%.*}:$(basename ${PWD})] - ${USER}@${HOSTNAME%%.*}:${PWD}")"
-      # svn: [repo:lastchanged]
-      PS1="${PS1}$(__prompt_svn)"
-      # git: [branch:flags]
-      PS1="${PS1}$(__prompt_git)"
-      # hg:  [branch:flags]
-      PS1="${PS1}$(__prompt_hg)"
+      if [[ ! ${PWD} =~ ${SSHFS_MOUNT_POINT} ]]; then
+        # svn: [repo:lastchanged]
+        PS1="${PS1}$(__prompt_svn)"
+        # git: [branch:flags]
+        PS1="${PS1}$(__prompt_git)"
+        # hg:  [branch:flags]
+        PS1="${PS1}$(__prompt_hg)"
+      fi
       # path: [user@host:path]
       PS1="${PS1}${C1}[${C0}\u${C1}@${C0}\h${C1}:${C0}\w${C1}]${C9}"
+      if [[ -n ${__USE_MONSTER_PROMPT} ]]; then
+          PS1="${PS1}$(__prompt_sizes)"
+      fi
       PS1="${PS1}\n"
 
+      if [[ -n ${__USE_MONSTER_PROMPT} ]]; then
+          PS1="${PS1}$(__prompt_cpu)"
+      fi
       #MJL20170205 screen: #
       PS1="${PS1}$(__prompt_screen)"
       #MJL20170207 turn on the command history trace if wanted
@@ -255,7 +345,9 @@ function __prompt_command() {
       PS1="${PS1}$(__prompt_conda)"
       # exit code: 127
       PS1="${PS1}$(__prompt_exitcode "${EXIT_CODE}")"
-      PS1="${PS1}\$ "
+      # emoji
+      PS1="${PS1}$(__prompt_emoji)"
+      PS1="${PS1}$(__prompt_ending)"
   fi
 }
 

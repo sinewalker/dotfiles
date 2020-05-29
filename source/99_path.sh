@@ -23,10 +23,16 @@ Call for side-effects, no parameters taken.'
 }
 alias path_dedupe=dedupe_path
 
+dedupe_path
+
+# MJL20190514 I want these entries in specific places on the PATH
+path_remove ~/bin
+path_remove ~/Work/bin
+path_remove .
+
 path_add ~/bin PREPEND
 path_add ~/Work/bin
 path_add .
 
-dedupe_path
 export PATH
 alias path='echo ${PATH}'

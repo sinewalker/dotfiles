@@ -4,9 +4,7 @@ is_osx || return 1
 # Exit if Homebrew is not installed.
 [[ ! "$(type -P brew)" ]] && e_error "Brew casks need Homebrew to install." && return 1
 
-# Ensure the cask keg and recipe are installed.
-KEGS=(caskroom/cask)
-brew_tap_kegs
+
 
 
 # Install Brew command for updating casks
@@ -22,27 +20,18 @@ CASKS=(
     aerial
     anaconda
     android-file-transfer
-    clementine
-    etcher
     flux
     gpg-suite
     hammerspoon
     iterm2
-    karabiner
-    keepassx
     keybase
-    netbeans
-    netbeans-java-se
     osxfuse
-    spotify
-    vagrant
-    virtualbox
-    visual-studio-code
+    rectangle
+#    spotify
+#    vagrant
+#    virtualbox
+#    visual-studio-code
     vlc
-    xquartz
-    # Quick Look plugins
-    suspicious-package
-    webpquicklook
 #    wireshark-chmodbpf
 
 )
@@ -54,6 +43,4 @@ if (( ${#CASKS[@]} > 0 )); then
   for CASK in "${CASKS[@]}"; do
     brew cask install ${CASK}
   done
-  brew cask cleanup
 fi
-
