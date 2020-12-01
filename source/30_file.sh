@@ -13,20 +13,6 @@ function is_mortal(){
         return 1
     fi
 }
-# By default, we want umask to get set. This sets it for non-login shell.
-
-if is_mortal; then
-      # Mortal users - Files will be created with these permissions:
-      # files 664 -rw-rw-r-- (0666 minus 0027)
-      # dirs 775 drwxr-x--- (0777 minus 0027)
-       umask 0027
-else
-      # System users - Files will be created with these permissions:
-      # files 644 -rw-r--r-- (666 minus 022)
-      # dirs 755 drwxr-xr-x (777 minus 022)
-       umask 0022
-fi
-
 
 
 # Always use color output for `ls`
