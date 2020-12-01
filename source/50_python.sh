@@ -257,5 +257,7 @@ sucuri() {
 
 ## PYENV
 
-is_exe pyenv && export PYENV_ROOT=${LIB}/python/pyenv
+export PYENV_ROOT=${LIB}/python/pyenv
+path_add ${PYENV_ROOT}/bin
 is_exe pyenv && eval "$(pyenv init -)"
+is_exe pyenv && eval "$(pyenv virtualenv-init -)"
