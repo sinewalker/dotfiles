@@ -22,6 +22,7 @@ RECIPES=(
   dos2unix
   git
   git-extras
+  git-lfs
   htop
   hub
   id3tool
@@ -46,8 +47,10 @@ RECIPES=(
   flac
   fortune
   gawk
+  git
   gnu-sed
   goaccess
+  gpg
   grep
 #  guile
   htop
@@ -67,7 +70,7 @@ RECIPES=(
   midnight-commander
 #  node
   opencore-amr
-  openssl
+#  openssl
   pass
   pcre
   proctools
@@ -76,6 +79,7 @@ RECIPES=(
 #  python
 #  python3
   qcachegrind
+  readline
   screenfetch
   socat
   sqlite
@@ -85,10 +89,12 @@ RECIPES=(
   tmux
   vorbis-tools
   watch
+  wtf
   wget
   wireshark
   xz
   youtube-dl
+  zlib
 
 # former specials:
   ffmpeg

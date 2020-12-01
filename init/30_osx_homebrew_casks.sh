@@ -29,7 +29,7 @@ CASKS=(
     rectangle
 #    spotify
 #    vagrant
-#    virtualbox
+    virtualbox
 #    visual-studio-code
     vlc
 #    wireshark-chmodbpf
