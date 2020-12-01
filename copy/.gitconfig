@@ -63,7 +63,6 @@
 [core]
   autocrlf = input
   safecrlf = true
-  whitespace = fix,space-before-tab,tab-in-indent,trailing-space
   excludesfile = ~/.gitignore_global
 [apply]
   whitespace = fix
