@@ -10,6 +10,9 @@ PATH="/usr/local/opt/openssl/bin:${PATH}"
 PATH="/usr/local/opt/grep/libexec/gnubin:${PATH}"
 export PATH
 
+#Find the SDK and add it to the CPATH for compiling, see https://github.com/python-pillow/Pillow/issues/3438#issuecomment-543812237
+export CPATH=$(xcrun --show-sdk-path)/usr/include
+
 #MJL20190226 Fix osX fork() behaviour to work with Python again
 # see https://github.com/ansible/ansible/issues/31869#issuecomment-337769174
 export OBJC_DISABLE_INITIALIZE_FORK_SAFETY=YES
@@ -28,6 +31,18 @@ alias ss="open /System/Library/Frameworks/ScreenSaver.framework/Versions/A/Resou
 alias gdfs='cpulimit -l 2 -p $(pgrep -f "crash_handler_token=")&'
 #MJL20191012 - another one: Apple's ReportCrash help runs a lot after Catalina
 alias nocrash='cpulimit -l 1 -p $(pgrep -f "ReportCrash")&'
+
+#MJL20200911 Brew library compilation caveats
+
+export PKG_CONFIG_PATH="/usr/local/opt/postgresql@11/lib/pkgconfig"
+export PKG_CONFIG_PATH="/usr/local/opt/icu4c/lib/pkgconfig":{$PKG_CONFIG_PATH}
+export LD_LIBRARY_PATH="/usr/local/opt/postgresql@11/lib":{$LD_LIBRARY_PATH}
+export LD_LIBRARY_PATH="/usr/local/opt/libiconv/lib":{$LD_LIBRARY_PATH}
+export LD_LIBRARY_PATH="/usr/local/opt/sqlite/lib":{$LD_LIBRARY_PATH}
+export CPP_INCLUDE_PATH="/usr/local/opt/postgresql@11/include"
+export CPP_INCLUDE_PATH="/usr/local/opt/libiconv/include":{$CPP_INCLUDE_PATH}
+export CPP_INCLUDE_PATH="/usr/local/opt/sqlite/include":{$CPP_INCLUDE_PATH}
+
 
 # Create a new Parallels VM from template, replacing the existing one.
 #function vm_template() {
