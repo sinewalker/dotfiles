@@ -2,6 +2,12 @@
 
 Linux and macOS dotfiles. Forked from [Cowboy's dotfiles](https://github.com/cowboy/dotfiles), by way of [ASharpe's dotfiles](https://github.com/asharpe/dotfiles). A more detailed background is in [HISTORY][HISTORY].
 
+---
+
+Note: This project is currently [Mastered at GitHub](https://github.com/sinewalker/dotfiles) and [Pulled to GitLab](https://gitlab.com/milohax/dotfiles)
+
+---
+
 [HISTORY]: HISTORY.md
 
 
